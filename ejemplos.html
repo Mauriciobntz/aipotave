@@ -1,0 +1,3550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Restaurante</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js">
+    <style>
+        .card-counter {
+            box-shadow: 2px 2px 10px #DADADA;
+            margin: 5px;
+            padding: 20px 10px;
+            border-radius: 5px;
+            transition: .3s linear all;
+        }
+        .card-counter.primary {
+            background-color: #007bff;
+            color: #FFF;
+        }
+        .card-counter.danger {
+            background-color: #ef5350;
+            color: #FFF;
+        }  
+        .card-counter.success {
+            background-color: #66bb6a;
+            color: #FFF;
+        }  
+        .card-counter.info {
+            background-color: #26c6da;
+            color: #FFF;
+        }  
+        .card-counter i {
+            font-size: 5em;
+            opacity: 0.2;
+        }
+        .card-counter .count-numbers {
+            position: absolute;
+            right: 35px;
+            top: 20px;
+            font-size: 32px;
+            display: block;
+        }
+        .card-counter .count-name {
+            position: absolute;
+            right: 35px;
+            top: 65px;
+            font-style: italic;
+            text-transform: capitalize;
+            opacity: 0.5;
+            display: block;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row mt-3">
+            <div class="col-md-3">
+                <div class="card-counter primary">
+                    <i class="fa fa-cart-plus"></i>
+                    <span class="count-numbers">$24,520</span>
+                    <span class="count-name">Ventas Hoy</span>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card-counter danger">
+                    <i class="fa fa-shopping-basket"></i>
+                    <span class="count-numbers">$8,320</span>
+                    <span class="count-name">Gastos Hoy</span>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card-counter success">
+                    <i class="fa fa-money-bill-wave"></i>
+                    <span class="count-numbers">$16,200</span>
+                    <span class="count-name">Utilidad Hoy</span>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card-counter info">
+                    <i class="fa fa-users"></i>
+                    <span class="count-numbers">42</span>
+                    <span class="count-name">Pedidos Hoy</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Ventas por Canal</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="salesChannelChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Productos más Vendidos</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="topProductsChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Últimos Pedidos</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente</th>
+                                    <th>Total</th>
+                                    <th>Canal</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#1254</td>
+                                    <td>Juan Pérez</td>
+                                    <td>$2,450</td>
+                                    <td><span class="badge bg-primary">Web</span></td>
+                                    <td><span class="badge bg-success">Entregado</span></td>
+                                    <td><button class="btn btn-sm btn-info">Ver</button></td>
+                                </tr>
+                                <tr>
+                                    <td>#1253</td>
+                                    <td>Mesa 5</td>
+                                    <td>$1,850</td>
+                                    <td><span class="badge bg-secondary">Presencial</span></td>
+                                    <td><span class="badge bg-warning">En Cocina</span></td>
+                                    <td><button class="btn btn-sm btn-info">Ver</button></td>
+                                </tr>
+                                <tr>
+                                    <td>#1252</td>
+                                    <td>María Gómez</td>
+                                    <td>$3,200</td>
+                                    <td><span class="badge bg-primary">Web</span></td>
+                                    <td><span class="badge bg-danger">Cancelado</span></td>
+                                    <td><button class="btn btn-sm btn-info">Ver</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Gráfico de ventas por canal
+        const salesChannelCtx = document.getElementById('salesChannelChart').getContext('2d');
+        const salesChannelChart = new Chart(salesChannelCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Web', 'Presencial', 'Delivery'],
+                datasets: [{
+                    data: [45, 30, 25],
+                    backgroundColor: [
+                        '#007bff',
+                        '#6c757d',
+                        '#28a745'
+                    ]
+                }]
+            }
+        });
+
+        // Gráfico de productos más vendidos
+        const topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
+        const topProductsChart = new Chart(topProductsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Pizza Margarita', 'Hamburguesa Clásica', 'Pasta Alfredo', 'Ensalada César', 'Refresco'],
+                datasets: [{
+                    label: 'Ventas',
+                    data: [65, 59, 80, 81, 56],
+                    backgroundColor: '#17a2b8'
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Pedidos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .order-card {
+            border-left: 4px solid;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        .order-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .order-card.pending {
+            border-left-color: #ffc107;
+        }
+        .order-card.preparing {
+            border-left-color: #fd7e14;
+        }
+        .order-card.delivery {
+            border-left-color: #0d6efd;
+        }
+        .order-card.delivered {
+            border-left-color: #198754;
+        }
+        .order-card.cancelled {
+            border-left-color: #dc3545;
+        }
+        .badge-pending {
+            background-color: #ffc107;
+            color: #000;
+        }
+        .badge-preparing {
+            background-color: #fd7e14;
+            color: #fff;
+        }
+        .badge-delivery {
+            background-color: #0d6efd;
+            color: #fff;
+        }
+        .badge-delivered {
+            background-color: #198754;
+            color: #fff;
+        }
+        .badge-cancelled {
+            background-color: #dc3545;
+            color: #fff;
+        }
+        .product-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid mt-3">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h2>Gestión de Pedidos</h2>
+            </div>
+            <div class="col-md-6 text-end">
+                <button class="btn btn-primary">Nuevo Pedido Presencial</button>
+            </div>
+        </div>
+
+        <ul class="nav nav-tabs" id="ordersTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">Todos</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">Pendientes</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="preparing-tab" data-bs-toggle="tab" data-bs-target="#preparing" type="button" role="tab">En Preparación</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="delivery-tab" data-bs-toggle="tab" data-bs-target="#delivery" type="button" role="tab">En Camino</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="delivered-tab" data-bs-toggle="tab" data-bs-target="#delivered" type="button" role="tab">Entregados</button>
+            </li>
+        </ul>
+
+        <div class="tab-content p-3 border border-top-0 rounded-bottom" id="ordersTabContent">
+            <div class="tab-pane fade show active" id="all" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card order-card pending">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title">Pedido #1256</h5>
+                                    <span class="badge badge-pending">Pendiente</span>
+                                </div>
+                                <p class="card-text mb-1"><strong>Cliente:</strong> Ana López</p>
+                                <p class="card-text mb-1"><strong>Canal:</strong> Web</p>
+                                <p class="card-text mb-1"><strong>Total:</strong> $2,850</p>
+                                <hr>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="text-muted">Hace 15 minutos</small>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-primary">Ver Detalle</button>
+                                        <button class="btn btn-sm btn-success">Aceptar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card order-card preparing">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title">Pedido #1255</h5>
+                                    <span class="badge badge-preparing">En Preparación</span>
+                                </div>
+                                <p class="card-text mb-1"><strong>Cliente:</strong> Mesa 3</p>
+                                <p class="card-text mb-1"><strong>Canal:</strong> Presencial</p>
+                                <p class="card-text mb-1"><strong>Total:</strong> $1,950</p>
+                                <hr>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="text-muted">Hace 35 minutos</small>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-primary">Ver Detalle</button>
+                                        <button class="btn btn-sm btn-warning">Listo para Entrega</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card order-card delivery">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title">Pedido #1254</h5>
+                                    <span class="badge badge-delivery">En Camino</span>
+                                </div>
+                                <p class="card-text mb-1"><strong>Cliente:</strong> Carlos Méndez</p>
+                                <p class="card-text mb-1"><strong>Canal:</strong> Web</p>
+                                <p class="card-text mb-1"><strong>Total:</strong> $3,250</p>
+                                <hr>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="text-muted">Hace 1 hora</small>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-primary">Ver Detalle</button>
+                                        <button class="btn btn-sm btn-success">Marcar como Entregado</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card order-card delivered">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title">Pedido #1253</h5>
+                                    <span class="badge badge-delivered">Entregado</span>
+                                </div>
+                                <p class="card-text mb-1"><strong>Cliente:</strong> Sofía Ramírez</p>
+                                <p class="card-text mb-1"><strong>Canal:</strong> Web</p>
+                                <p class="card-text mb-1"><strong>Total:</strong> $2,150</p>
+                                <hr>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="text-muted">Hace 2 horas</small>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-primary">Ver Detalle</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Otras pestañas (pendientes, en preparación, etc.) tendrían contenido similar -->
+        </div>
+    </div>
+
+    <!-- Modal de Detalle de Pedido -->
+    <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalle del Pedido #1256</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p><strong>Cliente:</strong> Ana López</p>
+                            <p><strong>Teléfono:</strong> 555-1234</p>
+                            <p><strong>Dirección:</strong> Calle Falsa 123, Col. Centro</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Fecha:</strong> 27/07/2025 12:45 PM</p>
+                            <p><strong>Método de Pago:</strong> Tarjeta</p>
+                            <p><strong>Estado:</strong> <span class="badge bg-warning">Pendiente</span></p>
+                        </div>
+                    </div>
+                    
+                    <h6>Productos</h6>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unitario</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://via.placeholder.com/50" class="product-img me-2">
+                                        <span>Pizza Margarita</span>
+                                    </div>
+                                </td>
+                                <td>2</td>
+                                <td>$850</td>
+                                <td>$1,700</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://via.placeholder.com/50" class="product-img me-2">
+                                        <span>Refresco 500ml</span>
+                                    </div>
+                                </td>
+                                <td>3</td>
+                                <td>$250</td>
+                                <td>$750</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Envío:</strong></td>
+                                <td>$400</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                <td>$2,850</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Notas:</strong></label>
+                        <p>Sin cebolla en la pizza, por favor.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary">Imprimir Comprobante</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario y Compras</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .stock-card {
+            border-left: 4px solid;
+            margin-bottom: 15px;
+        }
+        .stock-card.low {
+            border-left-color: #dc3545;
+            background-color: rgba(220, 53, 69, 0.05);
+        }
+        .stock-card.ok {
+            border-left-color: #28a745;
+        }
+        .badge-stock {
+            font-size: 0.9em;
+        }
+        .search-box {
+            position: relative;
+        }
+        .search-box i {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #6c757d;
+        }
+        .search-box input {
+            padding-left: 35px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid mt-3">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h2>Inventario y Compras</h2>
+            </div>
+            <div class="col-md-6 text-end">
+                <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#newProductModal">Nuevo Producto</button>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newPurchaseModal">Nueva Compra</button>
+            </div>
+        </div>
+
+        <ul class="nav nav-tabs" id="inventoryTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#inventory" type="button" role="tab">Inventario</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="purchases-tab" data-bs-toggle="tab" data-bs-target="#purchases" type="button" role="tab">Compras</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="suppliers-tab" data-bs-toggle="tab" data-bs-target="#suppliers" type="button" role="tab">Proveedores</button>
+            </li>
+        </ul>
+
+        <div class="tab-content p-3 border border-top-0 rounded-bottom" id="inventoryTabContent">
+            <div class="tab-pane fade show active" id="inventory" role="tabpanel">
+                <div class="row mb-3">
+                    <div class="col-md-6 search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="form-control" placeholder="Buscar producto...">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check form-switch float-end">
+                            <input class="form-check-input" type="checkbox" id="showLowStock">
+                            <label class="form-check-label" for="showLowStock">Mostrar solo bajo stock</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card stock-card low">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title">Harina 0000</h5>
+                                    <span class="badge bg-danger badge-stock">Bajo Stock</span>
+                                </div>
+                                <p class="card-text mb-1"><strong>Unidad:</strong> kg</p>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: 20%;" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">5/25</div>
+                                </div>
+                                <p class="card-text"><small class="text-muted">Última compra: 25/07/2025</small></p>
+                                <button class="btn btn-sm btn-outline-primary">Ver Historial</button>
+                                <button class="btn btn-sm btn-success">Comprar</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card stock-card ok">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title">Queso Mozzarella</h5>
+                                    <span class="badge bg-success badge-stock">Disponible</span>
+                                </div>
+                                <p class="card-text mb-1"><strong>Unidad:</strong> kg</p>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: 65%;" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100">13/20</div>
+                                </div>
+                                <p class="card-text"><small class="text-muted">Última compra: 26/07/2025</small></p>
+                                <button class="btn btn-sm btn-outline-primary">Ver Historial</button>
+                                <button class="btn btn-sm btn-success">Comprar</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card stock-card ok">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title">Tomate</h5>
+                                    <span class="badge bg-success badge-stock">Disponible</span>
+                                </div>
+                                <p class="card-text mb-1"><strong>Unidad:</strong> kg</p>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: 40%;" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">8/20</div>
+                                </div>
+                                <p class="card-text"><small class="text-muted">Última compra: 24/07/2025</small></p>
+                                <button class="btn btn-sm btn-outline-primary">Ver Historial</button>
+                                <button class="btn btn-sm btn-success">Comprar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-pane fade" id="purchases" role="tabpanel">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Proveedor</th>
+                                <th>Productos</th>
+                                <th>Total</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#1005</td>
+                                <td>26/07/2025</td>
+                                <td>Distribuidora Alimentos S.A.</td>
+                                <td>3 productos</td>
+                                <td>$8,750</td>
+                                <td>
+                                    <button class="btn btn-sm btn-info">Ver</button>
+                                    <button class="btn btn-sm btn-outline-secondary">PDF</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#1004</td>
+                                <td>24/07/2025</td>
+                                <td>Carnicería Don José</td>
+                                <td>5 productos</td>
+                                <td>$12,300</td>
+                                <td>
+                                    <button class="btn btn-sm btn-info">Ver</button>
+                                    <button class="btn btn-sm btn-outline-secondary">PDF</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#1003</td>
+                                <td>20/07/2025</td>
+                                <td>Distribuidora Alimentos S.A.</td>
+                                <td>7 productos</td>
+                                <td>$15,800</td>
+                                <td>
+                                    <button class="btn btn-sm btn-info">Ver</button>
+                                    <button class="btn btn-sm btn-outline-secondary">PDF</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="tab-pane fade" id="suppliers" role="tabpanel">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newSupplierModal">Nuevo Proveedor</button>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Distribuidora Alimentos S.A.</h5>
+                                <p class="card-text">
+                                    <i class="fas fa-user me-2"></i> Juan Pérez<br>
+                                    <i class="fas fa-phone me-2"></i> 555-1234<br>
+                                    <i class="fas fa-envelope me-2"></i> juan@distribuidora.com
+                                </p>
+                                <button class="btn btn-sm btn-outline-primary">Editar</button>
+                                <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Carnicería Don José</h5>
+                                <p class="card-text">
+                                    <i class="fas fa-user me-2"></i> José González<br>
+                                    <i class="fas fa-phone me-2"></i> 555-5678<br>
+                                    <i class="fas fa-envelope me-2"></i> jose@carniceria.com
+                                </p>
+                                <button class="btn btn-sm btn-outline-primary">Editar</button>
+                                <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Bebidas del Norte</h5>
+                                <p class="card-text">
+                                    <i class="fas fa-user me-2"></i> María López<br>
+                                    <i class="fas fa-phone me-2"></i> 555-9012<br>
+                                    <i class="fas fa-envelope me-2"></i> maria@bebidas.com
+                                </p>
+                                <button class="btn btn-sm btn-outline-primary">Editar</button>
+                                <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Producto -->
+    <div class="modal fade" id="newProductModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nuevo Producto de Inventario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control" rows="2"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Unidad de Medida</label>
+                                <select class="form-select">
+                                    <option>kg</option>
+                                    <option>g</option>
+                                    <option>lt</option>
+                                    <option>ml</option>
+                                    <option>unidad</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Stock Mínimo</label>
+                                <input type="number" class="form-control" step="0.001">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Proveedor Principal</label>
+                            <select class="form-select">
+                                <option>Distribuidora Alimentos S.A.</option>
+                                <option>Carnicería Don José</option>
+                                <option>Bebidas del Norte</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary">Guardar Producto</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nueva Compra -->
+    <div class="modal fade" id="newPurchaseModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nueva Compra</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Proveedor</label>
+                                <select class="form-select">
+                                    <option>Distribuidora Alimentos S.A.</option>
+                                    <option>Carnicería Don José</option>
+                                    <option>Bebidas del Norte</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha</label>
+                                <input type="date" class="form-control">
+                            </div>
+                        </div>
+                        
+                        <h6>Productos</h6>
+                        <div class="table-responsive mb-3">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio Unitario</th>
+                                        <th>Subtotal</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <select class="form-select">
+                                                <option>Harina 0000</option>
+                                                <option>Queso Mozzarella</option>
+                                                <option>Tomate</option>
+                                            </select>
+                                        </td>
+                                        <td><input type="number" class="form-control" step="0.001" value="10"></td>
+                                        <td><input type="number" class="form-control" step="0.01" value="1200"></td>
+                                        <td>$12,000</td>
+                                        <td><button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <select class="form-select">
+                                                <option>Harina 0000</option>
+                                                <option selected>Queso Mozzarella</option>
+                                                <option>Tomate</option>
+                                            </select>
+                                        </td>
+                                        <td><input type="number" class="form-control" step="0.001" value="5"></td>
+                                        <td><input type="number" class="form-control" step="0.01" value="2500"></td>
+                                        <td>$12,500</td>
+                                        <td><button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                        <td>$24,500</td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        
+                        <button class="btn btn-sm btn-outline-primary">+ Agregar Producto</button>
+                        
+                        <div class="mt-3">
+                            <label class="form-label">Notas</label>
+                            <textarea class="form-control" rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary">Registrar Compra</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Proveedor -->
+    <div class="modal fade" id="newSupplierModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nuevo Proveedor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contacto</label>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Dirección</label>
+                            <textarea class="form-control" rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary">Guardar Proveedor</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Menú</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .category-card {
+            border-left: 4px solid #0d6efd;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        .category-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .product-img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .tag-vegetariano {
+            background-color: #28a745;
+            color: white;
+        }
+        .tag-vegano {
+            background-color: #20c997;
+            color: white;
+        }
+        .tag-picante {
+            background-color: #dc3545;
+            color: white;
+        }
+        .tag-gluten {
+            background-color: #ffc107;
+            color: black;
+        }
+        .sortable-handle {
+            cursor: move;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid mt-3">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h2>Gestión de Menú</h2>
+            </div>
+            <div class="col-md-6 text-end">
+                <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#newCategoryModal">Nueva Categoría</button>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newProductModal">Nuevo Producto</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card category-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Pizzas</h5>
+                            <div>
+                                <button class="btn btn-sm btn-outline-primary">Editar</button>
+                                <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                            </div>
+                        </div>
+                        <p class="card-text mt-2"><small class="text-muted">Pizzas artesanales con ingredientes frescos</small></p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary">Orden: 1</span>
+                            <span class="badge bg-success">5 productos</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card category-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Hamburguesas</h5>
+                            <div>
+                                <button class="btn btn-sm btn-outline-primary">Editar</button>
+                                <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                            </div>
+                        </div>
+                        <p class="card-text mt-2"><small class="text-muted">Hamburguesas gourmet con carne premium</small></p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary">Orden: 2</span>
+                            <span class="badge bg-success">3 productos</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card category-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Bebidas</h5>
+                            <div>
+                                <button class="btn btn-sm btn-outline-primary">Editar</button>
+                                <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                            </div>
+                        </div>
+                        <p class="card-text mt-2"><small class="text-muted">Bebidas gaseosas, jugos y cervezas</small></p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary">Orden: 3</span>
+                            <span class="badge bg-success">8 productos</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Productos</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px;"></th>
+                                        <th>Producto</th>
+                                        <th>Categoría</th>
+                                        <th>Precio</th>
+                                        <th>Costo</th>
+                                        <th>Disponible</th>
+                                        <th>Etiquetas</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="sortable-handle"><i class="fas fa-grip-vertical"></i></td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://via.placeholder.com/80" class="product-img me-3">
+                                                <div>
+                                                    <h6 class="mb-0">Pizza Margarita</h6>
+                                                    <small class="text-muted">Pizza con salsa de tomate, mozzarella y albahaca</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>Pizzas</td>
+                                        <td>$2,500</td>
+                                        <td>$1,200</td>
+                                        <td><span class="badge bg-success">Sí</span></td>
+                                        <td>
+                                            <span class="tag tag-vegetariano">Vegetariano</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">Editar</button>
+                                            <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="sortable-handle"><i class="fas fa-grip-vertical"></i></td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://via.placeholder.com/80" class="product-img me-3">
+                                                <div>
+                                                    <h6 class="mb-0">Hamburguesa Clásica</h6>
+                                                    <small class="text-muted">Hamburguesa con carne, lechuga, tomate y queso</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>Hamburguesas</td>
+                                        <td>$1,800</td>
+                                        <td>$900</td>
+                                        <td><span class="badge bg-success">Sí</span></td>
+                                        <td>
+                                            <span class="tag tag-picante">Picante</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">Editar</button>
+                                            <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="sortable-handle"><i class="fas fa-grip-vertical"></i></td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://via.placeholder.com/80" class="product-img me-3">
+                                                <div>
+                                                    <h6 class="mb-0">Ensalada César</h6>
+                                                    <small class="text-muted">Lechuga romana, croutons, parmesano y aderezo</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>Ensaladas</td>
+                                        <td>$1,500</td>
+                                        <td>$600</td>
+                                        <td><span class="badge bg-success">Sí</span></td>
+                                        <td>
+                                            <span class="tag tag-vegetariano">Vegetariano</span>
+                                            <span class="tag tag-gluten">Sin gluten</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">Editar</button>
+                                            <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nueva Categoría -->
+    <div class="modal fade" id="newCategoryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nueva Categoría</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Orden de aparición</label>
+                            <input type="number" class="form-control" min="1" value="1">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Imagen (opcional)</label>
+                            <input type="file" class="form-control">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary">Guardar Categoría</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Producto -->
+    <div class="modal fade" id="newProductModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nuevo Producto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nombre</label>
+                                <input type="text" class="form-control">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Categoría</label>
+                                <select class="form-select">
+                                    <option>Pizzas</option>
+                                    <option>Hamburguesas</option>
+                                    <option>Bebidas</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Precio</label>
+                                <input type="number" class="form-control" step="0.01">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Costo estimado</label>
+                                <input type="number" class="form-control" step="0.01">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Tiempo preparación (min)</label>
+                                <input type="number" class="form-control">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Imagen</label>
+                            <input type="file" class="form-control">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Disponibilidad</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="availableCheck" checked>
+                                <label class="form-check-label" for="availableCheck">Disponible</label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Etiquetas</label>
+                            <div class="d-flex flex-wrap">
+                                <div class="form-check me-3">
+                                    <input class="form-check-input" type="checkbox" id="vegetarianCheck">
+                                    <label class="form-check-label" for="vegetarianCheck">Vegetariano</label>
+                                </div>
+                                <div class="form-check me-3">
+                                    <input class="form-check-input" type="checkbox" id="veganCheck">
+                                    <label class="form-check-label" for="veganCheck">Vegano</label>
+                                </div>
+                                <div class="form-check me-3">
+                                    <input class="form-check-input" type="checkbox" id="glutenFreeCheck">
+                                    <label class="form-check-label" for="glutenFreeCheck">Sin gluten</label>
+                                </div>
+                                <div class="form-check me-3">
+                                    <input class="form-check-input" type="checkbox" id="spicyCheck">
+                                    <label class="form-check-label" for="spicyCheck">Picante</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Ingredientes (para receta)</label>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Insumo</th>
+                                            <th>Cantidad</th>
+                                            <th>Unidad</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <select class="form-select">
+                                                    <option>Harina 0000</option>
+                                                    <option>Queso Mozzarella</option>
+                                                    <option>Tomate</option>
+                                                </select>
+                                            </td>
+                                            <td><input type="number" class="form-control" step="0.001" value="0.300"></td>
+                                            <td>kg</td>
+                                            <td><button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary">+ Agregar Ingrediente</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary">Guardar Producto</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punto de Venta</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .pos-container {
+            display: flex;
+            height: 100vh;
+        }
+        .products-sidebar {
+            width: 70%;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+        }
+        .order-sidebar {
+            width: 30%;
+            padding: 15px;
+            border-left: 1px solid #dee2e6;
+            display: flex;
+            flex-direction: column;
+        }
+        .category-btn {
+            margin: 5px;
+            white-space: nowrap;
+        }
+        .product-card {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .product-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .product-img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+        .order-item {
+            border-bottom: 1px solid #eee;
+            padding: 8px 0;
+        }
+        .scroll-area {
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        .payment-method {
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .payment-method.active {
+            border-color: #0d6efd;
+        }
+        .payment-method:hover {
+            background-color: #f8f9fa;
+        }
+        .table-number {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 5px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .table-number.active {
+            border-color: #0d6efd;
+            background-color: #e7f1ff;
+        }
+        .table-number.occupied {
+            background-color: #f8d7da;
+        }
+    </style>
+</head>
+<body>
+    <div class="pos-container">
+        <div class="products-sidebar">
+            <div class="d-flex mb-3 overflow-auto">
+                <button class="btn btn-outline-primary category-btn active">Todos</button>
+                <button class="btn btn-outline-primary category-btn">Pizzas</button>
+                <button class="btn btn-outline-primary category-btn">Hamburguesas</button>
+                <button class="btn btn-outline-primary category-btn">Bebidas</button>
+                <button class="btn btn-outline-primary category-btn">Postres</button>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <div class="card product-card">
+                        <img src="https://via.placeholder.com/300x200?text=Pizza+Margarita" class="card-img-top product-img">
+                        <div class="card-body">
+                            <h6 class="card-title">Pizza Margarita</h6>
+                            <p class="card-text text-success">$2,500</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 mb-4">
+                    <div class="card product-card">
+                        <img src="https://via.placeholder.com/300x200?text=Pizza+Pepperoni" class="card-img-top product-img">
+                        <div class="card-body">
+                            <h6 class="card-title">Pizza Pepperoni</h6>
+                            <p class="card-text text-success">$2,800</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 mb-4">
+                    <div class="card product-card">
+                        <img src="https://via.placeholder.com/300x200?text=Hamburguesa+Clásica" class="card-img-top product-img">
+                        <div class="card-body">
+                            <h6 class="card-title">Hamburguesa Clásica</h6>
+                            <p class="card-text text-success">$1,800</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 mb-4">
+                    <div class="card product-card">
+                        <img src="https://via.placeholder.com/300x200?text=Coca+Cola" class="card-img-top product-img">
+                        <div class="card-body">
+                            <h6 class="card-title">Coca Cola 500ml</h6>
+                            <p class="card-text text-success">$500</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 mb-4">
+                    <div class="card product-card">
+                        <img src="https://via.placeholder.com/300x200?text=Ensalada+César" class="card-img-top product-img">
+                        <div class="card-body">
+                            <h6 class="card-title">Ensalada César</h6>
+                            <p class="card-text text-success">$1,500</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 mb-4">
+                    <div class="card product-card">
+                        <img src="https://via.placeholder.com/300x200?text=Agua+Mineral" class="card-img-top product-img">
+                        <div class="card-body">
+                            <h6 class="card-title">Agua Mineral</h6>
+                            <p class="card-text text-success">$300</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="order-sidebar">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">Orden</h4>
+                <div>
+                    <button class="btn btn-sm btn-outline-secondary">Nueva</button>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Mesa/Cliente</label>
+                <div class="d-flex flex-wrap">
+                    <div class="table-number">1</div>
+                    <div class="table-number active">2</div>
+                    <div class="table-number occupied">3</div>
+                    <div class="table-number">4</div>
+                    <div class="table-number">5</div>
+                    <div class="table-number occupied">6</div>
+                    <div class="table-number">7</div>
+                    <div class="table-number">8</div>
+                </div>
+                <input type="text" class="form-control mt-2" placeholder="Nombre del cliente (opcional)">
+            </div>
+            
+            <div class="scroll-area mb-3">
+                <div class="order-item">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <strong>Pizza Margarita</strong>
+                            <p class="mb-0"><small>Sin cebolla, extra queso</small></p>
+                        </div>
+                        <div class="text-end">
+                            <div>$2,500</div>
+                            <div class="input-group input-group-sm" style="width: 100px;">
+                                <button class="btn btn-outline-secondary">-</button>
+                                <input type="text" class="form-control text-center" value="1">
+                                <button class="btn btn-outline-secondary">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="order-item">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <strong>Coca Cola 500ml</strong>
+                        </div>
+                        <div class="text-end">
+                            <div>$500</div>
+                            <div class="input-group input-group-sm" style="width: 100px;">
+                                <button class="btn btn-outline-secondary">-</button>
+                                <input type="text" class="form-control text-center" value="2">
+                                <button class="btn btn-outline-secondary">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="order-item">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <strong>Ensalada César</strong>
+                            <p class="mb-0"><small>Sin croutons</small></p>
+                        </div>
+                        <div class="text-end">
+                            <div>$1,500</div>
+                            <div class="input-group input-group-sm" style="width: 100px;">
+                                <button class="btn btn-outline-secondary">-</button>
+                                <input type="text" class="form-control text-center" value="1">
+                                <button class="btn btn-outline-secondary">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Notas</label>
+                <textarea class="form-control" rows="2" placeholder="Alergias, instrucciones especiales..."></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Método de Pago</label>
+                <div class="row">
+                    <div class="col-6 mb-2">
+                        <div class="payment-method p-2 text-center active">
+                            <i class="fas fa-money-bill-wave fa-2x mb-2"></i>
+                            <p class="mb-0">Efectivo</p>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <div class="payment-method p-2 text-center">
+                            <i class="fas fa-credit-card fa-2x mb-2"></i>
+                            <p class="mb-0">Tarjeta</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <div class="d-flex justify-content-between">
+                    <strong>Subtotal:</strong>
+                    <span>$4,500</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <strong>IVA (10%):</strong>
+                    <span>$450</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <strong>Total:</strong>
+                    <span class="text-success">$4,950</span>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2">
+                <button class="btn btn-primary btn-lg">Cobrar</button>
+                <button class="btn btn-outline-secondary">Guardar como Borrador</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Personalización de Producto -->
+    <div class="modal fade" id="customizeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Personalizar Pizza Margarita</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tamaño</label>
+                        <select class="form-select">
+                            <option>Individual ($2,500)</option>
+                            <option>Mediana ($3,500)</option>
+                            <option>Familiar ($4,500)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Ingredientes Extra</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="extraCheese">
+                            <label class="form-check-label" for="extraCheese">Queso Extra (+$300)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="extraPepperoni">
+                            <label class="form-check-label" for="extraPepperoni">Pepperoni Extra (+$400)</label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Eliminar Ingredientes</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="noOnion">
+                            <label class="form-check-label" for="noOnion">Sin Cebolla</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="noGarlic">
+                            <label class="form-check-label" for="noGarlic">Sin Ajo</label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Notas Especiales</label>
+                        <textarea class="form-control" rows="2" placeholder="Ej: Corte en 8 porciones"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary">Agregar al Pedido</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Pago en Efectivo -->
+    <div class="modal fade" id="cashPaymentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Pago en Efectivo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Total a Pagar</label>
+                        <input type="text" class="form-control" value="$4,950" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Recibido</label>
+                        <input type="number" class="form-control" placeholder="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Cambio</label>
+                        <input type="text" class="form-control" value="$50" readonly>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary">Confirmar Pago</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <br>
+</body>
+</html>
+
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes Financieros</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js">
+    <style>
+        .report-card {
+            border-left: 4px solid;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        .report-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .report-card.income {
+            border-left-color: #28a745;
+        }
+        .report-card.expense {
+            border-left-color: #dc3545;
+        }
+        .report-card.net {
+            border-left-color: #007bff;
+        }
+        .filter-box {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .table-responsive {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid mt-3">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h2>Reportes Financieros</h2>
+            </div>
+            <div class="col-md-6 text-end">
+                <button class="btn btn-primary">Exportar a Excel</button>
+                <button class="btn btn-secondary ms-2">Imprimir</button>
+            </div>
+        </div>
+
+        <div class="filter-box">
+            <form>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="form-label">Fecha Desde</label>
+                        <input type="date" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Fecha Hasta</label>
+                        <input type="date" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Tipo de Reporte</label>
+                        <select class="form-select">
+                            <option>Resumen General</option>
+                            <option>Ventas por Producto</option>
+                            <option>Gastos por Categoría</option>
+                            <option>Comparativo Mensual</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button class="btn btn-primary w-100">Generar Reporte</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card report-card income">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Ingresos</h5>
+                                <p class="card-text"><small class="text-muted">Julio 2025</small></p>
+                            </div>
+                            <div class="text-end">
+                                <h3 class="text-success">$245,800</h3>
+                                <span class="badge bg-success">+12% vs junio</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card report-card expense">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Egresos</h5>
+                                <p class="card-text"><small class="text-muted">Julio 2025</small></p>
+                            </div>
+                            <div class="text-end">
+                                <h3 class="text-danger">$187,500</h3>
+                                <span class="badge bg-danger">+8% vs junio</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card report-card net">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Utilidad Neta</h5>
+                                <p class="card-text"><small class="text-muted">Julio 2025</small></p>
+                            </div>
+                            <div class="text-end">
+                                <h3 class="text-primary">$58,300</h3>
+                                <span class="badge bg-primary">+18% vs junio</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Ventas Mensuales</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="monthlySalesChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Distribución de Ventas</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="salesDistributionChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Top 5 Productos</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="topProductsChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Gastos por Categoría</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="expensesChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Detalle de Movimientos</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Descripción</th>
+                                        <th>Categoría</th>
+                                        <th>Canal</th>
+                                        <th>Monto</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>27/07/2025</td>
+                                        <td><span class="badge bg-success">Ingreso</span></td>
+                                        <td>Pedido Web #1256</td>
+                                        <td>Ventas</td>
+                                        <td>Web</td>
+                                        <td class="text-success">$2,850</td>
+                                    </tr>
+                                    <tr>
+                                        <td>27/07/2025</td>
+                                        <td><span class="badge bg-danger">Egreso</span></td>
+                                        <td>Compra de insumos</td>
+                                        <td>Compras</td>
+                                        <td>Proveedor</td>
+                                        <td class="text-danger">$8,750</td>
+                                    </tr>
+                                    <tr>
+                                        <td>26/07/2025</td>
+                                        <td><span class="badge bg-success">Ingreso</span></td>
+                                        <td>Pedido Presencial #1255</td>
+                                        <td>Ventas</td>
+                                        <td>Presencial</td>
+                                        <td class="text-success">$1,950</td>
+                                    </tr>
+                                    <tr>
+                                        <td>26/07/2025</td>
+                                        <td><span class="badge bg-danger">Egreso</span></td>
+                                        <td>Pago de servicios</td>
+                                        <td>Servicios</td>
+                                        <td>Servicios</td>
+                                        <td class="text-danger">$3,200</td>
+                                    </tr>
+                                    <tr>
+                                        <td>25/07/2025</td>
+                                        <td><span class="badge bg-success">Ingreso</span></td>
+                                        <td>Pedido Web #1254</td>
+                                        <td>Ventas</td>
+                                        <td>Web</td>
+                                        <td class="text-success">$3,250</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Gráfico de ventas mensuales
+        const monthlySalesCtx = document.getElementById('monthlySalesChart').getContext('2d');
+        const monthlySalesChart = new Chart(monthlySalesCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'],
+                datasets: [{
+                    label: 'Ventas',
+                    data: [185000, 195000, 210000, 205000, 220000, 235000, 245800],
+                    backgroundColor: '#28a745'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Gráfico de distribución de ventas
+        const salesDistributionCtx = document.getElementById('salesDistributionChart').getContext('2d');
+        const salesDistributionChart = new Chart(salesDistributionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Web', 'Presencial', 'Delivery'],
+                datasets: [{
+                    data: [45, 35, 20],
+                    backgroundColor: [
+                        '#007bff',
+                        '#6c757d',
+                        '#17a2b8'
+                    ]
+                }]
+            }
+        });
+
+        // Gráfico de top productos
+        const topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
+        const topProductsChart = new Chart(topProductsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Pizza Margarita', 'Hamburguesa Clásica', 'Pasta Alfredo', 'Ensalada César', 'Refresco'],
+                datasets: [{
+                    label: 'Ventas',
+                    data: [65, 59, 42, 38, 56],
+                    backgroundColor: '#17a2b8'
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Gráfico de gastos
+        const expensesCtx = document.getElementById('expensesChart').getContext('2d');
+        const expensesChart = new Chart(expensesCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Insumos', 'Servicios', 'Nómina', 'Alquiler', 'Otros'],
+                datasets: [{
+                    data: [45, 20, 25, 5, 5],
+                    backgroundColor: [
+                        '#dc3545',
+                        '#fd7e14',
+                        '#ffc107',
+                        '#6c757d',
+                        '#343a40'
+                    ]
+                }]
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seguimiento de Repartidores</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+            border-radius: 8px;
+        }
+        .delivery-card {
+            border-left: 4px solid;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        .delivery-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .delivery-card.assigned {
+            border-left-color: #0d6efd;
+        }
+        .delivery-card.delivering {
+            border-left-color: #ffc107;
+        }
+        .delivery-card.delivered {
+            border-left-color: #28a745;
+        }
+        .delivery-card.cancelled {
+            border-left-color: #dc3545;
+        }
+        .driver-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .status-online {
+            background-color: #28a745;
+        }
+        .status-offline {
+            background-color: #6c757d;
+        }
+        .status-busy {
+            background-color: #ffc107;
+        }
+        .order-badge {
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid mt-3">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h2>Seguimiento de Repartidores</h2>
+            </div>
+            <div class="col-md-6 text-end">
+                <button class="btn btn-primary">Actualizar</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Repartidores</h5>
+                    </div>
+                    <div class="card-body" style="max-height: 600px; overflow-y: auto;">
+                        <div class="delivery-card assigned">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="card-title mb-1">
+                                            <span class="driver-status status-online"></span>
+                                            Juan Pérez
+                                        </h5>
+                                        <p class="card-text mb-1"><small class="text-muted">Pedido #1256</small></p>
+                                        <span class="badge bg-primary order-badge">Asignado</span>
+                                    </div>
+                                    <div class="text-end">
+                                        <p class="card-text mb-1"><small>Hace 15 min</small></p>
+                                        <button class="btn btn-sm btn-outline-primary">Ver</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="delivery-card delivering">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="card-title mb-1">
+                                            <span class="driver-status status-busy"></span>
+                                            María Gómez
+                                        </h5>
+                                        <p class="card-text mb-1"><small class="text-muted">Pedido #1255</small></p>
+                                        <span class="badge bg-warning order-badge">En Camino</span>
+                                    </div>
+                                    <div class="text-end">
+                                        <p class="card-text mb-1"><small>Hace 25 min</small></p>
+                                        <button class="btn btn-sm btn-outline-primary">Ver</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="delivery-card delivered">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="card-title mb-1">
+                                            <span class="driver-status status-online"></span>
+                                            Carlos Rodríguez
+                                        </h5>
+                                        <p class="card-text mb-1"><small class="text-muted">Pedido #1254</small></p>
+                                        <span class="badge bg-success order-badge">Entregado</span>
+                                    </div>
+                                    <div class="text-end">
+                                        <p class="card-text mb-1"><small>Hace 1 hora</small></p>
+                                        <button class="btn btn-sm btn-outline-primary">Ver</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="delivery-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="card-title mb-1">
+                                            <span class="driver-status status-online"></span>
+                                            Ana López
+                                        </h5>
+                                        <p class="card-text mb-1"><small class="text-muted">Disponible</small></p>
+                                        <span class="badge bg-secondary order-badge">Sin asignar</span>
+                                    </div>
+                                    <div class="text-end">
+                                        <button class="btn btn-sm btn-outline-primary">Asignar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="delivery-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="card-title mb-1">
+                                            <span class="driver-status status-offline"></span>
+                                            Pedro Sánchez
+                                        </h5>
+                                        <p class="card-text mb-1"><small class="text-muted">No disponible</small></p>
+                                        <span class="badge bg-secondary order-badge">Offline</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Mapa de Seguimiento</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="map"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Historial de Entregas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Pedido</th>
+                                        <th>Repartidor</th>
+                                        <th>Cliente</th>
+                                        <th>Hora Asignación</th>
+                                        <th>Hora Entrega</th>
+                                        <th>Tiempo</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>#1256</td>
+                                        <td>Juan Pérez</td>
+                                        <td>Carlos Méndez</td>
+                                        <td>12:45 PM</td>
+                                        <td>--</td>
+                                        <td>--</td>
+                                        <td><span class="badge bg-primary">Asignado</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>#1255</td>
+                                        <td>María Gómez</td>
+                                        <td>Laura Fernández</td>
+                                        <td>12:20 PM</td>
+                                        <td>--</td>
+                                        <td>--</td>
+                                        <td><span class="badge bg-warning">En Camino</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>#1254</td>
+                                        <td>Carlos Rodríguez</td>
+                                        <td>Sofía Ramírez</td>
+                                        <td>11:30 AM</td>
+                                        <td>12:15 PM</td>
+                                        <td>45 min</td>
+                                        <td><span class="badge bg-success">Entregado</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>#1253</td>
+                                        <td>Ana López</td>
+                                        <td>Pedro Gutiérrez</td>
+                                        <td>10:45 AM</td>
+                                        <td>11:25 AM</td>
+                                        <td>40 min</td>
+                                        <td><span class="badge bg-success">Entregado</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Asignar Pedido -->
+    <div class="modal fade" id="assignOrderModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Asignar Pedido a Repartidor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label class="form-label">Pedido</label>
+                            <select class="form-select">
+                                <option>#1256 - Carlos Méndez ($2,850)</option>
+                                <option>#1257 - Marta Suárez ($1,950)</option>
+                                <option>#1258 - Luis Torres ($3,200)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Repartidor</label>
+                            <select class="form-select">
+                                <option>Juan Pérez (Disponible)</option>
+                                <option>Ana López (Disponible)</option>
+                                <option>Carlos Rodríguez (En entrega)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tiempo estimado de entrega</label>
+                            <input type="text" class="form-control" value="30-45 min" readonly>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary">Asignar Pedido</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=TU_API_KEY&callback=initMap" async defer></script>
+    <script>
+        function initMap() {
+            const map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: -34.6037, lng: -58.3816 },
+                zoom: 13
+            });
+            
+            // Marcadores de ejemplo
+            const restaurantMarker = new google.maps.Marker({
+                position: { lat: -34.6037, lng: -58.3816 },
+                map: map,
+                title: "Restaurante",
+                icon: {
+                    url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
+                }
+            });
+            
+            const driver1Marker = new google.maps.Marker({
+                position: { lat: -34.6080, lng: -58.3850 },
+                map: map,
+                title: "Juan Pérez - Pedido #1256",
+                icon: {
+                    url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                }
+            });
+            
+            const driver2Marker = new google.maps.Marker({
+                position: { lat: -34.6000, lng: -58.3900 },
+                map: map,
+                title: "María Gómez - Pedido #1255",
+                icon: {
+                    url: "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png"
+                }
+            });
+            
+            const customer1Marker = new google.maps.Marker({
+                position: { lat: -34.6050, lng: -58.3950 },
+                map: map,
+                title: "Carlos Méndez - Pedido #1256",
+                icon: {
+                    url: "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
+                }
+            });
+            
+            const customer2Marker = new google.maps.Marker({
+                position: { lat: -34.5950, lng: -58.4000 },
+                map: map,
+                title: "Laura Fernández - Pedido #1255",
+                icon: {
+                    url: "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
+                }
+            });
+            
+            // Rutas de ejemplo
+            const driver1Route = new google.maps.Polyline({
+                path: [
+                    { lat: -34.6037, lng: -58.3816 },
+                    { lat: -34.6050, lng: -58.3830 },
+                    { lat: -34.6060, lng: -58.3840 },
+                    { lat: -34.6080, lng: -58.3850 }
+                ],
+                geodesic: true,
+                strokeColor: "#4285F4",
+                strokeOpacity: 1.0,
+                strokeWeight: 3,
+                map: map
+            });
+            
+            const driver2Route = new google.maps.Polyline({
+                path: [
+                    { lat: -34.6037, lng: -58.3816 },
+                    { lat: -34.6020, lng: -58.3850 },
+                    { lat: -34.6000, lng: -58.3900 }
+                ],
+                geodesic: true,
+                strokeColor: "#FBBC05",
+                strokeOpacity: 1.0,
+                strokeWeight: 3,
+                map: map
+            });
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seguimiento de Repartidores</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+            border-radius: 8px;
+        }
+        .delivery-card {
+            border-left: 4px solid;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        .delivery-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .delivery-card.assigned {
+            border-left-color: #0d6efd;
+        }
+        .delivery-card.delivering {
+            border-left-color: #ffc107;
+        }
+        .delivery-card.delivered {
+            border-left-color: #28a745;
+        }
+        .delivery-card.cancelled {
+            border-left-color: #dc3545;
+        }
+        .driver-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .status-online {
+            background-color: #28a745;
+        }
+        .status-offline {
+            background-color: #6c757d;
+        }
+        .status-busy {
+            background-color: #ffc107;
+        }
+        .order-badge {
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid mt-3">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h2>Seguimiento de Repartidores</h2>
+            </div>
+            <div class="col-md-6 text-end">
+                <button class="btn btn-primary">Actualizar</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Repartidores</h5>
+                    </div>
+                    <div class="card-body" style="max-height: 600px; overflow-y: auto;">
+                        <div class="delivery-card assigned">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="card-title mb-1">
+                                            <span class="driver-status status-online"></span>
+                                            Juan Pérez
+                                        </h5>
+                                        <p class="card-text mb-1"><small class="text-muted">Pedido #1256</small></p>
+                                        <span class="badge bg-primary order-badge">Asignado</span>
+                                    </div>
+                                    <div class="text-end">
+                                        <p class="card-text mb-1"><small>Hace 15 min</small></p>
+                                        <button class="btn btn-sm btn-outline-primary">Ver</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="delivery-card delivering">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="card-title mb-1">
+                                            <span class="driver-status status-busy"></span>
+                                            María Gómez
+                                        </h5>
+                                        <p class="card-text mb-1"><small class="text-muted">Pedido #1255</small></p>
+                                        <span class="badge bg-warning order-badge">En Camino</span>
+                                    </div>
+                                    <div class="text-end">
+                                        <p class="card-text mb-1"><small>Hace 25 min</small></p>
+                                        <button class="btn btn-sm btn-outline-primary">Ver</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="delivery-card delivered">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="card-title mb-1">
+                                            <span class="driver-status status-online"></span>
+                                            Carlos Rodríguez
+                                        </h5>
+                                        <p class="card-text mb-1"><small class="text-muted">Pedido #1254</small></p>
+                                        <span class="badge bg-success order-badge">Entregado</span>
+                                    </div>
+                                    <div class="text-end">
+                                        <p class="card-text mb-1"><small>Hace 1 hora</small></p>
+                                        <button class="btn btn-sm btn-outline-primary">Ver</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="delivery-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="card-title mb-1">
+                                            <span class="driver-status status-online"></span>
+                                            Ana López
+                                        </h5>
+                                        <p class="card-text mb-1"><small class="text-muted">Disponible</small></p>
+                                        <span class="badge bg-secondary order-badge">Sin asignar</span>
+                                    </div>
+                                    <div class="text-end">
+                                        <button class="btn btn-sm btn-outline-primary">Asignar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="delivery-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h5 class="card-title mb-1">
+                                            <span class="driver-status status-offline"></span>
+                                            Pedro Sánchez
+                                        </h5>
+                                        <p class="card-text mb-1"><small class="text-muted">No disponible</small></p>
+                                        <span class="badge bg-secondary order-badge">Offline</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Mapa de Seguimiento</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="map"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Historial de Entregas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Pedido</th>
+                                        <th>Repartidor</th>
+                                        <th>Cliente</th>
+                                        <th>Hora Asignación</th>
+                                        <th>Hora Entrega</th>
+                                        <th>Tiempo</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>#1256</td>
+                                        <td>Juan Pérez</td>
+                                        <td>Carlos Méndez</td>
+                                        <td>12:45 PM</td>
+                                        <td>--</td>
+                                        <td>--</td>
+                                        <td><span class="badge bg-primary">Asignado</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>#1255</td>
+                                        <td>María Gómez</td>
+                                        <td>Laura Fernández</td>
+                                        <td>12:20 PM</td>
+                                        <td>--</td>
+                                        <td>--</td>
+                                        <td><span class="badge bg-warning">En Camino</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>#1254</td>
+                                        <td>Carlos Rodríguez</td>
+                                        <td>Sofía Ramírez</td>
+                                        <td>11:30 AM</td>
+                                        <td>12:15 PM</td>
+                                        <td>45 min</td>
+                                        <td><span class="badge bg-success">Entregado</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>#1253</td>
+                                        <td>Ana López</td>
+                                        <td>Pedro Gutiérrez</td>
+                                        <td>10:45 AM</td>
+                                        <td>11:25 AM</td>
+                                        <td>40 min</td>
+                                        <td><span class="badge bg-success">Entregado</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Asignar Pedido -->
+    <div class="modal fade" id="assignOrderModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Asignar Pedido a Repartidor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label class="form-label">Pedido</label>
+                            <select class="form-select">
+                                <option>#1256 - Carlos Méndez ($2,850)</option>
+                                <option>#1257 - Marta Suárez ($1,950)</option>
+                                <option>#1258 - Luis Torres ($3,200)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Repartidor</label>
+                            <select class="form-select">
+                                <option>Juan Pérez (Disponible)</option>
+                                <option>Ana López (Disponible)</option>
+                                <option>Carlos Rodríguez (En entrega)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tiempo estimado de entrega</label>
+                            <input type="text" class="form-control" value="30-45 min" readonly>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary">Asignar Pedido</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=TU_API_KEY&callback=initMap" async defer></script>
+    <script>
+        function initMap() {
+            const map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: -34.6037, lng: -58.3816 },
+                zoom: 13
+            });
+            
+            // Marcadores de ejemplo
+            const restaurantMarker = new google.maps.Marker({
+                position: { lat: -34.6037, lng: -58.3816 },
+                map: map,
+                title: "Restaurante",
+                icon: {
+                    url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
+                }
+            });
+            
+            const driver1Marker = new google.maps.Marker({
+                position: { lat: -34.6080, lng: -58.3850 },
+                map: map,
+                title: "Juan Pérez - Pedido #1256",
+                icon: {
+                    url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                }
+            });
+            
+            const driver2Marker = new google.maps.Marker({
+                position: { lat: -34.6000, lng: -58.3900 },
+                map: map,
+                title: "María Gómez - Pedido #1255",
+                icon: {
+                    url: "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png"
+                }
+            });
+            
+            const customer1Marker = new google.maps.Marker({
+                position: { lat: -34.6050, lng: -58.3950 },
+                map: map,
+                title: "Carlos Méndez - Pedido #1256",
+                icon: {
+                    url: "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
+                }
+            });
+            
+            const customer2Marker = new google.maps.Marker({
+                position: { lat: -34.5950, lng: -58.4000 },
+                map: map,
+                title: "Laura Fernández - Pedido #1255",
+                icon: {
+                    url: "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
+                }
+            });
+            
+            // Rutas de ejemplo
+            const driver1Route = new google.maps.Polyline({
+                path: [
+                    { lat: -34.6037, lng: -58.3816 },
+                    { lat: -34.6050, lng: -58.3830 },
+                    { lat: -34.6060, lng: -58.3840 },
+                    { lat: -34.6080, lng: -58.3850 }
+                ],
+                geodesic: true,
+                strokeColor: "#4285F4",
+                strokeOpacity: 1.0,
+                strokeWeight: 3,
+                map: map
+            });
+            
+            const driver2Route = new google.maps.Polyline({
+                path: [
+                    { lat: -34.6037, lng: -58.3816 },
+                    { lat: -34.6020, lng: -58.3850 },
+                    { lat: -34.6000, lng: -58.3900 }
+                ],
+                geodesic: true,
+                strokeColor: "#FBBC05",
+                strokeOpacity: 1.0,
+                strokeWeight: 3,
+                map: map
+            });
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .user-card {
+            border-left: 4px solid;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        .user-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .user-card.admin {
+            border-left-color: #dc3545;
+        }
+        .user-card.manager {
+            border-left-color: #fd7e14;
+        }
+        .user-card.delivery {
+            border-left-color: #17a2b8;
+        }
+        .user-card.cashier {
+            border-left-color: #28a745;
+        }
+        .user-card.customer {
+            border-left-color: #6c757d;
+        }
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .role-badge {
+            font-size: 0.8em;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .status-active {
+            background-color: #28a745;
+        }
+        .status-inactive {
+            background-color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid mt-3">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h2>Gestión de Usuarios</h2>
+            </div>
+            <div class="col-md-6 text-end">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newUserModal">Nuevo Usuario</button>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <span class="status-dot status-active"></span>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-0">15</h5>
+                                        <small class="text-muted">Activos</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <i class="fas fa-user-shield text-danger"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-0">2</h5>
+                                        <small class="text-muted">Administradores</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <i class="fas fa-motorcycle text-info"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-0">5</h5>
+                                        <small class="text-muted">Repartidores</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <i class="fas fa-users text-secondary"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-0">125</h5>
+                                        <small class="text-muted">Clientes</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card user-card admin">
+                    <div class="card-body">
+                        <div class="d-flex">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" class="user-avatar me-3">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title mb-1">Admin User</h5>
+                                    <span class="badge bg-danger role-badge">Admin</span>
+                                </div>
+                                <p class="card-text mb-1"><small class="text-muted">admin@restaurante.com</small></p>
+                                <p class="card-text mb-1"><small class="text-muted">Último acceso: Hoy 10:45 AM</small></p>
+                                <span class="status-dot status-active"></span>
+                                <small>Activo</small>
+                            </div>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-end">
+                            <button class="btn btn-sm btn-outline-primary me-2">Editar</button>
+                            <button class="btn btn-sm btn-outline-secondary">Desactivar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card user-card manager">
+                    <div class="card-body">
+                        <div class="d-flex">
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" class="user-avatar me-3">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title mb-1">Manager User</h5>
+                                    <span class="badge bg-warning role-badge">Gerente</span>
+                                </div>
+                                <p class="card-text mb-1"><small class="text-muted">gerente@restaurante.com</small></p>
+                                <p class="card-text mb-1"><small class="text-muted">Último acceso: Ayer 8:30 PM</small></p>
+                                <span class="status-dot status-active"></span>
+                                <small>Activo</small>
+                            </div>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-end">
+                            <button class="btn btn-sm btn-outline-primary me-2">Editar</button>
+                            <button class="btn btn-sm btn-outline-secondary">Desactivar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card user-card delivery">
+                    <div class="card-body">
+                        <div class="d-flex">
+                            <img src="https://randomuser.me/api/portraits/men/67.jpg" class="user-avatar me-3">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title mb-1">Delivery User</h5>
+                                    <span class="badge bg-info role-badge">Repartidor</span>
+                                </div>
+                                <p class="card-text mb-1"><small class="text-muted">repartidor@restaurante.com</small></p>
+                                <p class="card-text mb-1"><small class="text-muted">Último acceso: Hoy 11:20 AM</small></p>
+                                <span class="status-dot status-active"></span>
+                                <small>Activo</small>
+                            </div>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-end">
+                            <button class="btn btn-sm btn-outline-primary me-2">Editar</button>
+                            <button class="btn btn-sm btn-outline-secondary">Desactivar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card user-card cashier">
+                    <div class="card-body">
+                        <div class="d-flex">
+                            <img src="https://randomuser.me/api/portraits/women/28.jpg" class="user-avatar me-3">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title mb-1">Cashier User</h5>
+                                    <span class="badge bg-success role-badge">Cajero</span>
+                                </div>
+                                <p class="card-text mb-1"><small class="text-muted">cajero@restaurante.com</small></p>
+                                <p class="card-text mb-1"><small class="text-muted">Último acceso: Hoy 9:15 AM</small></p>
+                                <span class="status-dot status-active"></span>
+                                <small>Activo</small>
+                            </div>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-end">
+                            <button class="btn btn-sm btn-outline-primary me-2">Editar</button>
+                            <button class="btn btn-sm btn-outline-secondary">Desactivar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card user-card customer">
+                    <div class="card-body">
+                        <div class="d-flex">
+                            <img src="https://randomuser.me/api/portraits/men/75.jpg" class="user-avatar me-3">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title mb-1">Customer User</h5>
+                                    <span class="badge bg-secondary role-badge">Cliente</span>
+                                </div>
+                                <p class="card-text mb-1"><small class="text-muted">cliente@example.com</small></p>
+                                <p class="card-text mb-1"><small class="text-muted">Último acceso: 25/07/2025</small></p>
+                                <span class="status-dot status-active"></span>
+                                <small>Activo</small>
+                            </div>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-end">
+                            <button class="btn btn-sm btn-outline-primary me-2">Editar</button>
+                            <button class="btn btn-sm btn-outline-secondary">Desactivar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card user-card">
+                    <div class="card-body">
+                        <div class="d-flex">
+                            <img src="https://randomuser.me/api/portraits/women/63.jpg" class="user-avatar me-3">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title mb-1">Inactive User</h5>
+                                    <span class="badge bg-secondary role-badge">Cliente</span>
+                                </div>
+                                <p class="card-text mb-1"><small class="text-muted">inactive@example.com</small></p>
+                                <p class="card-text mb-1"><small class="text-muted">Último acceso: 15/06/2025</small></p>
+                                <span class="status-dot status-inactive"></span>
+                                <small>Inactivo</small>
+                            </div>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-end">
+                            <button class="btn btn-sm btn-outline-primary me-2">Editar</button>
+                            <button class="btn btn-sm btn-outline-success">Activar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Usuario -->
+    <div class="modal fade" id="newUserModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nuevo Usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre Completo</label>
+                            <input type="text" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Rol</label>
+                            <select class="form-select">
+                                <option value="admin">Administrador</option>
+                                <option value="manager">Gerente</option>
+                                <option value="cashier">Cajero</option>
+                                <option value="delivery">Repartidor</option>
+                                <option value="customer">Cliente</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contraseña</label>
+                            <input type="password" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Confirmar Contraseña</label>
+                            <input type="password" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="activeCheck" checked>
+                                <label class="form-check-label" for="activeCheck">Usuario Activo</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary">Crear Usuario</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Usuario -->
+    <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3 text-center">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" class="user-avatar mb-3">
+                            <input type="file" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre Completo</label>
+                            <input type="text" class="form-control" value="Admin User">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" value="admin@restaurante.com">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" value="+5491112345678">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Rol</label>
+                            <select class="form-select">
+                                <option value="admin" selected>Administrador</option>
+                                <option value="manager">Gerente</option>
+                                <option value="cashier">Cajero</option>
+                                <option value="delivery">Repartidor</option>
+                                <option value="customer">Cliente</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Restaurante Asignado</label>
+                            <select class="form-select">
+                                <option selected>Restaurante Principal</option>
+                                <option>Sucursal Norte</option>
+                                <option>Sucursal Sur</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="editActiveCheck" checked>
+                                <label class="form-check-label" for="editActiveCheck">Usuario Activo</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración del Restaurante</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .settings-card {
+            margin-bottom: 20px;
+            border-left: 4px solid #0d6efd;
+        }
+        .nav-tabs .nav-link.active {
+            font-weight: bold;
+            border-bottom: 3px solid #0d6efd;
+        }
+        .logo-preview {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            border: 1px dashed #dee2e6;
+            border-radius: 4px;
+            padding: 5px;
+        }
+        .delivery-area-map {
+            height: 300px;
+            width: 100%;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid mt-3">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h2>Configuración del Restaurante</h2>
+            </div>
+        </div>
+
+        <ul class="nav nav-tabs" id="settingsTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">General</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="delivery-tab" data-bs-toggle="tab" data-bs-target="#delivery" type="button" role="tab">Delivery</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="payment-tab" data-bs-toggle="tab" data-bs-target="#payment" type="button" role="tab">Pagos</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab">Notificaciones</button>
+            </li>
+        </ul>
+
+        <div class="tab-content p-3 border border-top-0 rounded-bottom" id="settingsTabContent">
+            <div class="tab-pane fade show active" id="general" role="tabpanel">
+                <div class="card settings-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Información Básica</h5>
+                        <form>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Nombre del Restaurante</label>
+                                    <input type="text" class="form-control" value="Restaurante Demo">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Teléfono</label>
+                                    <input type="tel" class="form-control" value="+5491112345678">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" value="info@restaurantedemo.com">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Sitio Web</label>
+                                    <input type="url" class="form-control" value="https://restaurantedemo.com">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Dirección</label>
+                                <textarea class="form-control" rows="2">Calle Principal 123, Ciudad</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Descripción</label>
+                                <textarea class="form-control" rows="3">Restaurante especializado en comida italiana y argentina con más de 10 años de experiencia.</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Logo</label>
+                                <div class="d-flex align-items-center">
+                                    <img src="https://via.placeholder.com/150x150?text=Logo" class="logo-preview me-3">
+                                    <input type="file" class="form-control" style="width: auto;">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card settings-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Horario de Atención</h5>
+                        <form>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Día</th>
+                                            <th>Apertura</th>
+                                            <th>Cierre</th>
+                                            <th>Cerrado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Lunes</td>
+                                            <td><input type="time" class="form-control" value="08:00"></td>
+                                            <td><input type="time" class="form-control" value="23:00"></td>
+                                            <td><input type="checkbox" class="form-check-input"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Martes</td>
+                                            <td><input type="time" class="form-control" value="08:00"></td>
+                                            <td><input type="time" class="form-control" value="23:00"></td>
+                                            <td><input type="checkbox" class="form-check-input"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Miércoles</td>
+                                            <td><input type="time" class="form-control" value="08:00"></td>
+                                            <td><input type="time" class="form-control" value="23:00"></td>
+                                            <td><input type="checkbox" class="form-check-input"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Jueves</td>
+                                            <td><input type="time" class="form-control" value="08:00"></td>
+                                            <td><input type="time" class="form-control" value="23:00"></td>
+                                            <td><input type="checkbox" class="form-check-input"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Viernes</td>
+                                            <td><input type="time" class="form-control" value="08:00"></td>
+                                            <td><input type="time" class="form-control" value="00:00"></td>
+                                            <td><input type="checkbox" class="form-check-input"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Sábado</td>
+                                            <td><input type="time" class="form-control" value="09:00"></td>
+                                            <td><input type="time" class="form-control" value="01:00"></td>
+                                            <td><input type="checkbox" class="form-check-input"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Domingo</td>
+                                            <td><input type="time" class="form-control" value="09:00"></td>
+                                            <td><input type="time" class="form-control" value="23:00"></td>
+                                            <td><input type="checkbox" class="form-check-input"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-pane fade" id="delivery" role="tabpanel">
+                <div class="card settings-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Zonas de Delivery</h5>
+                        <form>
+                            <div class="mb-3">
+                                <div id="deliveryMap" class="delivery-area-map mb-3"></div>
+                                <button class="btn btn-outline-primary mb-3">+ Agregar Zona</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Zona</th>
+                                            <th>Costo de Envío</th>
+                                            <th>Tiempo Estimado</th>
+                                            <th>Activo</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Zona Centro</td>
+                                            <td>$500</td>
+                                            <td>30-45 min</td>
+                                            <td><input type="checkbox" class="form-check-input" checked></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary">Editar</button>
+                                                <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Zona Norte</td>
+                                            <td>$700</td>
+                                            <td>45-60 min</td>
+                                            <td><input type="checkbox" class="form-check-input" checked></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary">Editar</button>
+                                                <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Zona Sur</td>
+                                            <td>$800</td>
+                                            <td>60-75 min</td>
+                                            <td><input type="checkbox" class="form-check-input"></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary">Editar</button>
+                                                <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card settings-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Configuración de Delivery</h5>
+                        <form>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="deliveryEnabled" checked>
+                                    <label class="form-check-label" for="deliveryEnabled">Delivery Habilitado</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Tiempo estimado de preparación</label>
+                                <input type="number" class="form-control" value="20" style="width: 100px;">
+                                <small class="text-muted">Minutos</small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Monto mínimo para delivery</label>
+                                <input type="number" class="form-control" value="1500" style="width: 150px;">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Política de cancelación</label>
+                                <textarea class="form-control" rows="3">Los pedidos pueden cancelarse sin cargo hasta 10 minutos después de realizado. Después de ese tiempo, se aplicará un cargo del 20% del valor total.</textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-pane fade" id="payment" role="tabpanel">
+                <div class="card settings-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Métodos de Pago</h5>
+                        <form>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="cashPayment" checked>
+                                    <label class="form-check-label" for="cashPayment">Efectivo</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="cardPayment" checked>
+                                    <label class="form-check-label" for="cardPayment">Tarjeta de Crédito/Débito</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="transferPayment">
+                                    <label class="form-check-label" for="transferPayment">Transferencia Bancaria</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="mercadoPago">
+                                    <label class="form-check-label" for="mercadoPago">Mercado Pago</label>
+                                </div>
+                                <div class="mt-2 ps-4">
+                                    <label class="form-label">Client ID</label>
+                                    <input type="text" class="form-control mb-2">
+                                    <label class="form-label">Client Secret</label>
+                                    <input type="text" class="form-control">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card settings-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Configuración Fiscal</h5>
+                        <form>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">IVA (%)</label>
+                                    <input type="number" class="form-control" value="10.5">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Impuesto Interno (%)</label>
+                                    <input type="number" class="form-control" value="0">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Tipo de Facturación</label>
+                                <select class="form-select">
+                                    <option>Responsable Inscripto</option>
+                                    <option>Monotributo</option>
+                                    <option>Consumidor Final</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Datos Fiscales</label>
+                                <textarea class="form-control" rows="3">Razón Social: Restaurante Demo S.A.
+CUIT: 30-12345678-9
+Domicilio Fiscal: Calle Principal 123, Ciudad</textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-pane fade" id="notifications" role="tabpanel">
+                <div class="card settings-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Configuración de Notificaciones</h5>
+                        <form>
+                            <div class="mb-3">
+                                <label class="form-label">Notificaciones por Email</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="emailNewOrder" checked>
+                                    <label class="form-check-label" for="emailNewOrder">Nuevo pedido recibido</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="emailOrderCancelled" checked>
+                                    <label class="form-check-label" for="emailOrderCancelled">Pedido cancelado</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="emailDailyReport">
+                                    <label class="form-check-label" for="emailDailyReport">Reporte diario</label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Notificaciones por WhatsApp</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="whatsappNewOrder" checked>
+                                    <label class="form-check-label" for="whatsappNewOrder">Nuevo pedido recibido</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="whatsappOrderCancelled">
+                                    <label class="form-check-label" for="whatsappOrderCancelled">Pedido cancelado</label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Notificaciones a Clientes</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="clientOrderConfirmed" checked>
+                                    <label class="form-check-label" for="clientOrderConfirmed">Pedido confirmado</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="clientOrderShipped" checked>
+                                    <label class="form-check-label" for="clientOrderShipped">Pedido en camino</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="clientOrderDelivered" checked>
+                                    <label class="form-check-label" for="clientOrderDelivered">Pedido entregado</label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Configuración de Twilio (WhatsApp/SMS)</label>
+                                <input type="text" class="form-control mb-2" placeholder="Account SID">
+                                <input type="text" class="form-control mb-2" placeholder="Auth Token">
+                                <input type="text" class="form-control" placeholder="Número de Twilio">
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Simulación de mapa de delivery
+        document.getElementById('deliveryMap').innerHTML = `
+            <div style="padding: 20px; text-align: center; color: #6c757d;">
+                <i class="fas fa-map-marked-alt fa-4x mb-3"></i>
+                <p>Mapa de zonas de delivery</p>
+                <p><small>Aquí se mostrarían las zonas configuradas</small></p>
+            </div>
+        `;
+    </script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>

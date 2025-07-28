@@ -1,0 +1,23 @@
+{
+    "name": "Panel de Repartidor",
+    "short_name": "Repartidor",
+    "description": "Aplicación para repartidores con seguimiento de ubicación",
+    "start_url": "/repartidor/pedidos",
+    "display": "standalone",
+    "background_color": "#ffc107",
+    "theme_color": "#ffc107",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "/favicon.ico",
+            "sizes": "16x16",
+            "type": "image/x-icon"
+        }
+    ],
+    "permissions": [
+        "geolocation",
+        "background-sync"
+    ],
+    "categories": ["business", "productivity"],
+    "lang": "es"
+} 
