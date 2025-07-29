@@ -2,7 +2,7 @@
     <h1 class="mb-4">Confirmar Pedido</h1>
     
     <div class="alert alert-info">
-        <strong>Debug:</strong> Esta es la vista de checkout/confirmar.php
+        
     </div>
 
     <h4>Resumen del carrito</h4>
@@ -103,8 +103,8 @@ let ubicacionSeleccionada = null;
 
 // Inicializar mapa cuando la página carga
 document.addEventListener('DOMContentLoaded', function() {
-    // Centrar en una ubicación por defecto (puedes ajustar las coordenadas)
-    map = L.map('map').setView([-34.6, -58.4], 13);
+    // Centrar en Clorinda, Formosa
+    map = L.map('map').setView([-25.291388888889, -57.718333333333], 13);
     
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,

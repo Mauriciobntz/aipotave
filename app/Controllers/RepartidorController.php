@@ -32,11 +32,16 @@ class RepartidorController extends Controller
     }
 
     /**
-     * Muestra los pedidos asignados al repartidor (simulación: id=1).
+     * Muestra los pedidos asignados al repartidor logueado.
      */
     public function pedidos()
     {
-        $repartidor_id = 1; // Simulación, reemplazar por el ID real del repartidor logueado
+        $repartidor_id = session()->get('user_id');
+        
+        // Verificar que el usuario esté logueado y sea repartidor
+        if (!session()->get('logueado') || session()->get('user_role') !== 'repartidor') {
+            return redirect()->to(base_url('login'));
+        }
         
         // Obtener filtros de la URL
         $estado_filtro = $this->request->getGet('estado') ?? '';
@@ -77,13 +82,29 @@ class RepartidorController extends Controller
                 case 'fecha_desc':
                     return strtotime($b['fecha']) - strtotime($a['fecha']);
                 case 'prioridad':
-                    // Ordenar por prioridad (pendiente primero, luego en_camino, luego entregado)
-                    $prioridad = ['en_camino' => 1, 'entregado' => 2];
-                    $prioridad_a = $prioridad[$a['estado']] ?? 3;
-                    $prioridad_b = $prioridad[$b['estado']] ?? 3;
-                    return $prioridad_a - $prioridad_b;
+                    // Ordenar por prioridad: en_camino (más antiguo primero), luego entregado
+                    if ($a['estado'] == 'en_camino' && $b['estado'] == 'en_camino') {
+                        // Si ambos están en camino, ordenar por fecha (más antiguo primero)
+                        return strtotime($a['fecha']) - strtotime($b['fecha']);
+                    } elseif ($a['estado'] == 'en_camino') {
+                        return -1; // en_camino va primero
+                    } elseif ($b['estado'] == 'en_camino') {
+                        return 1; // en_camino va primero
+                    } else {
+                        // Si ambos están entregados, ordenar por fecha (más reciente primero)
+                        return strtotime($b['fecha']) - strtotime($a['fecha']);
+                    }
                 default:
-                    return strtotime($b['fecha']) - strtotime($a['fecha']);
+                    // Ordenamiento por defecto: en_camino primero (más antiguo), luego entregado
+                    if ($a['estado'] == 'en_camino' && $b['estado'] == 'en_camino') {
+                        return strtotime($a['fecha']) - strtotime($b['fecha']);
+                    } elseif ($a['estado'] == 'en_camino') {
+                        return -1;
+                    } elseif ($b['estado'] == 'en_camino') {
+                        return 1;
+                    } else {
+                        return strtotime($b['fecha']) - strtotime($a['fecha']);
+                    }
             }
         });
         
@@ -96,7 +117,7 @@ class RepartidorController extends Controller
             'orden' => $orden
         ];
         return view('header', $data)
-            . view('navbar')
+            . view('navbar_repartidor')
             . view('repartidor/pedidos')
             . view('footer_repartidor');
     }
@@ -107,9 +128,21 @@ class RepartidorController extends Controller
      */
     public function detalle($id)
     {
-        $repartidor_id = 1; // Simulación, reemplazar por el ID real del repartidor logueado
+        $repartidor_id = session()->get('user_id');
         
-        $pedido = $this->pedidoModel->getById($id);
+        // Verificar que el usuario esté logueado y sea repartidor
+        if (!session()->get('logueado') || session()->get('user_role') !== 'repartidor') {
+            return redirect()->to(base_url('login'));
+        }
+        
+        $pedidos = $this->pedidoModel->getPedidosConRepartidor();
+        $pedido = null;
+        foreach ($pedidos as $p) {
+            if ($p['id'] == $id) {
+                $pedido = $p;
+                break;
+            }
+        }
         if (!$pedido || $pedido['repartidor_id'] != $repartidor_id) {
             return redirect()->to(base_url('repartidor/pedidos'))->with('error', 'Pedido no encontrado o no asignado.');
         }
@@ -126,7 +159,7 @@ class RepartidorController extends Controller
             'ultima_ubicacion' => $ultima_ubicacion
         ];
         return view('header', $data)
-            . view('navbar')
+            . view('navbar_repartidor')
             . view('repartidor/pedido_detalle')
             . view('footer_repartidor');
     }
@@ -136,53 +169,92 @@ class RepartidorController extends Controller
      */
     public function actualizarUbicacion()
     {
-        $repartidor_id = 1; // Simulación, reemplazar por el ID real del repartidor logueado
-        $pedido_id = $this->request->getPost('pedido_id');
-        $latitud = $this->request->getPost('latitud');
-        $longitud = $this->request->getPost('longitud');
+        $repartidor_id = session()->get('user_id');
         
-        if (!$pedido_id || !$latitud || !$longitud) {
-            return $this->response->setStatusCode(400)->setJSON(['error' => 'Datos incompletos']);
+        // Verificar que el usuario esté logueado y sea repartidor
+        if (!session()->get('logueado') || session()->get('user_role') !== 'repartidor') {
+            return $this->response->setStatusCode(401)->setJSON(['success' => false, 'message' => 'No autorizado']);
+        }
+        
+        // Obtener datos del JSON
+        $jsonData = $this->request->getJSON();
+        $pedido_id = $jsonData->pedido_id ?? null;
+        $latitud = $jsonData->latitud ?? null;
+        $longitud = $jsonData->longitud ?? null;
+        
+        if (!$latitud || !$longitud) {
+            return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Datos incompletos']);
         }
 
-        // Verificar que el pedido está asignado al repartidor
-        $pedido = $this->pedidoModel->find($pedido_id);
-        if (!$pedido || $pedido['repartidor_id'] != $repartidor_id) {
-            return $this->response->setStatusCode(403)->setJSON(['error' => 'Pedido no asignado']);
+        // Si se proporciona un pedido_id, verificar que esté asignado al repartidor
+        if ($pedido_id) {
+            $pedido = $this->pedidoModel->find($pedido_id);
+            if (!$pedido || $pedido['repartidor_id'] != $repartidor_id) {
+                return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'Pedido no asignado']);
+            }
         }
 
-        if ($this->ubicacionModel->registrarUbicacion($repartidor_id, $pedido_id, $latitud, $longitud)) {
-            return $this->response->setJSON(['success' => true]);
-        } else {
-            return $this->response->setStatusCode(500)->setJSON(['error' => 'Error al actualizar ubicación']);
+        try {
+            if ($this->ubicacionModel->registrarUbicacion($repartidor_id, $pedido_id, $latitud, $longitud)) {
+                return $this->response->setJSON(['success' => true, 'message' => 'Ubicación actualizada correctamente']);
+            } else {
+                return $this->response->setStatusCode(500)->setJSON(['success' => false, 'message' => 'Error al actualizar ubicación']);
+            }
+        } catch (Exception $e) {
+            log_message('error', 'Error en actualizarUbicacion: ' . $e->getMessage());
+            return $this->response->setStatusCode(500)->setJSON(['success' => false, 'message' => 'Error interno del servidor']);
         }
     }
 
     /**
      * Cambia el estado de un pedido desde el repartidor.
-     * @param int $id
      */
-    public function cambiarEstado($id)
+    public function cambiarEstado()
     {
-        $repartidor_id = 1; // Simulación, reemplazar por el ID real del repartidor logueado
-        $nuevo_estado = $this->request->getPost('estado');
+        $repartidor_id = session()->get('user_id');
+        
+        // Verificar que el usuario esté logueado y sea repartidor
+        if (!session()->get('logueado') || session()->get('user_role') !== 'repartidor') {
+            return $this->response->setStatusCode(401)->setJSON(['success' => false, 'message' => 'No autorizado']);
+        }
+        
+        // Obtener datos del JSON
+        $jsonData = $this->request->getJSON();
+        $pedido_id = $jsonData->pedido_id ?? null;
+        $nuevo_estado = $jsonData->estado ?? null;
+        
+        if (!$pedido_id || !$nuevo_estado) {
+            return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Datos incompletos']);
+        }
         
         if (!in_array($nuevo_estado, ['en_camino', 'entregado'])) {
-            return redirect()->back()->with('error', 'Estado no válido para repartidor');
+            return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Estado no válido para repartidor']);
         }
 
-        $pedido = $this->pedidoModel->find($id);
+        $pedido = $this->pedidoModel->find($pedido_id);
         if (!$pedido || $pedido['repartidor_id'] != $repartidor_id) {
-            return redirect()->back()->with('error', 'Pedido no encontrado o no asignado');
+            return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'Pedido no encontrado o no asignado']);
         }
 
-        if ($this->pedidoModel->actualizarEstado($id, $nuevo_estado)) {
-            // Enviar notificación al cliente
-            $this->notificacionController->enviarNotificacionEstado($id, $nuevo_estado);
-            
-            return redirect()->back()->with('success', 'Estado del pedido actualizado correctamente');
-        } else {
-            return redirect()->back()->with('error', 'Error al actualizar el estado del pedido');
+        try {
+            if ($this->pedidoModel->actualizarEstado($pedido_id, $nuevo_estado)) {
+                // Registrar en historial
+                $this->historialModel->insert([
+                    'pedido_id' => $pedido_id,
+                    'estado' => $nuevo_estado,
+                    'fecha_cambio' => date('Y-m-d H:i:s')
+                ]);
+                
+                // Enviar notificación al cliente
+                $this->notificacionController->enviarNotificacionEstado($pedido_id, $nuevo_estado);
+                
+                return $this->response->setJSON(['success' => true, 'message' => 'Estado del pedido actualizado correctamente']);
+            } else {
+                return $this->response->setStatusCode(500)->setJSON(['success' => false, 'message' => 'Error al actualizar el estado del pedido']);
+            }
+        } catch (Exception $e) {
+            log_message('error', 'Error en cambiarEstado: ' . $e->getMessage());
+            return $this->response->setStatusCode(500)->setJSON(['success' => false, 'message' => 'Error interno del servidor']);
         }
     }
 
@@ -191,7 +263,12 @@ class RepartidorController extends Controller
      */
     public function ruta($pedido_id)
     {
-        $repartidor_id = 1; // Simulación, reemplazar por el ID real del repartidor logueado
+        $repartidor_id = session()->get('user_id');
+        
+        // Verificar que el usuario esté logueado y sea repartidor
+        if (!session()->get('logueado') || session()->get('user_role') !== 'repartidor') {
+            return redirect()->to(base_url('login'));
+        }
         
         $pedido = $this->pedidoModel->find($pedido_id);
         if (!$pedido || $pedido['repartidor_id'] != $repartidor_id) {
@@ -206,7 +283,7 @@ class RepartidorController extends Controller
             'ruta' => $ruta
         ];
         return view('header', $data)
-            . view('navbar')
+            . view('navbar_repartidor')
             . view('repartidor/ruta')
             . view('footer_repartidor');
     }
@@ -216,7 +293,12 @@ class RepartidorController extends Controller
      */
     public function actualizarDisponibilidad()
     {
-        $repartidor_id = 1; // Simulación, reemplazar por el ID real del repartidor logueado
+        $repartidor_id = session()->get('user_id');
+        
+        // Verificar que el usuario esté logueado y sea repartidor
+        if (!session()->get('logueado') || session()->get('user_role') !== 'repartidor') {
+            return $this->response->setStatusCode(401)->setJSON(['error' => 'No autorizado']);
+        }
         $disponible = $this->request->getPost('disponible') == '1';
         
         if ($this->repartidorModel->actualizarDisponibilidad($repartidor_id, $disponible)) {
@@ -231,7 +313,14 @@ class RepartidorController extends Controller
      */
     public function estadisticas()
     {
-        $repartidor_id = 1; // Simulación, reemplazar por el ID real del repartidor logueado
+        $repartidor_id = session()->get('user_id');
+        
+        // Verificar que el usuario esté logueado y sea repartidor
+        if (!session()->get('logueado') || session()->get('user_role') !== 'repartidor') {
+            return redirect()->to(base_url('login'));
+        }
+        
+
         $fecha_inicio = $this->request->getGet('fecha_inicio') ?? date('Y-m-d', strtotime('-7 days'));
         $fecha_fin = $this->request->getGet('fecha_fin') ?? date('Y-m-d');
 
@@ -294,7 +383,7 @@ class RepartidorController extends Controller
             'calificacion_promedio' => $calificacion_promedio
         ];
         return view('header', $data)
-            . view('navbar')
+            . view('navbar_repartidor')
             . view('repartidor/estadisticas')
             . view('footer_repartidor');
     }
@@ -304,40 +393,56 @@ class RepartidorController extends Controller
      */
     public function marcarPagoRecibido()
     {
-        if (!$this->request->isAJAX()) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Solicitud inválida']);
-        }
-
-        $pedidoId = $this->request->getJSON()->pedido_id;
+        $repartidor_id = session()->get('user_id');
         
-        if (!$pedidoId) {
-            return $this->response->setJSON(['success' => false, 'message' => 'ID de pedido requerido']);
+        // Verificar que el usuario esté logueado y sea repartidor
+        if (!session()->get('logueado') || session()->get('user_role') !== 'repartidor') {
+            return $this->response->setStatusCode(401)->setJSON(['success' => false, 'message' => 'No autorizado']);
         }
-
-        $pedidoModel = new \App\Models\PedidoModel();
-        $pedido = $pedidoModel->find($pedidoId);
         
-        if (!$pedido) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Pedido no encontrado']);
-        }
-
-        // Verificar que el pedido esté asignado al repartidor actual
-        if ($pedido['repartidor_id'] != session('user_id')) {
-            return $this->response->setJSON(['success' => false, 'message' => 'No tienes permisos para este pedido']);
-        }
-
-        // Verificar que el pago esté pendiente y sea en efectivo
-        if ($pedido['estado_pago'] != 'pendiente' || $pedido['metodo_pago'] != 'efectivo') {
-            return $this->response->setJSON(['success' => false, 'message' => 'El pago no está pendiente o no es en efectivo']);
-        }
-
-        // Marcar como pagado
-        $resultado = $pedidoModel->update($pedidoId, ['estado_pago' => 'pagado']);
+        // Obtener datos del JSON
+        $jsonData = $this->request->getJSON();
+        $pedido_id = $jsonData->pedido_id ?? null;
         
-        if ($resultado) {
-            return $this->response->setJSON(['success' => true, 'message' => 'Pago marcado como recibido']);
-        } else {
-            return $this->response->setJSON(['success' => false, 'message' => 'Error al actualizar el estado del pago']);
+        if (!$pedido_id) {
+            return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'ID de pedido requerido']);
+        }
+
+        try {
+            $pedido = $this->pedidoModel->find($pedido_id);
+            
+            if (!$pedido) {
+                return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'Pedido no encontrado']);
+            }
+
+            // Verificar que el pedido esté asignado al repartidor actual
+            if ($pedido['repartidor_id'] != $repartidor_id) {
+                return $this->response->setStatusCode(403)->setJSON(['success' => false, 'message' => 'No tienes permisos para este pedido']);
+            }
+
+            // Verificar que el pago esté pendiente y sea en efectivo
+            if ($pedido['estado_pago'] != 'pendiente' || $pedido['metodo_pago'] != 'efectivo') {
+                return $this->response->setStatusCode(400)->setJSON([
+                    'success' => false, 
+                    'message' => 'El pago no está pendiente o no es en efectivo',
+                    'debug' => [
+                        'estado_pago' => $pedido['estado_pago'],
+                        'metodo_pago' => $pedido['metodo_pago']
+                    ]
+                ]);
+            }
+
+            // Marcar como pagado
+            $resultado = $this->pedidoModel->update($pedido_id, ['estado_pago' => 'pagado']);
+            
+            if ($resultado) {
+                return $this->response->setJSON(['success' => true, 'message' => 'Pago marcado como recibido']);
+            } else {
+                return $this->response->setStatusCode(500)->setJSON(['success' => false, 'message' => 'Error al actualizar el estado del pago']);
+            }
+        } catch (Exception $e) {
+            log_message('error', 'Error en marcarPagoRecibido: ' . $e->getMessage());
+            return $this->response->setStatusCode(500)->setJSON(['success' => false, 'message' => 'Error interno del servidor']);
         }
     }
 } 

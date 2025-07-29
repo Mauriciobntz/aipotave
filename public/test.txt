@@ -1,0 +1,1 @@
+Este es un archivo de prueba para verificar si Apache está sirviendo archivos estáticos correctamente. 

@@ -47,6 +47,25 @@ class NotificacionController extends Controller
     }
 
     /**
+     * Envía una notificación al repartidor cuando se le asigna un pedido
+     */
+    public function enviarNotificacionRepartidor($repartidor_id, $pedido_id)
+    {
+        $pedido = $this->pedidoModel->getById($pedido_id);
+        
+        if (!$pedido) {
+            return false;
+        }
+
+        $mensaje = "Nuevo pedido asignado: #{$pedido['codigo_seguimiento']} - {$pedido['direccion_entrega']}";
+
+        // Registrar la notificación para el repartidor
+        $this->notificacionModel->registrarNotificacion($pedido_id, 'repartidor', $mensaje, $repartidor_id);
+
+        return true;
+    }
+
+    /**
      * Lista las notificaciones (solo para administradores)
      */
     public function listar()

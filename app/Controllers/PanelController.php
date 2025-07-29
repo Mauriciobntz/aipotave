@@ -19,41 +19,45 @@ class PanelController extends Controller
         $pedidoModel = new \App\Models\PedidoModel();
         $repartidorModel = new RepartidorModel();
         
-        // Obtener filtros de la URL
+        // Obtener filtros
         $estado_filtro = $this->request->getGet('estado') ?? '';
-        $metodo_filtro = $this->request->getGet('metodo_pago') ?? '';
+        $metodo_filtro = $this->request->getGet('metodo') ?? '';
         $fecha_desde = $this->request->getGet('fecha_desde') ?? '';
         $fecha_hasta = $this->request->getGet('fecha_hasta') ?? '';
         $buscar = $this->request->getGet('buscar') ?? '';
         
-        // Aplicar filtros
-        $builder = $pedidoModel->builder();
+        // Construir consulta
+        $db = \Config\Database::connect();
+        $builder = $db->table('pedidos');
+        $builder->select('pedidos.*, repartidores.nombre as nombre_repartidor');
+        $builder->join('repartidores', 'pedidos.repartidor_id = repartidores.id', 'left');
         
+        // Aplicar filtros
         if (!empty($estado_filtro)) {
-            $builder->where('estado', $estado_filtro);
+            $builder->where('pedidos.estado', $estado_filtro);
         }
         
         if (!empty($metodo_filtro)) {
-            $builder->where('metodo_pago', $metodo_filtro);
+            $builder->where('pedidos.metodo_pago', $metodo_filtro);
         }
         
         if (!empty($fecha_desde)) {
-            $builder->where('fecha >=', $fecha_desde . ' 00:00:00');
+            $builder->where('pedidos.fecha >=', $fecha_desde . ' 00:00:00');
         }
         
         if (!empty($fecha_hasta)) {
-            $builder->where('fecha <=', $fecha_hasta . ' 23:59:59');
+            $builder->where('pedidos.fecha <=', $fecha_hasta . ' 23:59:59');
         }
         
         if (!empty($buscar)) {
             $builder->groupStart()
-                ->like('nombre', $buscar)
-                ->orLike('codigo_seguimiento', $buscar)
-                ->orLike('correo_electronico', $buscar)
+                ->like('pedidos.nombre', $buscar)
+                ->orLike('pedidos.codigo_seguimiento', $buscar)
+                ->orLike('pedidos.correo_electronico', $buscar)
                 ->groupEnd();
         }
         
-        $pedidos = $builder->orderBy('fecha', 'desc')->findAll();
+        $pedidos = $builder->orderBy('pedidos.fecha', 'desc')->get()->getResultArray();
         
         // Calcular métricas
         $total_pedidos = count($pedidos);

@@ -15,7 +15,9 @@ $routes->get('combo/(:num)', 'MenuController::combo/$1');
 //######################## Rutas Carrito ########################
 $routes->get('carrito', 'CarritoController::verCarrito');
 $routes->post('carrito/agregar', 'CarritoController::agregarProducto');
+$routes->post('carrito/agregar-ajax', 'CarritoController::agregarAjax');
 $routes->post('carrito/actualizar', 'CarritoController::actualizarCantidad');
+$routes->post('carrito/actualizar-cantidad', 'CarritoController::actualizarCantidad');
 $routes->get('carrito/eliminar/(:segment)/(:num)', 'CarritoController::eliminarItem/$1/$2');
 $routes->get('carrito/vaciar', 'CarritoController::vaciarCarrito');
 $routes->get('carrito/comprar', 'CarritoController::comprar');
@@ -26,6 +28,12 @@ $routes->post('checkout/procesar', 'CheckoutController::procesar');
 $routes->get('checkout/exito/(:segment)', 'CheckoutController::exito/$1');
 $routes->get('pedido/seguimiento/(:segment)', 'PedidoController::seguimiento/$1');
 $routes->get('pedido/seguimiento', 'PedidoController::index');
+
+// Rutas de seguimiento en tiempo real
+$routes->get('seguimiento', 'SeguimientoController::seguimiento');
+$routes->get('seguimiento/(:segment)', 'SeguimientoController::seguimiento/$1');
+$routes->get('api/seguimiento/ubicacion/(:num)', 'SeguimientoController::ubicacionRepartidor/$1');
+$routes->get('api/seguimiento/pedido/(:segment)', 'SeguimientoController::infoPedido/$1');
 
 //######################## Rutas Calificaciones ########################
 $routes->get('calificar/(:segment)', 'CalificacionController::calificar/$1');
@@ -120,6 +128,7 @@ $routes->group('cocina', ['filter' => 'auth:cocina'], function($routes) {
     $routes->get('pedidos', 'CocinaController::pedidos');
     $routes->get('pedidos/(:num)', 'CocinaController::detalle/$1');
     $routes->post('pedidos/cambiar-estado/(:num)', 'CocinaController::cambiarEstado/$1');
+    $routes->get('repartidores/disponibles', 'CocinaController::obtenerRepartidoresDisponiblesAPI');
     $routes->get('productos', 'CocinaController::productos');
     $routes->post('productos/cambiar-estado/(:num)', 'CocinaController::cambiarEstadoProducto/$1');
     $routes->post('productos/desactivar-categoria/(:num)', 'CocinaController::desactivarProductosCategoria/$1');
@@ -128,19 +137,43 @@ $routes->group('cocina', ['filter' => 'auth:cocina'], function($routes) {
     $routes->get('pantalla', 'CocinaController::pantalla');
 });
 
+// Ruta de prueba para repartidores (sin autenticación)
+$routes->get('test/repartidores', 'CocinaController::testRepartidoresAPI');
+
+
 //######################## Rutas de repartidor (requieren rol repartidor) ########################
 $routes->group('repartidor', ['filter' => 'auth:repartidor'], function($routes) {
     // Rutas del repartidor
-    $routes->get('repartidor/pedidos', 'RepartidorController::pedidos');
-    $routes->get('repartidor/pedidos/(:num)', 'RepartidorController::pedidoDetalle/$1');
-    $routes->post('repartidor/pedidos/cambiar-estado', 'RepartidorController::cambiarEstado');
-    $routes->post('repartidor/pedidos/marcar-pago-recibido', 'RepartidorController::marcarPagoRecibido');
-    $routes->post('repartidor/actualizar-ubicacion', 'RepartidorController::actualizarUbicacion');
-    $routes->get('repartidor/estadisticas', 'RepartidorController::estadisticas');
+    $routes->get('pedidos', 'RepartidorController::pedidos');
+    $routes->get('pedidos/(:num)', 'RepartidorController::detalle/$1');
+    $routes->post('pedidos/cambiar-estado', 'RepartidorController::cambiarEstado');
+    $routes->post('pedidos/marcar-pago-recibido', 'RepartidorController::marcarPagoRecibido');
+    $routes->post('actualizar-ubicacion', 'RepartidorController::actualizarUbicacion');
+    $routes->get('estadisticas', 'RepartidorController::estadisticas');
 });
 
 $routes->get('api/ubicacion/(:num)/(:num)', 'ApiController::ubicacion/$1/$2');
+
+// Rutas de Google Maps
+$routes->get('google-maps', 'GoogleMapsController::index');
+$routes->post('google-maps/geocode', 'GoogleMapsController::geocode');
+$routes->post('google-maps/reverse-geocode', 'GoogleMapsController::reverseGeocode');
+$routes->post('google-maps/directions', 'GoogleMapsController::directions');
+$routes->get('google-maps/status', 'GoogleMapsController::status');
+
+// Rutas de Estadísticas con Mapas
+$routes->get('estadisticas-mapa', 'EstadisticasMapaController::index');
+$routes->get('estadisticas-mapa/api', 'EstadisticasMapaController::api');
+$routes->get('estadisticas-mapa/exportar', 'EstadisticasMapaController::exportar');
+
+// Rutas de Envío
+$routes->post('envio/calcular-costo', 'EnvioController::calcularCosto');
+$routes->post('envio/validar-zona', 'EnvioController::validarZona');
+$routes->get('envio/tarifas', 'EnvioController::tarifas');
+
 $routes->get('login', 'AuthController::login');
 $routes->post('login', 'AuthController::procesarLogin');
 $routes->get('logout', 'AuthController::logout');
 $routes->get('denegado', 'AuthController::denegado');
+
+

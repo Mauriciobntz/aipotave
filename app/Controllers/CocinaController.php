@@ -56,7 +56,7 @@ class CocinaController extends Controller
             }
             
             // Solo mostrar pedidos relevantes para cocina
-            return in_array($pedido['estado'], ['confirmado', 'en_preparacion', 'listo']);
+            return in_array($pedido['estado'], ['pendiente', 'confirmado', 'en_preparacion', 'listo', 'en_camino']);
         });
         
         // Aplicar ordenamiento
@@ -67,19 +67,37 @@ class CocinaController extends Controller
                 case 'fecha_desc':
                     return strtotime($b['fecha']) - strtotime($a['fecha']);
                 case 'prioridad':
-                    // Ordenar por prioridad (pendiente primero, luego en_preparacion, luego listo)
-                    $prioridad = ['pendiente' => 1, 'en_preparacion' => 2, 'listo' => 3];
-                    $prioridadA = $prioridad[$a['estado']] ?? 4;
-                    $prioridadB = $prioridad[$b['estado']] ?? 4;
-                    return $prioridadA - $prioridadB;
+                    // Ordenar por prioridad: pendiente (más antiguo primero), confirmado, en_preparacion, listo, en_camino
+                    if ($a['estado'] == $b['estado']) {
+                        // Si ambos tienen el mismo estado, ordenar por fecha (más antiguo primero)
+                        return strtotime($a['fecha']) - strtotime($b['fecha']);
+                    } else {
+                        // Ordenar por prioridad de estado
+                        $prioridad = ['pendiente' => 1, 'confirmado' => 2, 'en_preparacion' => 3, 'listo' => 4, 'en_camino' => 5];
+                        $prioridadA = $prioridad[$a['estado']] ?? 6;
+                        $prioridadB = $prioridad[$b['estado']] ?? 6;
+                        return $prioridadA - $prioridadB;
+                    }
                 default:
-                    return strtotime($b['fecha']) - strtotime($a['fecha']);
+                    // Ordenamiento por defecto: por prioridad de estado, luego por fecha (más antiguo primero)
+                    if ($a['estado'] == $b['estado']) {
+                        return strtotime($a['fecha']) - strtotime($b['fecha']);
+                    } else {
+                        $prioridad = ['pendiente' => 1, 'confirmado' => 2, 'en_preparacion' => 3, 'listo' => 4, 'en_camino' => 5];
+                        $prioridadA = $prioridad[$a['estado']] ?? 6;
+                        $prioridadB = $prioridad[$b['estado']] ?? 6;
+                        return $prioridadA - $prioridadB;
+                    }
             }
         });
+        
+        // Obtener repartidores disponibles
+        $repartidores = $this->obtenerRepartidoresDisponibles();
         
         $data = [
             'title' => 'Pedidos en Cocina',
             'pedidos' => array_values($pedidos_filtrados), // Reindexar array
+            'repartidores' => $repartidores, // Agregar repartidores
             'estado_filtro' => $estado_filtro,
             'fecha_desde' => $fecha_desde,
             'fecha_hasta' => $fecha_hasta,
@@ -125,12 +143,14 @@ class CocinaController extends Controller
     {
         $nuevo_estado = $this->request->getPost('estado');
         $observaciones = $this->request->getPost('observaciones') ?? '';
+        $repartidor_id = $this->request->getPost('repartidor_id') ?? null;
         
         // Si es una petición JSON, obtener el estado del body
         if ($this->request->getHeaderLine('Content-Type') === 'application/json') {
             $jsonData = json_decode($this->request->getBody(), true);
             $nuevo_estado = $jsonData['estado'] ?? '';
             $observaciones = $jsonData['observaciones'] ?? '';
+            $repartidor_id = $jsonData['repartidor_id'] ?? null;
         }
         
         if (!in_array($nuevo_estado, ['confirmado', 'en_preparacion', 'listo', 'en_camino', 'entregado', 'cancelado'])) {
@@ -150,35 +170,207 @@ class CocinaController extends Controller
 
         $estado_anterior = $pedido['estado'];
         
+        // Si el estado cambió de 'listo' a 'en_camino', verificar que se seleccionó un repartidor
+        if ($estado_anterior == 'listo' && $nuevo_estado == 'en_camino') {
+            if (!$repartidor_id) {
+                if ($this->request->getHeaderLine('Content-Type') === 'application/json') {
+                    return $this->response->setJSON([
+                        'success' => false, 
+                        'message' => 'Debe seleccionar un repartidor para cambiar a en_camino',
+                        'require_repartidor' => true
+                    ]);
+                }
+                return redirect()->back()->with('error', 'Debe seleccionar un repartidor para cambiar a en_camino');
+            }
+        }
+        
         // Actualizar el pedido con el nuevo estado y observaciones
         $datos_actualizacion = ['estado' => $nuevo_estado];
         if (!empty($observaciones)) {
             $datos_actualizacion['observaciones'] = $pedido['observaciones'] ? $pedido['observaciones'] . "\n" . $observaciones : $observaciones;
         }
         
-        if ($this->pedidoModel->update($id, $datos_actualizacion)) {
-            // Registrar el cambio en el historial
-            $this->historialModel->insert([
-                'pedido_id' => $id,
-                'estado_anterior' => $estado_anterior,
-                'estado_nuevo' => $nuevo_estado,
-                'observaciones' => $observaciones,
-                'usuario_id' => session('user_id'),
-                'fecha' => date('Y-m-d H:i:s')
+        // Si se está asignando un repartidor, agregarlo a la actualización
+        if ($repartidor_id && $nuevo_estado == 'en_camino') {
+            $datos_actualizacion['repartidor_id'] = $repartidor_id;
+        }
+        
+        try {
+            if ($this->pedidoModel->update($id, $datos_actualizacion)) {
+                // Registrar el cambio en el historial (solo con los campos que existen)
+                $historial_data = [
+                    'pedido_id' => $id,
+                    'estado_anterior' => $estado_anterior,
+                    'estado_nuevo' => $nuevo_estado,
+                    'fecha_cambio' => date('Y-m-d H:i:s')
+                ];
+                
+                // Si se asignó un repartidor, agregar observación
+                if ($repartidor_id && $nuevo_estado == 'en_camino') {
+                    $repartidor = $this->obtenerRepartidorPorId($repartidor_id);
+                    if ($repartidor) {
+                        $historial_data['observaciones'] = "Repartidor asignado manualmente: {$repartidor['nombre']}";
+                    }
+                }
+                
+                $this->historialModel->insert($historial_data);
+                
+                // Enviar notificación al repartidor si se asignó uno
+                if ($repartidor_id && $nuevo_estado == 'en_camino') {
+                    try {
+                        $this->notificacionController->enviarNotificacionRepartidor($repartidor_id, $id);
+                    } catch (\Exception $e) {
+                        log_message('error', 'Error al enviar notificación al repartidor: ' . $e->getMessage());
+                    }
+                }
+                
+                // Enviar notificación al cliente (opcional, no crítico)
+                try {
+                    $this->notificacionController->enviarNotificacionEstado($id, $nuevo_estado);
+                } catch (\Exception $e) {
+                    log_message('error', 'Error al enviar notificación: ' . $e->getMessage());
+                }
+                
+                if ($this->request->getHeaderLine('Content-Type') === 'application/json') {
+                    return $this->response->setJSON(['success' => true, 'message' => 'Estado actualizado correctamente']);
+                }
+                return redirect()->back()->with('success', 'Estado del pedido actualizado correctamente');
+            } else {
+                if ($this->request->getHeaderLine('Content-Type') === 'application/json') {
+                    return $this->response->setJSON(['success' => false, 'message' => 'Error al actualizar el estado']);
+                }
+                return redirect()->back()->with('error', 'Error al actualizar el estado del pedido');
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error en cambiarEstado: ' . $e->getMessage());
+            if ($this->request->getHeaderLine('Content-Type') === 'application/json') {
+                return $this->response->setJSON(['success' => false, 'message' => 'Error interno del servidor: ' . $e->getMessage()]);
+            }
+            return redirect()->back()->with('error', 'Error interno del servidor');
+        }
+    }
+
+    /**
+     * Asigna automáticamente un repartidor disponible al pedido
+     * @param int $pedido_id
+     * @return array|null
+     */
+    private function asignarRepartidorAutomaticamente($pedido_id)
+    {
+        try {
+            // Obtener repartidores disponibles (activos y sin muchos pedidos en camino)
+            $repartidores_disponibles = $this->obtenerRepartidoresDisponibles();
+            
+            if (empty($repartidores_disponibles)) {
+                log_message('warning', 'No hay repartidores disponibles para asignar al pedido ' . $pedido_id);
+                return null;
+            }
+            
+            // Seleccionar el repartidor con menos pedidos en camino
+            $repartidor_seleccionado = $repartidores_disponibles[0];
+            
+            // Actualizar el pedido con el repartidor asignado
+            $this->pedidoModel->update($pedido_id, [
+                'repartidor_id' => $repartidor_seleccionado['id']
             ]);
             
-            // Enviar notificación al cliente
-            $this->notificacionController->enviarNotificacionEstado($id, $nuevo_estado);
+            // Registrar la asignación en el historial
+            $this->historialModel->insert([
+                'pedido_id' => $pedido_id,
+                'estado_anterior' => 'en_preparacion',
+                'estado_nuevo' => 'en_camino',
+                'fecha_cambio' => date('Y-m-d H:i:s'),
+                'observaciones' => "Repartidor asignado automáticamente: {$repartidor_seleccionado['nombre']}"
+            ]);
             
-            if ($this->request->getHeaderLine('Content-Type') === 'application/json') {
-                return $this->response->setJSON(['success' => true, 'message' => 'Estado actualizado correctamente']);
+            // Enviar notificación al repartidor (opcional)
+            try {
+                $this->notificacionController->enviarNotificacionRepartidor($repartidor_seleccionado['id'], $pedido_id);
+            } catch (\Exception $e) {
+                log_message('error', 'Error al enviar notificación al repartidor: ' . $e->getMessage());
             }
-            return redirect()->back()->with('success', 'Estado del pedido actualizado correctamente');
-        } else {
-            if ($this->request->getHeaderLine('Content-Type') === 'application/json') {
-                return $this->response->setJSON(['success' => false, 'message' => 'Error al actualizar el estado']);
-            }
-            return redirect()->back()->with('error', 'Error al actualizar el estado del pedido');
+            
+            return $repartidor_seleccionado;
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Error al asignar repartidor automáticamente: ' . $e->getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Obtiene repartidores disponibles ordenados por carga de trabajo
+     * @return array
+     */
+    private function obtenerRepartidoresDisponibles()
+    {
+        try {
+            $repartidorModel = new \App\Models\RepartidorModel();
+            return $repartidorModel->getRepartidoresDisponibles();
+        } catch (\Exception $e) {
+            log_message('error', 'Error al obtener repartidores disponibles: ' . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Obtiene un repartidor por su ID
+     * @param int $repartidor_id
+     * @return array|null
+     */
+    private function obtenerRepartidorPorId($repartidor_id)
+    {
+        try {
+            $repartidorModel = new \App\Models\RepartidorModel();
+            return $repartidorModel->getRepartidorById($repartidor_id);
+        } catch (\Exception $e) {
+            log_message('error', 'Error al obtener repartidor por ID: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Obtiene la lista de repartidores disponibles para asignación manual
+     */
+    public function obtenerRepartidoresDisponiblesAPI()
+    {
+        try {
+            $repartidores = $this->obtenerRepartidoresDisponibles();
+            
+            return $this->response->setJSON([
+                'success' => true,
+                'repartidores' => $repartidores
+            ]);
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Error al obtener repartidores disponibles: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al obtener repartidores disponibles'
+            ]);
+        }
+    }
+    
+    /**
+     * Endpoint de prueba para repartidores (sin autenticación)
+     */
+    public function testRepartidoresAPI()
+    {
+        try {
+            $repartidores = $this->obtenerRepartidoresDisponibles();
+            
+            return $this->response->setJSON([
+                'success' => true,
+                'repartidores' => $repartidores,
+                'count' => count($repartidores)
+            ]);
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Error en testRepartidoresAPI: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
         }
     }
 
@@ -404,17 +596,17 @@ class CocinaController extends Controller
      */
     public function pantalla()
     {
-        // Obtener solo pedidos relevantes para cocina (confirmados, en preparación, listos)
+        // Obtener solo pedidos relevantes para cocina (confirmados, en preparación, en camino)
         $pedidos = $this->pedidoModel->getPedidosConRepartidor();
         
         $pedidos_filtrados = array_filter($pedidos, function($pedido) {
-            return in_array($pedido['estado'], ['confirmado', 'en_preparacion', 'listo']);
+            return in_array($pedido['estado'], ['confirmado', 'en_preparacion', 'en_camino']);
         });
         
         // Ordenar por prioridad y fecha
         usort($pedidos_filtrados, function($a, $b) {
-            // Prioridad: confirmado > en_preparacion > listo
-            $prioridad = ['confirmado' => 1, 'en_preparacion' => 2, 'listo' => 3];
+            // Prioridad: confirmado > en_preparacion > en_camino
+            $prioridad = ['confirmado' => 1, 'en_preparacion' => 2, 'en_camino' => 3];
             $prioridadA = $prioridad[$a['estado']] ?? 4;
             $prioridadB = $prioridad[$b['estado']] ?? 4;
             
@@ -439,4 +631,6 @@ class CocinaController extends Controller
         
         return view('cocina/pantalla', $data);
     }
+
+
 } 

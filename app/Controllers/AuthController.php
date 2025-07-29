@@ -52,6 +52,8 @@ class AuthController extends Controller
                     return redirect()->to(base_url('admin/panel'));
                 case 'cocina':
                     return redirect()->to(base_url('cocina/pedidos'));
+                case 'repartidor':
+                    return redirect()->to(base_url('repartidor/pedidos'));
                 default:
                     return redirect()->to(base_url('admin/panel'));
             }
@@ -101,4 +103,6 @@ class AuthController extends Controller
             . view('denegado')
             . view('footer');
     }
+
+
 } 

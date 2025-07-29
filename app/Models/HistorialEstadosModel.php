@@ -45,6 +45,16 @@ class HistorialEstadosModel extends Model
     }
 
     /**
+     * Obtiene el historial de un pedido por su ID (alias de getHistorialPedido).
+     * @param int $pedidoId
+     * @return array
+     */
+    public function getByPedidoId(int $pedidoId): array
+    {
+        return $this->getHistorialPedido($pedidoId);
+    }
+
+    /**
      * Obtiene el último cambio de estado de un pedido.
      * @param int $pedidoId
      * @return array|null

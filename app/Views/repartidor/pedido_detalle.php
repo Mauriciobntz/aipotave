@@ -26,8 +26,8 @@
                     <p><strong>Método de pago:</strong> <?= ucfirst(esc($pedido['metodo_pago'])) ?></p>
                 </div>
                 <div class="col-md-6">
-                    <p><strong>Cliente:</strong> <?= esc($pedido['cliente_nombre'] ?? 'Cliente #' . $pedido['usuario_id']) ?></p>
-                    <p><strong>Teléfono:</strong> <?= esc($pedido['cliente_telefono'] ?? 'No disponible') ?></p>
+                    <p><strong>Cliente:</strong> <?= esc($pedido['nombre'] ?? 'Cliente #' . $pedido['id']) ?></p>
+                    <p><strong>Teléfono:</strong> <?= esc($pedido['celular'] ?? 'No disponible') ?></p>
                     <p><strong>Dirección:</strong> <?= esc($pedido['direccion_entrega']) ?></p>
                     <p><strong>Estado actual:</strong> 
                         <?php 
@@ -332,7 +332,7 @@ function actualizarUbicacion(pedidoId) {
             const latitud = position.coords.latitude;
             const longitud = position.coords.longitude;
             
-            fetch('<?= base_url('repartidor/pedidos/actualizar-ubicacion') ?>', {
+            fetch('<?= base_url('repartidor/actualizar-ubicacion') ?>', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

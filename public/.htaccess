@@ -1,0 +1,39 @@
+# Configuración básica para archivos estáticos
+Options +FollowSymLinks
+RewriteEngine On
+
+# Permitir acceso directo a archivos estáticos
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{REQUEST_URI} \.(js|css|png|jpg|jpeg|gif|ico|json|txt)$
+RewriteRule ^(.*)$ $1 [L]
+
+# Configurar tipos MIME
+AddType application/javascript .js
+AddType application/json .json
+AddType application/manifest+json .webmanifest
+AddType text/css .css
+
+# Headers para archivos JavaScript
+<FilesMatch "\.js$">
+    Header set Content-Type "application/javascript"
+    Header set Cache-Control "public, max-age=3600"
+    Header set Access-Control-Allow-Origin "*"
+</FilesMatch>
+
+# Headers para archivos JSON
+<FilesMatch "\.json$">
+    Header set Content-Type "application/json"
+    Header set Cache-Control "public, max-age=3600"
+    Header set Access-Control-Allow-Origin "*"
+</FilesMatch>
+
+# Headers específicos para manifest.json
+<Files "manifest.json">
+    Header set Content-Type "application/manifest+json"
+    Header set Cache-Control "public, max-age=3600"
+</Files>
+
+# Reglas de reescritura para CodeIgniter (solo si no es un archivo estático)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ ../index.php/$1 [L] 

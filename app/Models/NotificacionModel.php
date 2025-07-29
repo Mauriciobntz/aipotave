@@ -87,6 +87,31 @@ class NotificacionModel extends Model
     }
 
     /**
+     * Registra una notificación (alias de crearNotificacion).
+     * @param int $pedidoId
+     * @param string $tipo
+     * @param string $contenido
+     * @param int|null $repartidor_id
+     * @return int|false
+     */
+    public function registrarNotificacion(int $pedidoId, string $tipo, string $contenido, $repartidor_id = null)
+    {
+        $datos = [
+            'pedido_id' => $pedidoId,
+            'tipo' => $tipo,
+            'contenido' => $contenido,
+            'fecha_envio' => date('Y-m-d H:i:s'),
+            'estado' => 'pendiente'
+        ];
+        
+        if ($repartidor_id) {
+            $datos['repartidor_id'] = $repartidor_id;
+        }
+        
+        return $this->insert($datos);
+    }
+
+    /**
      * Obtiene estadísticas de notificaciones.
      * @return array
      */

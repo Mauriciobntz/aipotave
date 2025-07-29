@@ -1,23 +1,55 @@
 {
-    "name": "Panel de Repartidor",
-    "short_name": "Repartidor",
-    "description": "Aplicación para repartidores con seguimiento de ubicación",
-    "start_url": "/repartidor/pedidos",
-    "display": "standalone",
-    "background_color": "#ffc107",
-    "theme_color": "#ffc107",
-    "orientation": "portrait",
-    "icons": [
+  "name": "Max Delivery",
+  "short_name": "Max",
+  "description": "Sistema de delivery con seguimiento en tiempo real",
+  "start_url": "/max/",
+  "scope": "/max/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F6F4D2",
+  "theme_color": "#8B4513",
+  "categories": ["food", "delivery", "business"],
+  "lang": "es",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/max/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/max/favicon.ico",
+      "sizes": "192x192",
+      "type": "image/x-icon",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/max/favicon.ico",
+      "sizes": "512x512",
+      "type": "image/x-icon",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/max/favicon.ico",
+      "sizes": "1280x720",
+      "type": "image/x-icon",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Panel Repartidor",
+      "short_name": "Repartidor",
+      "description": "Acceso directo al panel de repartidor",
+      "url": "/max/repartidor/pedidos",
+      "icons": [
         {
-            "src": "/favicon.ico",
-            "sizes": "16x16",
-            "type": "image/x-icon"
+          "src": "/max/favicon.ico",
+          "sizes": "96x96"
         }
-    ],
-    "permissions": [
-        "geolocation",
-        "background-sync"
-    ],
-    "categories": ["business", "productivity"],
-    "lang": "es"
+      ]
+    }
+  ]
 } 

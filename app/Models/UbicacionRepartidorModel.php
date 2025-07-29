@@ -44,12 +44,12 @@ class UbicacionRepartidorModel extends Model
     /**
      * Registra una nueva ubicación.
      * @param int $repartidorId
-     * @param int $pedidoId
+     * @param int|null $pedidoId
      * @param float $latitud
      * @param float $longitud
      * @return int|false
      */
-    public function registrarUbicacion(int $repartidorId, int $pedidoId, float $latitud, float $longitud)
+    public function registrarUbicacion(int $repartidorId, ?int $pedidoId, float $latitud, float $longitud)
     {
         return $this->insert([
             'repartidor_id' => $repartidorId,

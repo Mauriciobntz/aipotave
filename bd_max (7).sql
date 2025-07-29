@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 28-07-2025 a las 05:05:31
+-- Tiempo de generación: 29-07-2025 a las 07:57:35
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -117,7 +117,11 @@ INSERT INTO `detalles_pedido` (`id`, `pedido_id`, `producto_id`, `combo_id`, `ca
 (7, 5, 9, NULL, 1, 280.00, NULL),
 (8, 5, 10, NULL, 1, 150.00, 'Café con 2 de azúcar'),
 (9, 6, 3, NULL, 2, 350.00, NULL),
-(10, 6, 2, NULL, 1, 150.00, NULL);
+(10, 6, 2, NULL, 1, 150.00, NULL),
+(11, 7, 3, NULL, 5, 350.00, NULL),
+(12, 8, 3, NULL, 2, 350.00, NULL),
+(13, 9, 3, NULL, 2, 350.00, NULL),
+(14, 10, 3, NULL, 1, 350.00, NULL);
 
 -- --------------------------------------------------------
 
@@ -164,7 +168,18 @@ CREATE TABLE `historial_estados` (
 INSERT INTO `historial_estados` (`id`, `pedido_id`, `estado_anterior`, `estado_nuevo`, `fecha_cambio`) VALUES
 (1, 2, 'pendiente', 'confirmado', '2025-07-16 13:50:00'),
 (2, 2, 'confirmado', 'en_preparacion', '2025-07-16 14:00:00'),
-(3, 2, 'en_preparacion', 'en_camino', '2025-07-16 14:30:00');
+(3, 2, 'en_preparacion', 'en_camino', '2025-07-16 14:30:00'),
+(4, 9, 'pendiente', 'confirmado', '2025-07-28 22:35:25'),
+(5, 9, 'confirmado', 'confirmado', '2025-07-28 22:35:34'),
+(6, 9, 'confirmado', 'en_preparacion', '2025-07-28 22:35:47'),
+(7, 9, 'en_preparacion', 'en_preparacion', '2025-07-28 22:36:02'),
+(8, 8, 'pendiente', 'confirmado', '2025-07-29 01:41:37'),
+(9, 8, 'confirmado', 'en_preparacion', '2025-07-29 01:41:49'),
+(10, 9, 'en_camino', 'entregado', '2025-07-29 03:17:47'),
+(11, 9, NULL, NULL, '2025-07-29 03:17:47'),
+(12, 10, 'en_camino', 'en_camino', '2025-07-29 05:49:54'),
+(13, 10, 'en_camino', 'en_camino', '2025-07-29 05:50:07'),
+(14, 7, 'en_camino', 'en_camino', '2025-07-29 05:50:22');
 
 -- --------------------------------------------------------
 
@@ -186,7 +201,19 @@ CREATE TABLE `notificaciones` (
 --
 
 INSERT INTO `notificaciones` (`id`, `pedido_id`, `tipo`, `contenido`, `fecha_envio`, `estado`) VALUES
-(1, 5, 'whatsapp', 'Su pedido #PED789123 ha sido confirmado y está en preparación', '2025-07-19 15:35:00', 'enviado');
+(1, 5, 'whatsapp', 'Su pedido #PED789123 ha sido confirmado y está en preparación', '2025-07-19 15:35:00', 'enviado'),
+(2, 8, 'whatsapp', 'Su pedido #80D5DAE7 ha sido confirmado y está en preparación', '2025-07-29 01:41:37', 'pendiente'),
+(3, 8, 'email', 'Su pedido #80D5DAE7 ha sido confirmado y está en preparación', '2025-07-29 01:41:37', 'pendiente'),
+(4, 8, 'whatsapp', 'Su pedido #80D5DAE7 está siendo preparado', '2025-07-29 01:41:49', 'pendiente'),
+(5, 8, 'email', 'Su pedido #80D5DAE7 está siendo preparado', '2025-07-29 01:41:49', 'pendiente'),
+(6, 9, 'whatsapp', 'Su pedido #1BA3F2E8 ha sido entregado. ¡Gracias por su compra!', '2025-07-29 03:17:47', 'pendiente'),
+(7, 9, 'email', 'Su pedido #1BA3F2E8 ha sido entregado. ¡Gracias por su compra!', '2025-07-29 03:17:47', 'pendiente'),
+(8, 10, 'whatsapp', 'Su pedido #52D32E69 está en camino hacia su dirección', '2025-07-29 05:49:54', 'pendiente'),
+(9, 10, 'email', 'Su pedido #52D32E69 está en camino hacia su dirección', '2025-07-29 05:49:54', 'pendiente'),
+(10, 10, 'whatsapp', 'Su pedido #52D32E69 está en camino hacia su dirección', '2025-07-29 05:50:07', 'pendiente'),
+(11, 10, 'email', 'Su pedido #52D32E69 está en camino hacia su dirección', '2025-07-29 05:50:07', 'pendiente'),
+(12, 7, 'whatsapp', 'Su pedido #89D0F22C está en camino hacia su dirección', '2025-07-29 05:50:22', 'pendiente'),
+(13, 7, 'email', 'Su pedido #89D0F22C está en camino hacia su dirección', '2025-07-29 05:50:22', 'pendiente');
 
 -- --------------------------------------------------------
 
@@ -216,9 +243,10 @@ CREATE TABLE `pedidos` (
   `id` int(11) NOT NULL,
   `nombre` varchar(100) NOT NULL DEFAULT 'Pedido',
   `correo_electronico` varchar(100) DEFAULT NULL,
+  `celular` varchar(20) DEFAULT NULL,
   `repartidor_id` int(11) DEFAULT NULL,
   `fecha` datetime DEFAULT current_timestamp(),
-  `estado` enum('pendiente','confirmado','en_preparacion','en_camino','entregado','cancelado') DEFAULT 'pendiente',
+  `estado` enum('pendiente','confirmado','en_preparacion','en_camino','entregado','cancelado','listo') DEFAULT 'pendiente',
   `estado_pago` enum('pendiente','pagado','devuelto') DEFAULT 'pendiente',
   `total` decimal(10,2) NOT NULL,
   `metodo_pago` enum('efectivo','tarjeta','transferencia') NOT NULL,
@@ -235,13 +263,17 @@ CREATE TABLE `pedidos` (
 -- Volcado de datos para la tabla `pedidos`
 --
 
-INSERT INTO `pedidos` (`id`, `nombre`, `correo_electronico`, `repartidor_id`, `fecha`, `estado`, `estado_pago`, `total`, `metodo_pago`, `observaciones`, `direccion_entrega`, `entre`, `indicacion`, `latitud`, `longitud`, `codigo_seguimiento`) VALUES
-(1, 'Pedido #1', NULL, NULL, '2025-07-15 12:30:00', 'pendiente', 'pendiente', 550.00, 'efectivo', 'Sin cebolla por favor', 'Calle Falsa 123, Ciudad', '', '', NULL, NULL, 'PED123456'),
-(2, 'Pedido #2', NULL, 1, '2025-07-16 13:45:00', 'en_camino', 'pagado', 450.00, 'tarjeta', 'Aderezo aparte', 'Avenida Siempreviva 742, Ciudad', '', '', NULL, NULL, 'PED654321'),
-(3, 'Pedido #3', NULL, 1, '2025-07-17 20:15:00', 'entregado', 'pagado', 800.00, 'transferencia', 'Pizza bien cocida', 'Calle Principal 456, Ciudad', '', '', NULL, NULL, 'PED987654'),
-(4, 'Pedido #4', NULL, NULL, '2025-07-18 12:00:00', 'en_preparacion', 'pendiente', 420.00, 'efectivo', 'Sin mayonesa', 'Boulevard Central 789, Ciudad', '', '', NULL, NULL, 'PED456789'),
-(5, 'Pedido #5', NULL, 2, '2025-07-19 15:30:00', 'confirmado', 'pagado', 430.00, 'tarjeta', 'Café con 2 de azúcar', 'Calle Secundaria 321, Ciudad', '', '', NULL, NULL, 'PED789123'),
-(6, 'Pedido', NULL, NULL, '2025-07-28 01:54:46', 'pendiente', 'pendiente', 850.00, 'efectivo', '', '-25.281582666666665, -57.72986233333334', '', '', -25.28158267, -57.72986233, '057695F7');
+INSERT INTO `pedidos` (`id`, `nombre`, `correo_electronico`, `celular`, `repartidor_id`, `fecha`, `estado`, `estado_pago`, `total`, `metodo_pago`, `observaciones`, `direccion_entrega`, `entre`, `indicacion`, `latitud`, `longitud`, `codigo_seguimiento`) VALUES
+(1, 'Pedido #1', NULL, '371800000', NULL, '2025-07-15 12:30:00', 'pendiente', 'pendiente', 550.00, 'efectivo', 'Sin cebolla por favor', 'Calle Falsa 123, Ciudad', '', '', -25.28470000, -57.71850000, 'PED123456'),
+(2, 'Pedido #2', NULL, '371800000', 1, '2025-07-16 13:45:00', 'en_camino', 'pagado', 450.00, 'tarjeta', 'Aderezo aparte', 'Avenida Siempreviva 742, Ciudad', '', '', -25.29000000, -57.72000000, 'PED654321'),
+(3, 'Pedido #3', NULL, '371800000', 1, '2025-07-17 20:15:00', 'entregado', 'pagado', 800.00, 'transferencia', 'Pizza bien cocida', 'Calle Principal 456, Ciudad', '', '', -25.28000000, -57.71500000, 'PED987654'),
+(4, 'Pedido #4', NULL, '371800000', NULL, '2025-07-18 12:00:00', 'en_preparacion', 'pendiente', 420.00, 'efectivo', 'Sin mayonesa', 'Boulevard Central 789, Ciudad', '', '', -25.28500000, -57.72500000, 'PED456789'),
+(5, 'Pedido #5', NULL, '371800000', 2, '2025-07-19 15:30:00', 'confirmado', 'pagado', 430.00, 'tarjeta', 'Café con 2 de azúcar', 'Calle Secundaria 321, Ciudad', '', '', -25.27500000, -57.71000000, 'PED789123'),
+(6, 'Pedido', NULL, '371800000', 3, '2025-07-28 01:54:46', 'en_camino', 'pendiente', 850.00, 'efectivo', '', '-25.281582666666665, -57.72986233333334', '', '', -25.28158267, -57.72986233, '057695F7'),
+(7, 'Prueba', '', '371800000', 3, '2025-07-28 04:03:14', 'en_camino', 'pagado', 2750.00, 'efectivo', '', 'Juan José Castelli, Itatí, Clorinda, Municipio de Clorinda, Departamento Pilcomayo, Formosa, 3610, Argentina', '', '', -25.28170400, -57.72983200, '89D0F22C'),
+(8, 'Prueba', 'admin@gmail.com', '371800000', 3, '2025-07-28 22:53:40', 'en_camino', 'pendiente', 1700.00, 'efectivo', '', 'Juan José Castelli, Clorinda, Formosa', '', '', -25.28178477, -57.72980659, '80D5DAE7'),
+(9, 'Prueba', '', '371800000', 3, '2025-07-29 01:14:50', 'en_camino', 'pagado', 1700.00, 'efectivo', '', 'Luis Piamonte 205, P3610 Clorinda, Formosa, Argentina', '', '', -25.28781907, -57.74036715, '1BA3F2E8'),
+(10, 'Prueba', '', '371800000', 3, '2025-07-29 03:01:46', 'en_camino', 'pagado', 1350.00, 'transferencia', '', 'Leandro N. Alem 438, P3610 Clorinda, Formosa, Argentina', '', '', -25.28798980, -57.74328539, '52D32E69');
 
 -- --------------------------------------------------------
 
@@ -414,7 +446,20 @@ CREATE TABLE `ubicaciones_repartidores` (
 --
 
 INSERT INTO `ubicaciones_repartidores` (`id`, `repartidor_id`, `pedido_id`, `latitud`, `longitud`, `fecha`) VALUES
-(1, 2, 5, -34.60372200, -58.38159200, '2025-07-19 15:40:00');
+(1, 2, 5, -34.60372200, -58.38159200, '2025-07-19 15:40:00'),
+(2, 3, 10, -25.28152200, -57.72989850, '2025-07-29 03:48:34'),
+(3, 3, 10, -25.28170400, -57.72982150, '2025-07-29 03:56:18'),
+(4, 3, 6, -25.28175631, -57.72982125, '2025-07-29 03:58:04'),
+(5, 3, 6, -25.28172605, -57.72982460, '2025-07-29 03:59:22'),
+(6, 3, 10, -25.28163639, -57.72986358, '2025-07-29 04:05:29'),
+(7, 3, 10, -25.28174032, -57.72983341, '2025-07-29 04:11:10'),
+(8, 3, 10, -25.28177082, -57.72983489, '2025-07-29 04:14:55'),
+(9, 3, 10, -25.28174032, -57.72983341, '2025-07-29 04:16:47'),
+(10, 3, 10, -25.28172605, -57.72982460, '2025-07-29 04:20:22'),
+(11, 3, 10, -25.28170400, -57.72983200, '2025-07-29 04:23:57'),
+(12, 3, 10, -25.28170400, -57.72981100, '2025-07-29 04:27:47'),
+(13, 1, 2, -25.28781907, -57.74036715, '2025-07-29 02:02:39'),
+(14, 1, 2, -25.28781907, -57.74036715, '2025-07-29 02:03:03');
 
 --
 -- Índices para tablas volcadas
@@ -564,7 +609,7 @@ ALTER TABLE `combos`
 -- AUTO_INCREMENT de la tabla `detalles_pedido`
 --
 ALTER TABLE `detalles_pedido`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT de la tabla `empleados`
@@ -576,13 +621,13 @@ ALTER TABLE `empleados`
 -- AUTO_INCREMENT de la tabla `historial_estados`
 --
 ALTER TABLE `historial_estados`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones`
 --
 ALTER TABLE `notificaciones`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `ofertas`
@@ -594,7 +639,7 @@ ALTER TABLE `ofertas`
 -- AUTO_INCREMENT de la tabla `pedidos`
 --
 ALTER TABLE `pedidos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `productos`
@@ -630,7 +675,7 @@ ALTER TABLE `subcategorias`
 -- AUTO_INCREMENT de la tabla `ubicaciones_repartidores`
 --
 ALTER TABLE `ubicaciones_repartidores`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- Restricciones para tablas volcadas

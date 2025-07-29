@@ -3,6 +3,68 @@
         <i class="fas fa-utensils me-2 text-warning"></i>Pedidos en Cocina
     </h1>
 
+    <!-- Estadísticas rápidas -->
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="card bg-warning text-dark">
+                <div class="card-body text-center">
+                    <h4 class="mb-0"><?= count(array_filter($pedidos, fn($p) => $p['estado'] == 'pendiente')) ?></h4>
+                    <small>Pendientes</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h4 class="mb-0"><?= count(array_filter($pedidos, fn($p) => $p['estado'] == 'confirmado')) ?></h4>
+                    <small>Confirmados</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-info text-dark">
+                <div class="card-body text-center">
+                    <h4 class="mb-0"><?= count(array_filter($pedidos, fn($p) => $p['estado'] == 'en_preparacion')) ?></h4>
+                    <small>En Preparación</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h4 class="mb-0"><?= count(array_filter($pedidos, fn($p) => $p['estado'] == 'listo')) ?></h4>
+                    <small>Listos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h4 class="mb-0"><?= count(array_filter($pedidos, fn($p) => $p['estado'] == 'en_camino')) ?></h4>
+                    <small>En Camino</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-secondary text-white">
+                <div class="card-body text-center">
+                    <h4 class="mb-0"><?= count($pedidos) ?></h4>
+                    <small>Total</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mapa de entregas -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i>Mapa de Entregas</h5>
+        </div>
+        <div class="card-body">
+            <div id="map" style="height: 400px; width: 100%; border-radius: 8px;"></div>
+        </div>
+    </div>
+
     <?php if (session('success')): ?>
         <div class="alert alert-success"><?= esc(session('success')) ?></div>
     <?php endif; ?>
@@ -22,8 +84,12 @@
                     <select name="estado" class="form-select">
                         <option value="">Todos los estados</option>
                         <option value="pendiente" <?= ($estado_filtro == 'pendiente') ? 'selected' : '' ?>>Pendiente</option>
+                        <option value="confirmado" <?= ($estado_filtro == 'confirmado') ? 'selected' : '' ?>>Confirmado</option>
                         <option value="en_preparacion" <?= ($estado_filtro == 'en_preparacion') ? 'selected' : '' ?>>En Preparación</option>
                         <option value="listo" <?= ($estado_filtro == 'listo') ? 'selected' : '' ?>>Listo</option>
+                        <option value="en_camino" <?= ($estado_filtro == 'en_camino') ? 'selected' : '' ?>>En Camino</option>
+                        <option value="entregado" <?= ($estado_filtro == 'entregado') ? 'selected' : '' ?>>Entregado</option>
+                        <option value="cancelado" <?= ($estado_filtro == 'cancelado') ? 'selected' : '' ?>>Cancelado</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -109,6 +175,10 @@
                                     $estadoClass = 'bg-warning text-dark';
                                     $estadoText = 'Pendiente';
                                     break;
+                                case 'confirmado':
+                                    $estadoClass = 'bg-primary';
+                                    $estadoText = 'Confirmado';
+                                    break;
                                 case 'en_preparacion':
                                     $estadoClass = 'bg-info text-dark';
                                     $estadoText = 'En Preparación';
@@ -116,6 +186,18 @@
                                 case 'listo':
                                     $estadoClass = 'bg-success';
                                     $estadoText = 'Listo';
+                                    break;
+                                case 'en_camino':
+                                    $estadoClass = 'bg-primary';
+                                    $estadoText = 'En Camino';
+                                    break;
+                                case 'entregado':
+                                    $estadoClass = 'bg-success';
+                                    $estadoText = 'Entregado';
+                                    break;
+                                case 'cancelado':
+                                    $estadoClass = 'bg-danger';
+                                    $estadoText = 'Cancelado';
                                     break;
                                 default:
                                     $estadoClass = 'bg-secondary';
@@ -137,12 +219,23 @@
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 <?php if ($pedido['estado'] == 'pendiente'): ?>
+                                    <button type="button" class="btn btn-sm btn-primary" title="Confirmar pedido" onclick="cambiarEstado(<?= $pedido['id'] ?>, 'confirmado')">
+                                        <i class="fas fa-check-circle"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-info" title="Iniciar preparación" onclick="cambiarEstado(<?= $pedido['id'] ?>, 'en_preparacion')">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                <?php elseif ($pedido['estado'] == 'confirmado'): ?>
                                     <button type="button" class="btn btn-sm btn-info" title="Iniciar preparación" onclick="cambiarEstado(<?= $pedido['id'] ?>, 'en_preparacion')">
                                         <i class="fas fa-play"></i>
                                     </button>
                                 <?php elseif ($pedido['estado'] == 'en_preparacion'): ?>
                                     <button type="button" class="btn btn-sm btn-success" title="Marcar como listo" onclick="cambiarEstado(<?= $pedido['id'] ?>, 'listo')">
                                         <i class="fas fa-check"></i>
+                                    </button>
+                                <?php elseif ($pedido['estado'] == 'listo'): ?>
+                                    <button type="button" class="btn btn-sm btn-primary" title="Asignar repartidor" onclick="mostrarModalEstado(<?= $pedido['id'] ?>, 'listo')">
+                                        <i class="fas fa-motorcycle"></i>
                                     </button>
                                 <?php endif; ?>
                                 <button type="button" class="btn btn-sm btn-warning" title="Cambiar estado" onclick="mostrarModalEstado(<?= $pedido['id'] ?>, '<?= $pedido['estado'] ?>')">
@@ -178,9 +271,10 @@
                     <input type="hidden" id="pedido_id_estado" name="pedido_id">
                     <div class="mb-3">
                         <label class="form-label">Nuevo Estado</label>
-                        <select name="nuevo_estado" id="nuevo_estado_select" class="form-select" required>
+                        <select name="nuevo_estado" id="nuevo_estado_select" class="form-select" required onchange="toggleRepartidorSelect()">
                             <option value="">Selecciona un estado...</option>
                             <option value="pendiente">Pendiente</option>
+                            <option value="confirmado">Confirmado</option>
                             <option value="en_preparacion">En Preparación</option>
                             <option value="listo">Listo</option>
                             <option value="en_camino">En Camino</option>
@@ -188,6 +282,18 @@
                             <option value="cancelado">Cancelado</option>
                         </select>
                     </div>
+                    
+                    <!-- Selector de repartidor (se muestra solo cuando se selecciona "En Camino") -->
+                    <div class="mb-3" id="repartidor_select_container" style="display: none;">
+                        <label class="form-label">
+                            <i class="fas fa-motorcycle me-1"></i>Seleccionar Repartidor
+                        </label>
+                        <select name="repartidor_id" id="repartidor_select" class="form-select">
+                            <option value="">Cargando repartidores...</option>
+                        </select>
+                        <small class="text-muted">Selecciona el repartidor que entregará este pedido</small>
+                    </div>
+                    
                     <div class="mb-3">
                         <label class="form-label">Observaciones (opcional)</label>
                         <textarea name="observaciones" class="form-control" rows="3" placeholder="Agregar observaciones sobre el cambio de estado..."></textarea>
@@ -205,8 +311,61 @@
 </div>
 
 <script>
+// Variables globales
+let map;
+let markers = [];
+
+// Función para mostrar mensajes
+function showToast(message, type) {
+    const toastContainer = document.getElementById('toastContainer');
+    if (!toastContainer) {
+        const container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.style.position = 'fixed';
+        container.style.top = '20px';
+        container.style.right = '20px';
+        container.style.zIndex = '1100';
+        document.body.appendChild(container);
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = `toast show align-items-center text-white bg-${type} border-0`;
+    toast.role = 'alert';
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    toast.style.marginBottom = '10px';
+    
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+    
+    document.getElementById('toastContainer').appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+        toast.classList.add('hide');
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }, 5000);
+}
+
+// Función para cambiar estado
 function cambiarEstado(pedidoId, nuevoEstado) {
     if (confirm('¿Estás seguro de cambiar el estado del pedido #' + pedidoId + ' a "' + nuevoEstado + '"?')) {
+        // Mostrar indicador de carga
+        const btn = event.target.closest('button');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Procesando...';
+        btn.disabled = true;
+        
+        console.log('Enviando solicitud para pedido:', pedidoId, 'nuevo estado:', nuevoEstado);
+        
         fetch('<?= base_url('cocina/pedidos/cambiar-estado/') ?>' + pedidoId, {
             method: 'POST',
             headers: {
@@ -216,39 +375,125 @@ function cambiarEstado(pedidoId, nuevoEstado) {
                 estado: nuevoEstado
             })
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Respuesta recibida:', response.status, response.statusText);
+            if (!response.ok) {
+                throw new Error('HTTP ' + response.status + ' - ' + response.statusText);
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('Datos recibidos:', data);
             if (data.success) {
+                showToast('Estado actualizado correctamente', 'success');
+                setTimeout(() => {
                 location.reload();
+                }, 1000);
             } else {
-                alert('Error: ' + data.message);
+                showToast('Error: ' + (data.message || 'Error desconocido'), 'danger');
+                // Restaurar botón
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('Error al cambiar el estado del pedido');
+            console.error('Error completo:', error);
+            showToast('Error al cambiar el estado del pedido: ' + error.message, 'danger');
+            // Restaurar botón
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         });
     }
 }
 
+// Función para mostrar modal
 function mostrarModalEstado(pedidoId, estadoActual) {
     document.getElementById('pedido_id_estado').value = pedidoId;
     document.getElementById('nuevo_estado_select').value = '';
     document.querySelector('textarea[name="observaciones"]').value = '';
     
+    // Ocultar selector de repartidor por defecto
+    document.getElementById('repartidor_select_container').style.display = 'none';
+    
     // Mostrar el modal
     new bootstrap.Modal(document.getElementById('cambiarEstadoModal')).show();
 }
 
+// Función para mostrar/ocultar selector de repartidor
+function toggleRepartidorSelect() {
+    const nuevoEstado = document.getElementById('nuevo_estado_select').value;
+    const repartidorContainer = document.getElementById('repartidor_select_container');
+    const repartidorSelect = document.getElementById('repartidor_select');
+    
+    if (nuevoEstado === 'en_camino') {
+        repartidorContainer.style.display = 'block';
+        cargarRepartidoresDisponibles();
+    } else {
+        repartidorContainer.style.display = 'none';
+        repartidorSelect.innerHTML = '<option value="">Cargando repartidores...</option>';
+    }
+}
+
+// Función para cargar repartidores disponibles
+function cargarRepartidoresDisponibles() {
+    const repartidorSelect = document.getElementById('repartidor_select');
+    repartidorSelect.innerHTML = '<option value="">Cargando repartidores...</option>';
+    
+    console.log('🔍 Iniciando carga de repartidores...');
+    
+    // Usar los repartidores que vienen del servidor
+    const repartidores = <?= json_encode($repartidores ?? []) ?>;
+    
+    console.log('📊 Repartidores disponibles:', repartidores);
+    
+    if (repartidores && repartidores.length > 0) {
+        repartidorSelect.innerHTML = '<option value="">Selecciona un repartidor...</option>';
+        repartidores.forEach(repartidor => {
+            const option = document.createElement('option');
+            option.value = repartidor.id;
+            option.textContent = `${repartidor.nombre} (${repartidor.pedidos_en_camino} pedidos en camino)`;
+            repartidorSelect.appendChild(option);
+        });
+        console.log('✅ Repartidores cargados exitosamente:', repartidores.length, 'repartidores');
+    } else {
+        console.warn('⚠️ No hay repartidores disponibles');
+        repartidorSelect.innerHTML = '<option value="">No hay repartidores disponibles</option>';
+        showToast('No hay repartidores disponibles', 'warning');
+    }
+}
+
+// Función para confirmar cambio de estado
 function confirmarCambioEstado() {
-    const formData = new FormData(document.getElementById('cambiarEstadoForm'));
-    const pedidoId = formData.get('pedido_id');
-    const nuevoEstado = formData.get('nuevo_estado');
-    const observaciones = formData.get('observaciones');
+    const pedidoId = document.getElementById('pedido_id_estado').value;
+    const nuevoEstado = document.getElementById('nuevo_estado_select').value;
+    const observaciones = document.querySelector('textarea[name="observaciones"]').value;
+    const repartidorId = document.getElementById('repartidor_select').value;
     
     if (!nuevoEstado) {
-        alert('Por favor selecciona un estado');
+        showToast('Debe seleccionar un estado', 'warning');
         return;
+    }
+    
+    // Si el estado es "en_camino", verificar que se seleccionó un repartidor
+    if (nuevoEstado === 'en_camino' && !repartidorId) {
+        showToast('Debe seleccionar un repartidor para cambiar a "En Camino"', 'warning');
+        return;
+    }
+    
+    // Mostrar indicador de carga
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Procesando...';
+    btn.disabled = true;
+    
+    const datos = {
+        estado: nuevoEstado,
+        observaciones: observaciones
+    };
+    
+    // Agregar repartidor_id si se seleccionó uno
+    if (repartidorId) {
+        datos.repartidor_id = repartidorId;
     }
     
     fetch('<?= base_url('cocina/pedidos/cambiar-estado/') ?>' + pedidoId, {
@@ -256,24 +501,139 @@ function confirmarCambioEstado() {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            estado: nuevoEstado,
-            observaciones: observaciones
-        })
+        body: JSON.stringify(datos)
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Cerrar el modal
+            showToast('Estado actualizado correctamente', 'success');
+            // Cerrar modal
             bootstrap.Modal.getInstance(document.getElementById('cambiarEstadoModal')).hide();
-            location.reload();
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
         } else {
-            alert('Error: ' + data.message);
+            showToast('Error: ' + (data.message || 'Error desconocido'), 'danger');
+            // Restaurar botón
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error al cambiar el estado del pedido');
+        showToast('Error al cambiar el estado del pedido', 'danger');
+        // Restaurar botón
+        btn.innerHTML = originalText;
+        btn.disabled = false;
     });
 }
+
+// Función para ver pedido detalle
+function verPedidoDetalle(pedidoId) {
+    window.location.href = `<?= base_url('cocina/pedidos/') ?>${pedidoId}`;
+}
+
+// Función para obtener color de estado
+function getEstadoColor(estado) {
+    switch(estado) {
+        case 'pendiente': return 'warning';
+        case 'confirmado': return 'primary';
+        case 'en_preparacion': return 'info';
+        case 'listo': return 'success';
+        case 'en_camino': return 'primary';
+        case 'entregado': return 'success';
+        case 'cancelado': return 'danger';
+        default: return 'secondary';
+    }
+}
+
+// Función para inicializar mapa
+function initMap() {
+    // Centrar en Clorinda, Formosa
+    map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: -25.291388888889, lng: -57.718333333333 },
+        zoom: 13,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: true
+    });
+    
+    // Cargar pedidos en el mapa
+    cargarPedidosEnMapa();
+}
+
+// Función para cargar pedidos en el mapa
+function cargarPedidosEnMapa() {
+    const pedidos = <?= json_encode($pedidos) ?>;
+    
+    pedidos.forEach((pedido, index) => {
+        if (pedido.latitud && pedido.longitud) {
+            // Determinar color del marcador según el estado
+            let iconUrl = 'https://maps.google.com/mapfiles/ms/icons/red-dot.png';
+            if (pedido.estado === 'listo') {
+                iconUrl = 'https://maps.google.com/mapfiles/ms/icons/green-dot.png';
+            } else if (pedido.estado === 'en_preparacion') {
+                iconUrl = 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png';
+            } else if (pedido.estado === 'en_camino') {
+                iconUrl = 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png';
+            }
+            
+            const marker = new google.maps.Marker({
+                position: { lat: parseFloat(pedido.latitud), lng: parseFloat(pedido.longitud) },
+                map: map,
+                title: `Pedido #${pedido.id} - ${pedido.nombre}`,
+                icon: {
+                    url: iconUrl,
+                    scaledSize: new google.maps.Size(32, 32)
+                }
+            });
+            
+            // Info window con detalles del pedido
+            const infoWindow = new google.maps.InfoWindow({
+                content: `
+                    <div style="min-width: 250px;">
+                        <h6><strong>Pedido #${pedido.id}</strong></h6>
+                        <p><strong>Cliente:</strong> ${pedido.nombre}</p>
+                        <p><strong>Dirección:</strong> ${pedido.direccion_entrega}</p>
+                        <p><strong>Estado:</strong> <span class="badge bg-${getEstadoColor(pedido.estado)}">${pedido.estado}</span></p>
+                        <p><strong>Fecha:</strong> ${new Date(pedido.fecha).toLocaleString()}</p>
+                        <p><strong>Total:</strong> $${pedido.total}</p>
+                        <div class="mt-2">
+                            <button onclick="mostrarModalEstado(${pedido.id}, '${pedido.estado}')" class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit me-1"></i>Cambiar Estado
+                            </button>
+                            <button onclick="verPedidoDetalle(${pedido.id})" class="btn btn-info btn-sm ms-1">
+                                <i class="fas fa-eye me-1"></i>Ver Detalles
+                            </button>
+                        </div>
+                    </div>
+                `
+            });
+            
+            marker.addListener('click', function() {
+                infoWindow.open(map, marker);
+            });
+            
+            markers.push(marker);
+        }
+    });
+}
+
+// Inicializar cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    // Esperar a que Google Maps se cargue completamente
+    if (typeof google !== 'undefined' && google.maps) {
+        initMap();
+    } else {
+        // Si Google Maps aún no se ha cargado, esperar
+        window.addEventListener('load', function() {
+            if (typeof google !== 'undefined' && google.maps) {
+                initMap();
+            }
+        });
+    }
+});
 </script> 
+
+<!-- Google Maps Script -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCnIKlDT5Ejj-Uoj1cL0nw2aHEaQOFrAs&libraries=places&loading=async" async defer></script> 

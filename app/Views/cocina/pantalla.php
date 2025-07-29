@@ -214,7 +214,7 @@
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <div class="pedido-numero">#<?= $pedido['id'] ?></div>
-                                        <div class="pedido-cliente"><?= esc($pedido['nombre_cliente']) ?></div>
+                                        <div class="pedido-cliente"><?= esc($pedido['nombre'] ?? 'Cliente') ?></div>
                                     </div>
                                     <div class="text-end">
                                         <div class="pedido-estado estado-<?= $pedido['estado'] ?>">
