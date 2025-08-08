@@ -1,19 +1,18 @@
-<div class="container-fluid mt-3">
+<div class="container-fluid mt-5 pt-5 mb-5">
     <!-- Header del seguimiento -->
     <div class="row">
         <div class="col-12">
-            <div class="card mb-3">
-                <div class="card-header bg-primary text-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="mb-0">
+            <div class="card mb-3 seguimiento-card">
+                <div class="card-header seguimiento-header">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                        <div class="mb-2 mb-md-0">
+                            <h5 class="mb-0 seguimiento-title">
                                 <i class="fas fa-motorcycle me-2"></i>Seguimiento en Tiempo Real
                             </h5>
-                            <small>Pedido #<?= esc($pedido['codigo_seguimiento']) ?></small>
+                            <small class="seguimiento-subtitle">Pedido #<?= esc($pedido['codigo_seguimiento']) ?></small>
                         </div>
-                        <div class="text-end">
-                            <div class="badge <?= $pedido['estado'] == 'en_camino' ? 'bg-success' : 'bg-light text-dark' ?> fs-6" 
-                                 style="<?= $pedido['estado'] == 'en_camino' ? 'background: linear-gradient(135deg, #28a745, #20c997) !important; color: white !important;' : '' ?>">
+                        <div class="text-start text-md-end">
+                            <div class="badge seguimiento-badge <?= $pedido['estado'] == 'en_camino' ? 'badge-en-camino' : 'badge-default' ?> fs-6">
                                 <?php if ($pedido['estado'] == 'en_camino'): ?>
                                     <i class="fas fa-motorcycle me-1"></i>
                                 <?php endif; ?>
@@ -24,58 +23,16 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
-                            <h6><i class="fas fa-info-circle me-2"></i>Información del Pedido</h6>
-                            <ul class="list-unstyled">
-                                <li><strong>Fecha:</strong> <?= date('d/m/Y H:i', strtotime($pedido['fecha'])) ?></li>
-                                <li><strong>Total:</strong> $<?= esc($pedido['total']) ?></li>
-                                <li><strong>Dirección:</strong> <?= esc($pedido['direccion_entrega']) ?></li>
+                        <div class="col-12 col-md-6 mb-3 mb-md-0">
+                            <h6 class="seguimiento-section-title"><i class="fas fa-info-circle me-2"></i>Información del Pedido</h6>
+                            <ul class="list-unstyled seguimiento-info-list">
+                                <li class="seguimiento-info-item"><strong>Fecha:</strong> <?= date('d/m/Y H:i', strtotime($pedido['fecha'])) ?></li>
+                                <li class="seguimiento-info-item"><strong>Total:</strong> $<?= esc($pedido['total']) ?></li>
+                                <li class="seguimiento-info-item"><strong>Dirección:</strong> <?= esc($pedido['direccion_entrega']) ?></li>
                                 <?php if (!empty($pedido['repartidor_nombre'])): ?>
-                                    <li><strong>Repartidor:</strong> <?= esc($pedido['repartidor_nombre']) ?></li>
+                                    <li class="seguimiento-info-item"><strong>Repartidor:</strong> <?= esc($pedido['repartidor_nombre']) ?></li>
                                 <?php endif; ?>
                             </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <h6><i class="fas fa-clock me-2"></i>Estado Actual</h6>
-                            <div class="alert <?= $pedido['estado'] == 'en_camino' ? 'alert-success' : 'alert-info' ?> border-0" 
-                                 style="<?= $pedido['estado'] == 'en_camino' ? 'background: linear-gradient(135deg, #28a745, #20c997); color: white;' : '' ?>">
-                                <div class="d-flex align-items-center">
-                                    <div class="me-2">
-                                        <?php if ($pedido['estado'] == 'en_camino'): ?>
-                                            <i class="fas fa-motorcycle fa-lg"></i>
-                                        <?php else: ?>
-                                            <i class="fas fa-info-circle fa-lg"></i>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div>
-                                        <strong><?= ucfirst($pedido['estado']) ?></strong>
-                                        <br>
-                                        <small>
-                                            <?php
-                                            switch($pedido['estado']) {
-                                                case 'pendiente':
-                                                    echo '<i class="fas fa-clock me-1"></i>Tu pedido está siendo procesado';
-                                                    break;
-                                                case 'confirmado':
-                                                    echo '<i class="fas fa-check-circle me-1"></i>Tu pedido ha sido confirmado y está en preparación';
-                                                    break;
-                                                case 'en_preparacion':
-                                                    echo '<i class="fas fa-utensils me-1"></i>Tu pedido está siendo preparado en la cocina';
-                                                    break;
-                                                case 'en_camino':
-                                                    echo '<i class="fas fa-motorcycle me-1"></i>Estado: En camino hacia tu dirección';
-                                                    break;
-                                                case 'entregado':
-                                                    echo '<i class="fas fa-check-double me-1"></i>Tu pedido ha sido entregado exitosamente';
-                                                    break;
-                                                default:
-                                                    echo '<i class="fas fa-info-circle me-1"></i>Estado del pedido actualizado';
-                                            }
-                                            ?>
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -87,10 +44,10 @@
     <?php if ($pedido['estado'] == 'en_camino'): ?>
     <div class="row mb-3">
         <div class="col-12">
-            <div class="card border-0" style="background: linear-gradient(135deg, #28a745, #20c997); color: white; border-radius: 12px;">
+            <div class="card border-0 seguimiento-en-camino-card">
                 <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
+                    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between">
+                        <div class="d-flex align-items-center mb-3 mb-md-0">
                             <div class="me-3">
                                 <i class="fas fa-motorcycle fa-2x"></i>
                             </div>
@@ -99,9 +56,10 @@
                                 <p class="mb-0">El repartidor se dirige hacia tu dirección</p>
                             </div>
                         </div>
-                        <div class="text-end">
-                            <div class="badge bg-white text-success fs-6">
-                                <i class="fas fa-motorcycle me-1"></i>En Camino
+                        <div class="text-center text-md-end">
+                            <div class="seguimiento-timer">
+                                <small class="text-muted">Tiempo estimado</small>
+                                <div class="fw-bold">15-20 min</div>
                             </div>
                         </div>
                     </div>
@@ -114,17 +72,17 @@
         <div class="col-12">
             <div class="card border-0" style="background: linear-gradient(135deg, #ffc107, #ffb74d); color: white; border-radius: 12px;">
                 <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
+                    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between">
+                        <div class="d-flex align-items-center mb-3 mb-md-0">
                             <div class="me-3">
                                 <i class="fas fa-clock fa-2x"></i>
                             </div>
                             <div>
                                 <h5 class="mb-1 fw-bold">⏳ Pendiente</h5>
-                                <p class="mb-0">Tu pedido está siendo procesado</p>
+                                <p class="mb-0">Por favor confirma tu pedido para continuar.</p>
                             </div>
                         </div>
-                        <div class="text-end">
+                        <div class="text-center text-md-end">
                             <div class="badge bg-white text-warning fs-6">
                                 <i class="fas fa-clock me-1"></i>Pendiente
                             </div>
@@ -139,8 +97,8 @@
         <div class="col-12">
             <div class="card border-0" style="background: linear-gradient(135deg, #17a2b8, #20c997); color: white; border-radius: 12px;">
                 <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
+                    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between">
+                        <div class="d-flex align-items-center mb-3 mb-md-0">
                             <div class="me-3">
                                 <i class="fas fa-check-circle fa-2x"></i>
                             </div>
@@ -149,7 +107,7 @@
                                 <p class="mb-0">Tu pedido ha sido confirmado y está en preparación</p>
                             </div>
                         </div>
-                        <div class="text-end">
+                        <div class="text-center text-md-end">
                             <div class="badge bg-white text-info fs-6">
                                 <i class="fas fa-check-circle me-1"></i>Confirmado
                             </div>
@@ -164,8 +122,8 @@
         <div class="col-12">
             <div class="card border-0" style="background: linear-gradient(135deg, #fd7e14, #ff8c42); color: white; border-radius: 12px;">
                 <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
+                    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between">
+                        <div class="d-flex align-items-center mb-3 mb-md-0">
                             <div class="me-3">
                                 <i class="fas fa-utensils fa-2x"></i>
                             </div>
@@ -174,7 +132,7 @@
                                 <p class="mb-0">Tu pedido está siendo preparado en la cocina</p>
                             </div>
                         </div>
-                        <div class="text-end">
+                        <div class="text-center text-md-end">
                             <div class="badge bg-white text-warning fs-6">
                                 <i class="fas fa-utensils me-1"></i>En Preparación
                             </div>
@@ -189,8 +147,8 @@
         <div class="col-12">
             <div class="card border-0" style="background: linear-gradient(135deg, #6f42c1, #8e44ad); color: white; border-radius: 12px;">
                 <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
+                    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between">
+                        <div class="d-flex align-items-center mb-3 mb-md-0">
                             <div class="me-3">
                                 <i class="fas fa-check-double fa-2x"></i>
                             </div>
@@ -199,8 +157,8 @@
                                 <p class="mb-0">Tu pedido ha sido entregado exitosamente</p>
                             </div>
                         </div>
-                        <div class="text-end">
-                            <div class="badge bg-white text-purple fs-6">
+                        <div class="text-center text-md-end">
+                            <div class="badge bg-white text-success fs-6">
                                 <i class="fas fa-check-double me-1"></i>Entregado
                             </div>
                         </div>
@@ -209,47 +167,25 @@
             </div>
         </div>
     </div>
-    <?php endif; ?>
-
-    <!-- Indicador permanente de estado en camino -->
-    <?php if ($pedido['estado'] == 'en_camino'): ?>
+    <?php elseif ($pedido['estado'] == 'cancelado'): ?>
     <div class="row mb-3">
         <div class="col-12">
-            <div class="alert alert-info border-0" style="background: linear-gradient(135deg, #FF6B35, #FF8A65); color: white; border-radius: 12px;">
-                <div class="d-flex align-items-center">
-                    <div class="me-3">
-                        <i class="fas fa-motorcycle fa-2x"></i>
-                    </div>
-                    <div>
-                        <h6 class="mb-1 fw-bold">📍 Seguimiento en Tiempo Real</h6>
-                        <p class="mb-0 small">Puedes seguir la ubicación del repartidor en el mapa de abajo</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <?php endif; ?>
-
-    <!-- Indicador de progreso visual -->
-    <?php if ($pedido['estado'] == 'en_camino'): ?>
-    <div class="row mb-3">
-        <div class="col-12">
-            <div class="card border-0" style="background: linear-gradient(135deg, #f8f9fa, #e9ecef);">
-                <div class="card-body py-3">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
+            <div class="card border-0" style="background: linear-gradient(135deg, #dc3545, #c82333); color: white; border-radius: 12px;">
+                <div class="card-body">
+                    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between">
+                        <div class="d-flex align-items-center mb-3 mb-md-0">
                             <div class="me-3">
-                                <div class="spinner-border spinner-border-sm text-success" role="status">
-                                    <span class="visually-hidden">Cargando...</span>
-                                </div>
+                                <i class="fas fa-times-circle fa-2x"></i>
                             </div>
                             <div>
-                                <h6 class="mb-1 fw-bold text-success">🔄 Seguimiento Activo</h6>
-                                <p class="mb-0 small text-muted">Actualizando ubicación del repartidor en tiempo real</p>
+                                <h5 class="mb-1 fw-bold">❌ Cancelado</h5>
+                                <p class="mb-0">Tu pedido ha sido cancelado. Contacta a soporte al cliente.</p>
                             </div>
                         </div>
-                        <div class="text-end">
-                            <small class="text-muted">Actualizado cada 30 segundos</small>
+                        <div class="text-center text-md-end">
+                            <div class="badge bg-white text-danger fs-6">
+                                <i class="fas fa-times-circle me-1"></i>Cancelado
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -258,24 +194,34 @@
     </div>
     <?php endif; ?>
 
+<?php 
+// Obtener configuración del mapa de seguimiento
+$configuracionModel = new \App\Models\ConfiguracionModel();
+$mapaConfig = $configuracionModel->getConfiguracionMapaSeguimiento();
+$mapaActivo = $mapaConfig['activo'];
+?>
+
+<?php if ($pedido['estado'] == 'en_camino' && $mapaActivo): ?>
     <!-- Mapa de seguimiento -->
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                        <h6 class="mb-2 mb-md-0">
                             <i class="fas fa-map-marked-alt me-2"></i>Ubicación del Repartidor
                         </h6>
+                        <?php if ($mapaConfig['mostrar_ruta']): ?>
                         <div class="btn-group btn-group-sm">
                             <button onclick="toggleRuta()" class="btn btn-outline-primary btn-sm" id="btn-ruta" title="Mostrar/Ocultar ruta">
                                 <i class="fas fa-route"></i>
                             </button>
                         </div>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="card-body p-0">
-                    <div id="map" style="height: 400px; width: 100%;"></div>
+                    <div id="map" style="height: 300px; width: 100%;"></div>
                     <div id="map-error" class="alert alert-warning m-3" style="display: none;">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         <strong>Error del mapa:</strong> <span id="error-message"></span>
@@ -291,19 +237,19 @@
             <div class="card">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-4 text-center">
+                        <div class="col-4 text-center">
                             <div class="border-end">
                                 <h6 class="text-muted">Tiempo Estimado</h6>
                                 <h4 id="tiempo-estimado" class="text-primary">--</h4>
                             </div>
                         </div>
-                        <div class="col-md-4 text-center">
+                        <div class="col-4 text-center">
                             <div class="border-end">
                                 <h6 class="text-muted">Distancia</h6>
                                 <h4 id="distancia" class="text-info">--</h4>
                             </div>
                         </div>
-                        <div class="col-md-4 text-center">
+                        <div class="col-4 text-center">
                             <h6 class="text-muted">Última Actualización</h6>
                             <h4 id="ultima-actualizacion" class="text-success">--</h4>
                         </div>
@@ -312,34 +258,57 @@
             </div>
         </div>
     </div>
+<?php elseif ($pedido['estado'] == 'en_camino' && !$mapaActivo): ?>
+    <!-- Mensaje cuando el mapa está desactivado -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Mapa de Seguimiento Desactivado</h5>
+                    <p class="text-muted mb-0">
+                        El mapa de seguimiento en tiempo real está temporalmente desactivado por el administrador.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
+<?php if ($pedido['estado'] == 'pendiente' && isset($whatsapp)): ?>
+<?php
+$productosMsg = '';
+if (!empty($detalles)) {
+    foreach ($detalles as $item) {
+        $nombre = $item['producto_nombre'] ?? $item['combo_nombre'] ?? 'Producto';
+        $productosMsg .= $nombre . ' x' . $item['cantidad'] . ' → $' . number_format($item['precio_unitario'] * $item['cantidad'], 2) . "\n";
+    }
+}
+$totalMsg = isset($pedido['total']) ? '$' . number_format($pedido['total'], 2) : '';
+$direccionMsg = $pedido['direccion_entrega'] ?? '';
+$metodoPagoMsg = ucfirst($pedido['metodo_pago'] ?? '');
+$obsMsg = $pedido['observaciones'] ?? '';
+$mensajeWA =
+    "Confirmación de Pedido #{$pedido['codigo_seguimiento']}\n\n" .
+    "Detalle del pedido:\n" . $productosMsg . "\n" .
+    "Total: {$totalMsg}\n" .
+    "Entrega en: {$direccionMsg}\n" .
+    "Pago: {$metodoPagoMsg}";
+if ($obsMsg) {
+    $mensajeWA .= "\nObservaciones: {$obsMsg}";
+}
+$mensajeWA .= "\n\nSeguimiento: " . base_url("seguimiento/{$pedido['codigo_seguimiento']}");
+?>
+<div class="my-4 animate__animated animate__fadeInUp text-center">
+    <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $whatsapp) ?>?text=<?= urlencode($mensajeWA) ?>"
+       target="_blank"
+       class="btn btn-success btn-lg btn-hover-effect w-100 w-md-auto mx-auto d-block"
+       style="max-width: 420px;">
+        <i class="fab fa-whatsapp me-2"></i>Confirmar por WhatsApp
+    </a>
+    <div class="text-muted mt-2 small">Presiona el botón para confirmar tu pedido y recibir asistencia personalizada.</div>
 </div>
-
-<style>
-.card {
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.card-header {
-    border-radius: 12px 12px 0 0 !important;
-    border-bottom: none;
-}
-
-#map {
-    border-radius: 0 0 12px 12px;
-}
-
-.badge {
-    font-size: 0.875rem;
-    padding: 0.5rem 1rem;
-}
-
-.alert {
-    border-radius: 8px;
-    border: none;
-}
-</style>
+<?php endif; ?>
 
 <script>
 let map;
@@ -354,6 +323,13 @@ let rutaActiva = null;
 // Inicializar mapa
 function initMap() {
     console.log('Inicializando mapa de seguimiento...');
+    
+    // Verificar que el elemento del mapa existe
+    const mapElement = document.getElementById('map');
+    if (!mapElement) {
+        console.error('Elemento del mapa no encontrado');
+        return;
+    }
     
     if (typeof google === 'undefined' || !google.maps || !google.maps.Map) {
         mostrarErrorMapa('Google Maps API no está disponible');
@@ -376,36 +352,44 @@ function initMap() {
                 center = { lat: -25.291388888889, lng: -57.718333333333 };
             }
             
-            map = new google.maps.Map(document.getElementById('map'), {
-                center: center,
-                zoom: 15,
-                mapTypeControl: false,
-                streetViewControl: false,
-                fullscreenControl: true
-            });
-            
-            // Inicializar servicios de direcciones
-            directionsService = new google.maps.DirectionsService();
-            directionsRenderer = new google.maps.DirectionsRenderer({
-                suppressMarkers: true, // No mostrar marcadores automáticos
-                polylineOptions: {
-                    strokeColor: '#FF6B35',
-                    strokeWeight: 4,
-                    strokeOpacity: 0.8
+            // Crear el mapa solo si no existe
+            if (!map) {
+                // Usar configuración del zoom por defecto
+                const zoomDefault = <?= $mapaConfig['zoom_default'] ?? 15 ?>;
+                
+                map = new google.maps.Map(mapElement, {
+                    center: center,
+                    zoom: zoomDefault,
+                    mapTypeControl: false,
+                    streetViewControl: false,
+                    fullscreenControl: true
+                });
+                
+                // Inicializar servicios de direcciones solo si están disponibles y configurados
+                if (google.maps.DirectionsService && google.maps.DirectionsRenderer && <?= $mapaConfig['mostrar_ruta'] ? 'true' : 'false' ?>) {
+                    directionsService = new google.maps.DirectionsService();
+                    directionsRenderer = new google.maps.DirectionsRenderer({
+                        suppressMarkers: true,
+                        polylineOptions: {
+                            strokeColor: '#FF6B35',
+                            strokeWeight: 4,
+                            strokeOpacity: 0.8
+                        }
+                    });
+                    directionsRenderer.setMap(map);
                 }
-            });
-            directionsRenderer.setMap(map);
-            
-            // Agregar marcador de destino (dirección de entrega)
-            new google.maps.Marker({
-                position: center,
-                map: map,
-                title: 'Dirección de entrega',
-                icon: {
-                    url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-                    scaledSize: new google.maps.Size(32, 32)
-                }
-            });
+                
+                // Agregar marcador de destino (dirección de entrega)
+                new google.maps.Marker({
+                    position: center,
+                    map: map,
+                    title: 'Dirección de entrega',
+                    icon: {
+                        url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                        scaledSize: new google.maps.Size(32, 32)
+                    }
+                });
+            }
             
             // Iniciar actualización de ubicación del repartidor
             if ('<?= $pedido['estado'] ?>' === 'en_camino') {
@@ -422,7 +406,12 @@ function initMap() {
 // Función para actualizar ubicación del repartidor
 function actualizarUbicacionRepartidor() {
     fetch(`<?= base_url('api/seguimiento/ubicacion/') ?>${pedidoId}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success && data.data) {
                 const ubicacion = data.data;
@@ -471,15 +460,31 @@ function actualizarUbicacionRepartidor() {
                 actualizarInformacionTiempo(ubicacion);
                 
                 ultimaUbicacion = ubicacion;
+                
+                // Ocultar mensaje de error si existe
+                const errorDiv = document.getElementById('map-error');
+                if (errorDiv) {
+                    errorDiv.style.display = 'none';
+                }
+            } else {
+                // No hay ubicación disponible
+                mostrarMensajeSinUbicacion(data.message || 'No hay ubicación disponible del repartidor');
             }
         })
         .catch(error => {
             console.error('Error al obtener ubicación del repartidor:', error);
+            mostrarMensajeSinUbicacion('Error al obtener la ubicación del repartidor. Inténtalo de nuevo en unos momentos.');
         });
 }
 
 // Función para calcular la ruta del repartidor
 function calcularRutaRepartidor(latRepartidor, lngRepartidor) {
+    // Verificar que los servicios de direcciones estén disponibles
+    if (!directionsService || !directionsRenderer) {
+        console.log('Servicios de direcciones no disponibles');
+        return;
+    }
+    
     const direccionEntrega = '<?= esc($pedido['direccion_entrega']) ?>';
     
     // Geocodificar la dirección de entrega
@@ -564,8 +569,9 @@ function iniciarActualizacionUbicacion() {
     // Actualizar inmediatamente
     actualizarUbicacionRepartidor();
     
-    // Actualizar cada 30 segundos
-    intervaloActualizacion = setInterval(actualizarUbicacionRepartidor, 30000);
+    // Usar tiempo de actualización configurado (convertir a milisegundos)
+    const tiempoActualizacion = <?= ($mapaConfig['tiempo_actualizacion'] ?? 30) * 1000 ?>;
+    intervaloActualizacion = setInterval(actualizarUbicacionRepartidor, tiempoActualizacion);
 }
 
 // Función para mostrar notificaciones toast
@@ -634,20 +640,72 @@ function toggleRuta() {
     }
 }
 
-// Inicialización cuando se carga la página
-document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar mapa cuando Google Maps esté listo
-    function initializeMapWhenReady() {
-        if (typeof google !== 'undefined' && google.maps && google.maps.Map) {
-            console.log('Google Maps API cargada, inicializando mapa de seguimiento...');
-            initMap();
-        } else {
-            console.log('Google Maps API aún no está disponible, esperando...');
-            setTimeout(initializeMapWhenReady, 100);
-        }
+// Función para mostrar mensaje cuando no hay ubicación disponible
+function mostrarMensajeSinUbicacion(mensaje = 'No hay ubicación disponible del repartidor en este momento. El repartidor puede estar iniciando su ruta o la ubicación se actualizará pronto.') {
+    const errorDiv = document.getElementById('map-error');
+    const errorMessage = document.getElementById('error-message');
+    if (errorDiv && errorMessage) {
+        errorMessage.textContent = mensaje;
+        errorDiv.style.display = 'block';
+        errorDiv.className = 'alert alert-info m-3';
+        errorDiv.innerHTML = `
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Ubicación no disponible:</strong> 
+            <span id="error-message">${mensaje}</span>
+        `;
     }
     
-    initializeMapWhenReady();
+    // Mostrar mensaje en el mapa también
+    if (map) {
+        const infoWindow = new google.maps.InfoWindow({
+            content: `
+                <div style="padding: 10px; max-width: 250px;">
+                    <h6><i class="fas fa-info-circle me-2"></i>Ubicación no disponible</h6>
+                    <p class="mb-0">${mensaje}</p>
+                </div>
+            `
+        });
+        
+        // Mostrar en el centro del mapa
+        const center = map.getCenter();
+        if (center) {
+            infoWindow.setPosition(center);
+            infoWindow.open(map);
+            
+            // Cerrar automáticamente después de 5 segundos
+            setTimeout(() => {
+                infoWindow.close();
+            }, 5000);
+        }
+    }
+}
+
+// Inicialización cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    // Solo inicializar si el pedido está en camino y existe el elemento del mapa
+    if ('<?= $pedido['estado'] ?>' === 'en_camino' && document.getElementById('map')) {
+        // Verificar si Google Maps ya está cargado
+        if (typeof google !== 'undefined' && google.maps && google.maps.Map) {
+            console.log('Google Maps API ya está disponible, inicializando mapa...');
+            initMap();
+        } else {
+            // Cargar Google Maps API si no está disponible
+            console.log('Cargando Google Maps API...');
+            const script = document.createElement('script');
+            script.src = 'https://maps.googleapis.com/maps/api/js?key=<?= config('GoogleMaps')->apiKey ?>&libraries=geometry&loading=async';
+            script.async = true;
+            script.defer = true;
+            script.onload = function() {
+                console.log('Google Maps API cargada, inicializando mapa de seguimiento...');
+                initMap();
+            };
+            script.onerror = function() {
+                console.error('Error al cargar Google Maps API');
+                mostrarErrorMapa('Error al cargar Google Maps API');
+            };
+            document.head.appendChild(script);
+        }
+    }
 });
 
 // Limpiar intervalo cuando se cierre la página
@@ -657,6 +715,226 @@ window.addEventListener('beforeunload', function() {
     }
 });
 </script>
+
+<style>
+/* Variables de color para consistencia */
+:root {
+    --primary-color: #4281A4;
+    --accent-color: #48A9A6;
+    --light-color: #E4DFDA;
+    --warm-color: #D4B483;
+    --accent-red: #C1666B;
+}
+
+/* Estilos para seguimiento */
+.seguimiento-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(66, 129, 164, 0.1);
+    transition: all 0.3s ease;
+}
+
+.seguimiento-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(66, 129, 164, 0.15);
+}
+
+.seguimiento-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+    padding: 1.5rem;
+}
+
+.seguimiento-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.seguimiento-subtitle {
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+.seguimiento-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-weight: 500;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.badge-en-camino {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+.badge-default {
+    background: var(--light-color);
+    color: var(--primary-color);
+}
+
+.seguimiento-section-title {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.seguimiento-info-list {
+    margin-bottom: 0;
+}
+
+.seguimiento-info-item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(66, 129, 164, 0.1);
+    color: #555;
+}
+
+.seguimiento-info-item:last-child {
+    border-bottom: none;
+}
+
+.seguimiento-info-item strong {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.seguimiento-alert {
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 0;
+}
+
+.alert-en-camino {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+.alert-default {
+    background: linear-gradient(135deg, var(--light-color), #f8f9fa);
+    color: var(--primary-color);
+    border: 1px solid rgba(66, 129, 164, 0.2);
+}
+
+.seguimiento-en-camino-card {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    border-radius: 15px;
+    box-shadow: 0 6px 25px rgba(40, 167, 69, 0.3);
+}
+
+.seguimiento-timer {
+    text-align: center;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .seguimiento-header {
+        padding: 1rem;
+    }
+    
+    .seguimiento-title {
+        font-size: 1.1rem;
+    }
+    
+    .seguimiento-badge {
+        font-size: 0.8rem !important;
+        padding: 0.4rem 0.8rem;
+    }
+    
+    #map {
+        height: 250px !important;
+    }
+    
+    .seguimiento-timer {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+    
+    .seguimiento-section-title {
+        font-size: 1rem;
+    }
+    
+    .seguimiento-info-item {
+        padding: 0.4rem 0;
+        font-size: 0.9rem;
+    }
+    
+    .seguimiento-alert {
+        padding: 1rem;
+    }
+    
+    .seguimiento-alert .fas {
+        font-size: 1.2rem !important;
+    }
+    
+    .seguimiento-alert strong {
+        font-size: 1rem;
+    }
+    
+    .seguimiento-alert small {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .seguimiento-header {
+        padding: 0.75rem;
+    }
+    
+    .seguimiento-title {
+        font-size: 1rem;
+    }
+    
+    .seguimiento-subtitle {
+        font-size: 0.8rem;
+    }
+    
+    .seguimiento-badge {
+        font-size: 0.75rem !important;
+        padding: 0.3rem 0.6rem;
+    }
+    
+    #map {
+        height: 200px !important;
+    }
+    
+    .seguimiento-timer {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+    }
+    
+    .seguimiento-section-title {
+        font-size: 0.9rem;
+    }
+    
+    .seguimiento-info-item {
+        padding: 0.3rem 0;
+        font-size: 0.85rem;
+    }
+    
+    .seguimiento-alert {
+        padding: 0.75rem;
+    }
+    
+    .seguimiento-alert .fas {
+        font-size: 1rem !important;
+    }
+    
+    .seguimiento-alert strong {
+        font-size: 0.9rem;
+    }
+    
+    .seguimiento-alert small {
+        font-size: 0.8rem;
+    }
+}
+</style>
 
 <!-- Google Maps Script -->
 <?= google_maps_script('places,geometry,directions') ?> 

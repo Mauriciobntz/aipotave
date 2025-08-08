@@ -23,7 +23,7 @@ class ViandaController extends Controller
         return view('header', $data)
             . view('navbar')
             . view('admin/viandas_listar')
-            . view('footer');
+            . view('footer_admin');
     }
 
     /**
@@ -38,7 +38,7 @@ class ViandaController extends Controller
         return view('header', $data)
             . view('navbar')
             . view('admin/vianda_form')
-            . view('footer');
+            . view('footer_admin');
     }
 
     /**
@@ -84,7 +84,7 @@ class ViandaController extends Controller
         return view('header', $data)
             . view('navbar')
             . view('admin/vianda_form')
-            . view('footer');
+            . view('footer_admin');
     }
 
     /**
@@ -149,6 +149,6 @@ class ViandaController extends Controller
         return view('header', $data)
             . view('navbar')
             . view('admin/vianda_stock')
-            . view('footer');
+            . view('footer_admin');
     }
 } 

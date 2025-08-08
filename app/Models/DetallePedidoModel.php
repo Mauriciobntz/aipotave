@@ -31,7 +31,12 @@ class DetallePedidoModel extends Model
         $builder->join('combos c', 'c.id = dp.combo_id', 'left');
         $builder->where('dp.pedido_id', $pedido_id);
         
-        return $builder->get()->getResultArray();
+        $result = $builder->get()->getResultArray();
+        
+        // Debug: Verificar que la consulta está funcionando correctamente
+        log_message('debug', 'getDetallesConInfo para pedido_id=' . $pedido_id . ': ' . json_encode($result));
+        
+        return $result;
     }
 
     /**
@@ -94,5 +99,58 @@ class DetallePedidoModel extends Model
         $builder->limit($limite);
         
         return $builder->get()->getResultArray();
+    }
+
+    /**
+     * Obtener detalles con información mejorada para productos sin datos específicos
+     */
+    public function getDetallesConInfoMejorada(int $pedido_id): array
+    {
+        $detalles = $this->getDetallesConInfo($pedido_id);
+        
+        // Debug temporal
+        log_message('debug', 'getDetallesConInfoMejorada - detalles originales: ' . json_encode($detalles));
+        
+        foreach ($detalles as &$detalle) {
+            // Si no hay producto_id ni combo_id, crear descripción mejorada
+            if (($detalle['producto_id'] === null || $detalle['producto_id'] === '') && ($detalle['combo_id'] === null || $detalle['combo_id'] === '')) {
+                $precio = $detalle['precio_unitario'];
+                $cantidad = $detalle['cantidad'];
+                
+                // Determinar categoría basada en precio
+                if ($precio >= 500) {
+                    $categoria = 'Premium';
+                } elseif ($precio >= 300) {
+                    $categoria = 'Regular';
+                } elseif ($precio >= 150) {
+                    $categoria = 'Básico';
+                } else {
+                    $categoria = 'Económico';
+                }
+                
+                // Crear nombre descriptivo
+                if (!empty($detalle['observaciones'])) {
+                    $detalle['nombre_descriptivo'] = $detalle['observaciones'];
+                } else {
+                    $detalle['nombre_descriptivo'] = "Producto $categoria";
+                    if ($cantidad > 1) {
+                        $detalle['nombre_descriptivo'] .= " (x$cantidad)";
+                    }
+                }
+                
+                // Agregar información adicional
+                $detalle['tipo_producto'] = $categoria;
+                $detalle['es_producto_generico'] = true;
+            } else {
+                // Usar nombre del producto o combo
+                $detalle['nombre_descriptivo'] = $detalle['producto_nombre'] ?? $detalle['combo_nombre'] ?? 'Producto';
+                $detalle['es_producto_generico'] = false;
+            }
+        }
+        
+        // Debug temporal
+        log_message('debug', 'getDetallesConInfoMejorada - detalles procesados: ' . json_encode($detalles));
+        
+        return $detalles;
     }
 } 

@@ -1,7 +1,3 @@
-<?= $this->extend('layout/default') ?>
-
-<?= $this->section('content') ?>
-
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -46,6 +42,23 @@
                                       rows="3"><?= esc(isset($categoria) ? $categoria['descripcion'] : (old('descripcion') ?? '')) ?></textarea>
                             <?php if (session('errors.descripcion')): ?>
                                 <div class="invalid-feedback"><?= esc(session('errors.descripcion')) ?></div>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="orden" class="form-label">
+                                <i class="fas fa-sort-numeric-up me-2"></i>Orden de Visualización
+                            </label>
+                            <input type="number" 
+                                   class="form-control <?= session('errors.orden') ? 'is-invalid' : '' ?>" 
+                                   id="orden" 
+                                   name="orden" 
+                                   value="<?= esc(isset($categoria) ? $categoria['orden'] : (old('orden') ?? '0')) ?>" 
+                                   min="0"
+                                   placeholder="0">
+                            <div class="form-text">Número menor = aparece primero. 0 = sin orden específico.</div>
+                            <?php if (session('errors.orden')): ?>
+                                <div class="invalid-feedback"><?= esc(session('errors.orden')) ?></div>
                             <?php endif; ?>
                         </div>
 

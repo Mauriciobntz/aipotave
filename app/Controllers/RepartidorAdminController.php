@@ -23,7 +23,7 @@ class RepartidorAdminController extends Controller
         return view('header', $data)
             . view('navbar')
             . view('admin/repartidores_listar')
-            . view('footer');
+            . view('footer_admin');
     }
 
     /**
@@ -38,7 +38,7 @@ class RepartidorAdminController extends Controller
         return view('header', $data)
             . view('navbar')
             . view('admin/repartidor_form')
-            . view('footer');
+            . view('footer_admin');
     }
 
     /**
@@ -88,7 +88,7 @@ class RepartidorAdminController extends Controller
         return view('header', $data)
             . view('navbar')
             . view('admin/repartidor_form')
-            . view('footer');
+            . view('footer_admin');
     }
 
     /**

@@ -19,7 +19,7 @@
                     <a class="nav-link dropdown-toggle" href="#" id="pedidosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-list me-1"></i>Pedidos
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="pedidosDropdown">
+                    <ul class="dropdown-menu" aria-labelledby="pedidosDropdown">
                         <li>
                             <a class="dropdown-item" href="<?= base_url('admin/panel') ?>">
                                 <i class="fas fa-list me-2"></i>Gestión de Pedidos
@@ -36,7 +36,7 @@
                     <a class="nav-link dropdown-toggle" href="#" id="productosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-box me-1"></i>Productos
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="productosDropdown">
+                    <ul class="dropdown-menu" aria-labelledby="productosDropdown">
                         <li>
                             <a class="dropdown-item" href="<?= base_url('admin/productos/listar') ?>">
                                 <i class="fas fa-box me-2"></i>Productos
@@ -58,7 +58,7 @@
                     <a class="nav-link dropdown-toggle" href="#" id="gestionDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-cogs me-1"></i>Gestión
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="gestionDropdown">
+                    <ul class="dropdown-menu" aria-labelledby="gestionDropdown">
                         <li>
                             <a class="dropdown-item" href="<?= base_url('admin/categorias') ?>">
                                 <i class="fas fa-tags me-2"></i>Categorías
@@ -76,18 +76,45 @@
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" href="<?= base_url('admin/calificaciones/listar') ?>">
-                                <i class="fas fa-star me-2"></i>Calificaciones
-                            </a>
-                        </li>
-                        <li>
                             <a class="dropdown-item" href="<?= base_url('admin/notificaciones/listar') ?>">
                                 <i class="fas fa-bell me-2"></i>Notificaciones
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" href="<?= base_url('admin/stock/listar') ?>">
-                                <i class="fas fa-warehouse me-2"></i>Stock
+                            <a class="dropdown-item" href="<?= base_url('admin/slides') ?>">
+                                <i class="fas fa-images me-2"></i>Slides
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="configuracionDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-cog me-1"></i>Configuración
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="configuracionDropdown">
+                        <li>
+                            <a class="dropdown-item" href="<?= base_url('admin/configuracion') ?>">
+                                <i class="fas fa-cogs me-2"></i>Configuración General
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="<?= base_url('admin/configuracion/punto-partida') ?>">
+                                <i class="fas fa-map-marker-alt me-2"></i>Punto de Partida
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="<?= base_url('admin/configuracion/mapa-seguimiento') ?>">
+                                <i class="fas fa-map-marked-alt me-2"></i>Mapa de Seguimiento
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="<?= base_url('admin/tarifas-envio') ?>">
+                                <i class="fas fa-truck me-2"></i>Tarifas Locales de Envío
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="<?= base_url('admin/configuracion/vista-rapida') ?>">
+                                <i class="fas fa-eye me-2"></i>Vista Rápida
                             </a>
                         </li>
                     </ul>
@@ -101,7 +128,7 @@
                         <i class="fas fa-user-circle me-1"></i>
                         <?= esc(session('user_name') ?? 'Administrador') ?>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="userDropdown">
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         <li>
                             <span class="dropdown-item-text">
                                 <small class="text-muted">

@@ -3,37 +3,49 @@
 namespace App\Controllers;
 
 use CodeIgniter\Controller;
+use App\Models\TarifaEnvioModel;
+use App\Models\ConfiguracionModel;
 
 class EnvioController extends Controller
 {
+    protected $tarifaEnvioModel;
+    protected $configuracionModel;
+
+    public function __construct()
+    {
+        $this->tarifaEnvioModel = new TarifaEnvioModel();
+        $this->configuracionModel = new ConfiguracionModel();
+    }
+
     /**
-     * Calcular costo de envío basado en coordenadas
+     * Calcular costo de envío basado en distancia
      */
     public function calcularCosto()
     {
-        $lat = $this->request->getPost('lat');
-        $lng = $this->request->getPost('lng');
+        $distancia = $this->request->getPost('distancia');
         
-        if (empty($lat) || empty($lng)) {
+        // Log para depuración
+        log_message('info', "EnvioController - Distancia recibida: " . var_export($distancia, true));
+        log_message('info', "EnvioController - Tipo de dato: " . gettype($distancia));
+        log_message('info', "EnvioController - is_numeric: " . (is_numeric($distancia) ? 'true' : 'false'));
+        
+        if (!$distancia || !is_numeric($distancia)) {
+            log_message('error', "EnvioController - Distancia inválida: {$distancia}");
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Coordenadas requeridas'
+                'message' => 'Distancia inválida'
             ]);
         }
         
-        // Calcular costo usando el helper
-        $costo = calcular_costo_envio($lat, $lng);
-        $distancia = calcular_distancia(-25.291388888889, -57.718333333333, $lat, $lng);
-        $distanciaTexto = obtener_distancia_texto($lat, $lng);
-        $enZona = validar_zona_entrega($lat, $lng);
+        // Calcular costo usando el modelo de tarifas
+        $resultado = $this->tarifaEnvioModel->calcularCostoEnvio($distancia);
+        
+        log_message('info', "EnvioController - Resultado: " . json_encode($resultado));
         
         return $this->response->setJSON([
             'success' => true,
-            'costo' => $costo,
-            'distancia' => $distancia,
-            'distanciaTexto' => $distanciaTexto,
-            'enZona' => $enZona,
-            'formateado' => formatear_costo_envio($costo)
+            'costo' => $resultado['costo'],
+            'tarifa' => $resultado['tarifa']
         ]);
     }
     

@@ -14,9 +14,13 @@
                 <div class="col-md-6">
                     <strong>Cliente:</strong>
                     <div><?= esc($pedido['nombre']) ?></div>
-                    <?php if (!empty($pedido['celular'])): ?>
+                    <?php if (isset($pedido['celular']) && $pedido['celular'] !== ''): ?>
                         <small class="text-muted">
                             <i class="fas fa-phone me-1"></i><?= esc($pedido['celular']) ?>
+                        </small>
+                    <?php else: ?>
+                        <small class="text-muted">
+                            <i class="fas fa-phone me-1"></i>No disponible
                         </small>
                     <?php endif; ?>
                     <?php if (!empty($pedido['correo_electronico'])): ?>
@@ -51,6 +55,10 @@
                             case 'pendiente':
                                 $estadoClass = 'bg-warning text-dark';
                                 $estadoText = 'Pendiente';
+                                break;
+                            case 'confirmado':
+                                $estadoClass = 'bg-info text-dark';
+                                $estadoText = 'Confirmado';
                                 break;
                             case 'en_preparacion':
                                 $estadoClass = 'bg-info text-dark';

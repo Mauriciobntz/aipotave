@@ -60,6 +60,7 @@ class CategoriaController extends Controller
         $validation->setRules([
             'nombre' => 'required|min_length[3]|max_length[100]',
             'descripcion' => 'max_length[500]',
+            'orden' => 'integer|greater_than_equal_to[0]',
             'activo' => 'in_list[0,1]'
         ]);
 
@@ -71,6 +72,7 @@ class CategoriaController extends Controller
         $data = [
             'nombre' => $this->request->getPost('nombre'),
             'descripcion' => $this->request->getPost('descripcion'),
+            'orden' => (int)$this->request->getPost('orden') ?: 0,
             'activo' => $this->request->getPost('activo') ? 1 : 0
         ];
 
@@ -112,6 +114,7 @@ class CategoriaController extends Controller
         $validation->setRules([
             'nombre' => 'required|min_length[3]|max_length[100]',
             'descripcion' => 'max_length[500]',
+            'orden' => 'integer|greater_than_equal_to[0]',
             'activo' => 'in_list[0,1]'
         ]);
 
@@ -123,6 +126,7 @@ class CategoriaController extends Controller
         $data = [
             'nombre' => $this->request->getPost('nombre'),
             'descripcion' => $this->request->getPost('descripcion'),
+            'orden' => (int)$this->request->getPost('orden') ?: 0,
             'activo' => $this->request->getPost('activo') ? 1 : 0
         ];
 

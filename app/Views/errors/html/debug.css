@@ -142,17 +142,6 @@ p.lead {
     display: none;
 }
 
-.alert {
-    margin-top: 2rem;
-    display: block;
-    text-align: center;
-    line-height: 3.0;
-    background: #d9edf7;
-    border: 1px solid #bcdff1;
-    border-radius: 5px;
-    color: #31708f;
-}
-
 table {
     width: 100%;
     overflow: hidden;

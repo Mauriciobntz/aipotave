@@ -38,23 +38,43 @@ if (!function_exists('calcular_distancia')) {
 
 if (!function_exists('calcular_costo_envio')) {
     /**
-     * Calcular costo de envío basado en la distancia
+     * Calcular costo de envío basado en la distancia usando la tabla de tarifas
      */
     function calcular_costo_envio($lat_cliente, $lng_cliente, $lat_restaurante = -25.291388888889, $lng_restaurante = -57.718333333333) {
-        // Si no hay coordenadas del cliente, usar costo por defecto
+        // Usar la base de datos directamente para obtener las tarifas
+        $db = \Config\Database::connect();
+        $builder = $db->table('tarifas_envio');
+        $tarifas = $builder->where('activo', 1)
+                          ->orderBy('orden', 'ASC')
+                          ->get()
+                          ->getResultArray();
+        
+        // Si no hay coordenadas del cliente, usar la tarifa más cara como costo por defecto
         if (empty($lat_cliente) || empty($lng_cliente)) {
-            return 1500; // Costo por defecto para casos sin coordenadas
+            $tarifaMasCara = $builder->where('activo', 1)
+                                    ->orderBy('costo', 'DESC')
+                                    ->get()
+                                    ->getRowArray();
+            return $tarifaMasCara ? $tarifaMasCara['costo'] : 1500;
         }
         
-        // Calcular distancia
-        $distancia = calcular_distancia($lat_restaurante, $lng_restaurante, $lat_cliente, $lng_cliente);
+        // Calcular distancia usando Google Maps Directions API (ruta real)
+        $distancia = calcular_distancia_google_maps($lat_restaurante, $lng_restaurante, $lat_cliente, $lng_cliente);
         
-        // Aplicar tarifas según distancia
-        if ($distancia <= 1.5) {
-            return 1000; // Hasta 1.5 km: $1,000
-        } else {
-            return 1500; // Más de 1.5 km: $1,500
+        // Buscar la tarifa que corresponda a la distancia
+        foreach ($tarifas as $tarifa) {
+            if ($distancia >= $tarifa['distancia_minima'] && $distancia <= $tarifa['distancia_maxima']) {
+                return $tarifa['costo'];
+            }
         }
+        
+        // Si no encuentra tarifa específica, usar la más cara
+        $tarifaMasCara = $builder->where('activo', 1)
+                                ->orderBy('costo', 'DESC')
+                                ->get()
+                                ->getRowArray();
+        
+        return $tarifaMasCara ? $tarifaMasCara['costo'] : 1500;
     }
 }
 
@@ -98,5 +118,44 @@ if (!function_exists('formatear_costo_envio')) {
      */
     function formatear_costo_envio($costo) {
         return '$' . number_format($costo, 0, ',', '.');
+    }
+} 
+
+if (!function_exists('calcular_distancia_google_maps')) {
+    /**
+     * Calcular distancia usando Google Maps Directions API (ruta real)
+     */
+    function calcular_distancia_google_maps($lat_origen, $lng_origen, $lat_destino, $lng_destino) {
+        $config = config('GoogleMaps');
+        
+        if (!$config->isConfigured()) {
+            // Si no hay configuración de Google Maps, usar cálculo en línea recta
+            return calcular_distancia($lat_origen, $lng_origen, $lat_destino, $lng_destino);
+        }
+        
+        // Construir la URL para la API de Directions
+        $origin = "{$lat_origen},{$lng_origen}";
+        $destination = "{$lat_destino},{$lng_destino}";
+        
+        $url = "https://maps.googleapis.com/maps/api/directions/json?" .
+               "origin=" . urlencode($origin) .
+               "&destination=" . urlencode($destination) .
+               "&mode=driving" .
+               "&units=metric" .
+               "&key=" . $config->apiKey;
+        
+        // Realizar la petición
+        $response = file_get_contents($url);
+        $data = json_decode($response, true);
+        
+        if ($data && isset($data['routes'][0]['legs'][0]['distance']['value'])) {
+            // Convertir metros a kilómetros
+            $distancia_metros = $data['routes'][0]['legs'][0]['distance']['value'];
+            return round($distancia_metros / 1000, 2);
+        }
+        
+        // Si falla la API, usar cálculo en línea recta como respaldo
+        log_message('warning', 'Google Maps Directions API falló, usando cálculo en línea recta');
+        return calcular_distancia($lat_origen, $lng_origen, $lat_destino, $lng_destino);
     }
 } 

@@ -39,7 +39,7 @@
                         <i class="fas fa-user-circle me-1"></i>
                         <?= esc(session('user_name') ?? 'Cocina') ?>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="userDropdown">
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         <li>
                             <span class="dropdown-item-text">
                                 <small class="text-muted">

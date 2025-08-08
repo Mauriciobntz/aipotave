@@ -45,4 +45,12 @@ class RepartidorModel extends Model
                     ->where('activo', 1)
                     ->first();
     }
+
+    /**
+     * Retorna todos los repartidores activos
+     */
+    public function listarActivos()
+    {
+        return $this->where('activo', 1)->orderBy('nombre', 'asc')->findAll();
+    }
 } 

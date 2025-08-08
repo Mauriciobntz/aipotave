@@ -1,6 +1,3 @@
-<?= view('header', ['title' => isset($categoria) ? 'Editar Categoría' : 'Nueva Categoría']) ?>
-<?= view('navbar') ?>
-
 <div class="container-fluid py-4">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
@@ -65,5 +62,3 @@
         </div>
     </div>
 </div>
-
-<?= view('footer') ?> 

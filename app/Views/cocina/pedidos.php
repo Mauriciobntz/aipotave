@@ -1,4 +1,13 @@
 <div class="container mt-5">
+    <style>
+        .bg-confirmado {
+            background-color: #6f42c1 !important;
+            color: white !important;
+        }
+        .badge.bg-confirmado {
+            background-color: #6f42c1 !important;
+        }
+    </style>
     <h1 class="mb-4">
         <i class="fas fa-utensils me-2 text-warning"></i>Pedidos en Cocina
     </h1>
@@ -314,6 +323,29 @@
 // Variables globales
 let map;
 let markers = [];
+let googleMapsLoaded = false;
+
+// Cargar Google Maps de manera asíncrona
+function loadGoogleMaps() {
+    if (typeof google !== 'undefined' && google.maps) {
+        googleMapsLoaded = true;
+        initMap();
+        return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://maps.googleapis.com/maps/api/js?key=<?= config('GoogleMaps')->apiKey ?>&libraries=places&loading=async&callback=initGoogleMaps';
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+}
+
+// Callback para cuando Google Maps se carga
+function initGoogleMaps() {
+    console.log('Google Maps cargado correctamente');
+    googleMapsLoaded = true;
+    initMap();
+}
 
 // Función para mostrar mensajes
 function showToast(message, type) {
@@ -535,9 +567,11 @@ function verPedidoDetalle(pedidoId) {
 
 // Función para obtener color de estado
 function getEstadoColor(estado) {
-    switch(estado) {
+    if (!estado) return 'secondary';
+    
+    switch(estado.toLowerCase()) {
         case 'pendiente': return 'warning';
-        case 'confirmado': return 'primary';
+        case 'confirmado': return 'confirmado';
         case 'en_preparacion': return 'info';
         case 'listo': return 'success';
         case 'en_camino': return 'primary';
@@ -549,60 +583,149 @@ function getEstadoColor(estado) {
 
 // Función para inicializar mapa
 function initMap() {
-    // Centrar en Clorinda, Formosa
-    map = new google.maps.Map(document.getElementById('map'), {
-        center: { lat: -25.291388888889, lng: -57.718333333333 },
-        zoom: 13,
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: true
-    });
+    console.log('Inicializando mapa de cocina...');
     
-    // Cargar pedidos en el mapa
-    cargarPedidosEnMapa();
+    if (!googleMapsLoaded || typeof google === 'undefined' || !google.maps) {
+        console.log('Google Maps no está disponible aún, reintentando...');
+        setTimeout(initMap, 1000);
+        return;
+    }
+    
+    try {
+        // Centrar en Clorinda, Formosa
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: -25.291388888889, lng: -57.718333333333 },
+            zoom: 13,
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: true
+        });
+        
+        // Cargar pedidos en el mapa
+        cargarPedidosEnMapa();
+    } catch (error) {
+        console.error('Error al inicializar el mapa:', error);
+        const mapDiv = document.getElementById('map');
+        if (mapDiv) {
+            mapDiv.innerHTML = '<div class="alert alert-warning">Error al cargar el mapa. Verifique la conexión a internet.</div>';
+        }
+    }
 }
 
 // Función para cargar pedidos en el mapa
 function cargarPedidosEnMapa() {
-    const pedidos = <?= json_encode($pedidos) ?>;
+    const pedidos = <?= json_encode($pedidos ?? []) ?>;
+    
+    console.log('Cargando pedidos en el mapa:', pedidos ? pedidos.length : 0, 'pedidos');
+    
+    if (!pedidos || pedidos.length === 0) {
+        console.log('No hay pedidos para mostrar en el mapa');
+        return;
+    }
     
     pedidos.forEach((pedido, index) => {
         if (pedido.latitud && pedido.longitud) {
             // Determinar color del marcador según el estado
-            let iconUrl = 'https://maps.google.com/mapfiles/ms/icons/red-dot.png';
+            let backgroundColor = '#dc3545';
+            let title = 'Pendiente';
+            
             if (pedido.estado === 'listo') {
-                iconUrl = 'https://maps.google.com/mapfiles/ms/icons/green-dot.png';
+                backgroundColor = '#28a745';
+                title = 'Listo';
             } else if (pedido.estado === 'en_preparacion') {
-                iconUrl = 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png';
+                backgroundColor = '#ffc107';
+                title = 'En Preparación';
+            } else if (pedido.estado === 'confirmado') {
+                backgroundColor = '#6f42c1';
+                title = 'Confirmado';
             } else if (pedido.estado === 'en_camino') {
-                iconUrl = 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png';
+                backgroundColor = '#007bff';
+                title = 'En Camino';
+            } else if (pedido.estado === 'entregado') {
+                backgroundColor = '#28a745';
+                title = 'Entregado';
+            } else if (pedido.estado === 'cancelado') {
+                backgroundColor = '#dc3545';
+                title = 'Cancelado';
             }
             
-            const marker = new google.maps.Marker({
-                position: { lat: parseFloat(pedido.latitud), lng: parseFloat(pedido.longitud) },
-                map: map,
-                title: `Pedido #${pedido.id} - ${pedido.nombre}`,
-                icon: {
-                    url: iconUrl,
-                    scaledSize: new google.maps.Size(32, 32)
+            // Crear el contenido del marcador
+            const markerContent = document.createElement('div');
+            markerContent.innerHTML = `
+                <div style="
+                    background-color: ${backgroundColor};
+                    color: white;
+                    padding: 8px 12px;
+                    border-radius: 20px;
+                    font-size: 12px;
+                    font-weight: bold;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                    white-space: nowrap;
+                    border: 2px solid white;
+                ">
+                    #${pedido.id || 'N/A'}
+                </div>
+            `;
+            
+            // Usar AdvancedMarkerElement (nueva API recomendada)
+            let marker;
+            try {
+                if (typeof google.maps.marker?.AdvancedMarkerElement !== 'undefined') {
+                    marker = new google.maps.marker.AdvancedMarkerElement({
+                        position: { lat: parseFloat(pedido.latitud), lng: parseFloat(pedido.longitud) },
+                        map: map,
+                        title: `Pedido #${pedido.id || 'N/A'} - ${title}`,
+                        content: markerContent
+                    });
+                } else {
+                    // Fallback para navegadores que no soportan AdvancedMarkerElement
+                    marker = new google.maps.Marker({
+                        position: { lat: parseFloat(pedido.latitud), lng: parseFloat(pedido.longitud) },
+                        map: map,
+                        title: `Pedido #${pedido.id || 'N/A'} - ${title}`,
+                        icon: {
+                            path: google.maps.SymbolPath.CIRCLE,
+                            scale: 8,
+                            fillColor: backgroundColor,
+                            fillOpacity: 1,
+                            strokeColor: '#ffffff',
+                            strokeWeight: 2
+                        }
+                    });
                 }
-            });
+            } catch (error) {
+                console.warn('Error al crear marcador, usando fallback:', error);
+                // Fallback final con marcador básico
+                marker = new google.maps.Marker({
+                    position: { lat: parseFloat(pedido.latitud), lng: parseFloat(pedido.longitud) },
+                    map: map,
+                    title: `Pedido #${pedido.id || 'N/A'} - ${title}`,
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 8,
+                        fillColor: backgroundColor,
+                        fillOpacity: 1,
+                        strokeColor: '#ffffff',
+                        strokeWeight: 2
+                    }
+                });
+            }
             
             // Info window con detalles del pedido
             const infoWindow = new google.maps.InfoWindow({
                 content: `
                     <div style="min-width: 250px;">
-                        <h6><strong>Pedido #${pedido.id}</strong></h6>
-                        <p><strong>Cliente:</strong> ${pedido.nombre}</p>
-                        <p><strong>Dirección:</strong> ${pedido.direccion_entrega}</p>
-                        <p><strong>Estado:</strong> <span class="badge bg-${getEstadoColor(pedido.estado)}">${pedido.estado}</span></p>
-                        <p><strong>Fecha:</strong> ${new Date(pedido.fecha).toLocaleString()}</p>
-                        <p><strong>Total:</strong> $${pedido.total}</p>
+                        <h6><strong>Pedido #${pedido.id || 'N/A'}</strong></h6>
+                        <p><strong>Cliente:</strong> ${pedido.nombre || 'No especificado'}</p>
+                        <p><strong>Dirección:</strong> ${pedido.direccion_entrega || 'No especificada'}</p>
+                        <p><strong>Estado:</strong> <span class="badge bg-${getEstadoColor(pedido.estado)}">${pedido.estado || 'N/A'}</span></p>
+                        <p><strong>Fecha:</strong> ${new Date(pedido.fecha || '').toLocaleString()}</p>
+                        <p><strong>Total:</strong> $${pedido.total || 0}</p>
                         <div class="mt-2">
-                            <button onclick="mostrarModalEstado(${pedido.id}, '${pedido.estado}')" class="btn btn-primary btn-sm">
+                            <button onclick="mostrarModalEstado(${pedido.id || 0}, '${pedido.estado || ''}')" class="btn btn-primary btn-sm">
                                 <i class="fas fa-edit me-1"></i>Cambiar Estado
                             </button>
-                            <button onclick="verPedidoDetalle(${pedido.id})" class="btn btn-info btn-sm ms-1">
+                            <button onclick="verPedidoDetalle(${pedido.id || 0})" class="btn btn-info btn-sm ms-1">
                                 <i class="fas fa-eye me-1"></i>Ver Detalles
                             </button>
                         </div>
@@ -610,6 +733,7 @@ function cargarPedidosEnMapa() {
                 `
             });
             
+            // Agregar listener para el clic en el marcador
             marker.addListener('click', function() {
                 infoWindow.open(map, marker);
             });
@@ -621,19 +745,6 @@ function cargarPedidosEnMapa() {
 
 // Inicializar cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
-    // Esperar a que Google Maps se cargue completamente
-    if (typeof google !== 'undefined' && google.maps) {
-        initMap();
-    } else {
-        // Si Google Maps aún no se ha cargado, esperar
-        window.addEventListener('load', function() {
-            if (typeof google !== 'undefined' && google.maps) {
-                initMap();
-            }
-        });
-    }
+    loadGoogleMaps();
 });
 </script> 
-
-<!-- Google Maps Script -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCnIKlDT5Ejj-Uoj1cL0nw2aHEaQOFrAs&libraries=places&loading=async" async defer></script> 

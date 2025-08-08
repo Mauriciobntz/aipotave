@@ -1,6 +1,3 @@
-<?= view('header', ['title' => 'Dashboard de Estadísticas | Admin']) ?>
-<?= view('navbar') ?>
-
 <div class="container-fluid mt-4">
     <!-- Header del dashboard -->
     <div class="row mb-4">
@@ -355,6 +352,4 @@ function exportarExcel() {
     // Implementar exportación a Excel
     alert('Función de exportación a Excel - Implementar según necesidades');
 }
-</script>
-
-<?= view('footer') ?> 
+</script> 

@@ -39,6 +39,13 @@
             border-radius: 50%;
             margin-right: 8px;
         }
+        .bg-confirmado {
+            background-color: #6f42c1 !important;
+            color: white !important;
+        }
+        .badge.bg-confirmado {
+            background-color: #6f42c1 !important;
+        }
     </style>
 </head>
 <body>
@@ -181,6 +188,10 @@
                                     <span>Listo</span>
                                 </div>
                                 <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #6f42c1;"></div>
+                                    <span>Confirmado</span>
+                                </div>
+                                <div class="legend-item">
                                     <div class="legend-color" style="background-color: #dc3545;"></div>
                                     <span>Pendiente</span>
                                 </div>
@@ -223,32 +234,75 @@
     </div>
 
     <!-- Google Maps -->
-    <?= google_maps_script() ?>
-    <script src="https://maps.googleapis.com/maps/api/js?key=<?= config('GoogleMaps')->apiKey ?>&libraries=visualization"></script>
-
     <script>
     let map;
     let markers = [];
     let heatmap;
+    let googleMapsLoaded = false;
+
+    // Cargar Google Maps de manera asíncrona
+    function loadGoogleMaps() {
+        if (typeof google !== 'undefined' && google.maps) {
+            googleMapsLoaded = true;
+            initMap();
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://maps.googleapis.com/maps/api/js?key=<?= config('GoogleMaps')->apiKey ?>&libraries=visualization,places&callback=initGoogleMaps';
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+    }
+
+    // Callback para cuando Google Maps se carga
+    function initGoogleMaps() {
+        console.log('Google Maps cargado correctamente');
+        googleMapsLoaded = true;
+        initMap();
+    }
 
     function initMap() {
-        // Centrar en Clorinda, Formosa
-        map = new google.maps.Map(document.getElementById('map'), {
-            center: { lat: -25.291388888889, lng: -57.718333333333 },
-            zoom: 13,
-            mapTypeControl: false,
-            streetViewControl: false,
-            fullscreenControl: true
-        });
+        console.log('Inicializando mapa de estadísticas...');
         
-        // Cargar datos en el mapa
-        cargarDatosEnMapa();
-        cargarEstadisticasZona();
+        if (!googleMapsLoaded || typeof google === 'undefined' || !google.maps) {
+            console.log('Google Maps no está disponible aún, reintentando...');
+            setTimeout(initMap, 1000);
+            return;
+        }
+        
+        try {
+            // Centrar en Clorinda, Formosa
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: -25.291388888889, lng: -57.718333333333 },
+                zoom: 13,
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: true
+            });
+            
+            // Cargar datos en el mapa
+            cargarDatosEnMapa();
+            cargarEstadisticasZona();
+        } catch (error) {
+            console.error('Error al inicializar el mapa:', error);
+            const mapDiv = document.getElementById('map');
+            if (mapDiv) {
+                mapDiv.innerHTML = '<div class="alert alert-warning">Error al cargar el mapa. Verifique la conexión a internet.</div>';
+            }
+        }
     }
 
     function cargarDatosEnMapa() {
         const pedidos = <?= json_encode($pedidos ?? []) ?>;
         const heatmapData = [];
+        
+        console.log('Cargando datos en el mapa:', pedidos ? pedidos.length : 0, 'pedidos');
+        
+        if (!pedidos || pedidos.length === 0) {
+            console.log('No hay pedidos para mostrar en el mapa');
+            return;
+        }
         
         pedidos.forEach((pedido, index) => {
             if (pedido.latitud && pedido.longitud) {
@@ -265,12 +319,21 @@
                 } else if (pedido.estado === 'listo') {
                     iconUrl = 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png';
                     title = 'Listo';
+                } else if (pedido.estado === 'confirmado') {
+                    iconUrl = 'https://maps.google.com/mapfiles/ms/icons/purple-dot.png';
+                    title = 'Confirmado';
+                } else if (pedido.estado === 'en_preparacion') {
+                    iconUrl = 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png';
+                    title = 'En Preparación';
+                } else if (pedido.estado === 'cancelado') {
+                    iconUrl = 'https://maps.google.com/mapfiles/ms/icons/red-dot.png';
+                    title = 'Cancelado';
                 }
                 
                 const marker = new google.maps.Marker({
                     position: { lat: parseFloat(pedido.latitud), lng: parseFloat(pedido.longitud) },
                     map: map,
-                    title: `Pedido #${pedido.id} - ${title}`,
+                    title: `Pedido #${pedido.id || 'N/A'} - ${title}`,
                     icon: {
                         url: iconUrl,
                         scaledSize: new google.maps.Size(32, 32)
@@ -281,12 +344,12 @@
                 const infoWindow = new google.maps.InfoWindow({
                     content: `
                         <div style="min-width: 250px;">
-                            <h6><strong>Pedido #${pedido.id}</strong></h6>
-                            <p><strong>Cliente:</strong> ${pedido.nombre}</p>
-                            <p><strong>Dirección:</strong> ${pedido.direccion_entrega}</p>
-                            <p><strong>Estado:</strong> <span class="badge bg-${getEstadoColor(pedido.estado)}">${pedido.estado}</span></p>
-                            <p><strong>Fecha:</strong> ${new Date(pedido.fecha).toLocaleString()}</p>
-                            <p><strong>Total:</strong> $${pedido.total}</p>
+                            <h6><strong>Pedido #${pedido.id || 'N/A'}</strong></h6>
+                            <p><strong>Cliente:</strong> ${pedido.nombre || 'No especificado'}</p>
+                            <p><strong>Dirección:</strong> ${pedido.direccion_entrega || 'No especificada'}</p>
+                            <p><strong>Estado:</strong> <span class="badge bg-${getEstadoColor(pedido.estado)}">${pedido.estado || 'N/A'}</span></p>
+                            <p><strong>Fecha:</strong> ${new Date(pedido.fecha || '').toLocaleString()}</p>
+                            <p><strong>Total:</strong> $${pedido.total || 0}</p>
                             <p><strong>Tiempo:</strong> ${calcularTiempo(pedido.fecha, pedido.fecha_entrega)}</p>
                         </div>
                     `
@@ -301,19 +364,23 @@
                 // Agregar punto para el heatmap
                 heatmapData.push({
                     location: new google.maps.LatLng(parseFloat(pedido.latitud), parseFloat(pedido.longitud)),
-                    weight: parseFloat(pedido.total) // El peso se basa en el total del pedido
+                    weight: parseFloat(pedido.total || 0) // El peso se basa en el total del pedido
                 });
             }
         });
         
         // Crear heatmap si hay datos
-        if (heatmapData.length > 0) {
-            heatmap = new google.maps.visualization.HeatmapLayer({
-                data: heatmapData,
-                map: map,
-                radius: 50,
-                opacity: 0.6
-            });
+        if (heatmapData.length > 0 && typeof google.maps.visualization !== 'undefined') {
+            try {
+                heatmap = new google.maps.visualization.HeatmapLayer({
+                    data: heatmapData,
+                    map: map,
+                    radius: 50,
+                    opacity: 0.6
+                });
+            } catch (error) {
+                console.error('Error al crear heatmap:', error);
+            }
         }
     }
 
@@ -321,30 +388,39 @@
         const zonas = <?= json_encode($zonas ?? []) ?>;
         const zonaStatsDiv = document.getElementById('zonaStats');
         
+        console.log('Cargando estadísticas por zona:', zonas);
+        
         let html = '';
-        zonas.forEach(zona => {
-            const porcentaje = ((zona.total / <?= $total_pedidos ?? 1 ?>) * 100).toFixed(1);
-            html += `
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span><strong>${zona.zona}</strong></span>
-                        <span class="badge bg-primary">${zona.total} pedidos</span>
+        if (zonas && zonas.length > 0) {
+            zonas.forEach(zona => {
+                const porcentaje = ((zona.total / <?= $total_pedidos ?? 1 ?>) * 100).toFixed(1);
+                html += `
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><strong>${zona.zona || 'Zona no especificada'}</strong></span>
+                            <span class="badge bg-primary">${zona.total || 0} pedidos</span>
+                        </div>
+                        <div class="progress mt-1" style="height: 8px;">
+                            <div class="progress-bar" role="progressbar" style="width: ${porcentaje}%" 
+                                 aria-valuenow="${porcentaje}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <small class="text-muted">${porcentaje}% del total</small>
                     </div>
-                    <div class="progress mt-1" style="height: 8px;">
-                        <div class="progress-bar" role="progressbar" style="width: ${porcentaje}%" 
-                             aria-valuenow="${porcentaje}" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <small class="text-muted">${porcentaje}% del total</small>
-                </div>
-            `;
-        });
+                `;
+            });
+        } else {
+            html = '<div class="text-muted">No hay datos de zonas disponibles</div>';
+        }
         
         zonaStatsDiv.innerHTML = html;
     }
 
     function getEstadoColor(estado) {
-        switch(estado) {
+        if (!estado) return 'secondary';
+        
+        switch(estado.toLowerCase()) {
             case 'pendiente': return 'secondary';
+            case 'confirmado': return 'confirmado';
             case 'en_preparacion': return 'warning';
             case 'listo': return 'warning';
             case 'en_camino': return 'primary';
@@ -357,17 +433,27 @@
     function calcularTiempo(fechaInicio, fechaFin) {
         if (!fechaInicio || !fechaFin) return 'N/A';
         
-        const inicio = new Date(fechaInicio);
-        const fin = new Date(fechaFin);
-        const diffMs = fin - inicio;
-        const diffMins = Math.round(diffMs / 60000);
-        
-        if (diffMins < 60) {
-            return `${diffMins} min`;
-        } else {
-            const horas = Math.floor(diffMins / 60);
-            const minutos = diffMins % 60;
-            return `${horas}h ${minutos}min`;
+        try {
+            const inicio = new Date(fechaInicio);
+            const fin = new Date(fechaFin);
+            
+            if (isNaN(inicio.getTime()) || isNaN(fin.getTime())) {
+                return 'N/A';
+            }
+            
+            const diffMs = fin - inicio;
+            const diffMins = Math.round(diffMs / 60000);
+            
+            if (diffMins < 60) {
+                return `${diffMins} min`;
+            } else {
+                const horas = Math.floor(diffMins / 60);
+                const minutos = diffMins % 60;
+                return `${horas}h ${minutos}min`;
+            }
+        } catch (error) {
+            console.error('Error al calcular tiempo:', error);
+            return 'N/A';
         }
     }
 
@@ -376,9 +462,11 @@
         const pedidos = <?= json_encode($pedidos ?? []) ?>;
         let csv = 'ID,Cliente,Dirección,Estado,Total,Fecha\n';
         
-        pedidos.forEach(pedido => {
-            csv += `${pedido.id},"${pedido.nombre}","${pedido.direccion_entrega}","${pedido.estado}",${pedido.total},"${pedido.fecha}"\n`;
-        });
+        if (pedidos && pedidos.length > 0) {
+            pedidos.forEach(pedido => {
+                csv += `${pedido.id || ''},"${pedido.nombre || ''}","${pedido.direccion_entrega || ''}","${pedido.estado || ''}",${pedido.total || 0},"${pedido.fecha || ''}"\n`;
+            });
+        }
         
         const blob = new Blob([csv], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
@@ -391,17 +479,10 @@
 
     // Llamar a initMap cuando se carga la página
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM cargado, verificando Google Maps...');
+        
         // Esperar a que Google Maps se cargue completamente
-        if (typeof google !== 'undefined' && google.maps) {
-            initMap();
-        } else {
-            // Si Google Maps aún no se ha cargado, esperar
-            window.addEventListener('load', function() {
-                if (typeof google !== 'undefined' && google.maps) {
-                    initMap();
-                }
-            });
-        }
+        loadGoogleMaps(); // Usar la nueva función para cargar Google Maps
     });
     </script>
 

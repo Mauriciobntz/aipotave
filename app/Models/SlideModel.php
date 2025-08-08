@@ -1,88 +1,75 @@
 <?php
+
 namespace App\Models;
 
 use CodeIgniter\Model;
 
-/**
- * Modelo para la tabla 'slides'.
- * Maneja los slides del carrusel principal.
- */
 class SlideModel extends Model
 {
     protected $table = 'slides';
     protected $primaryKey = 'id';
-    protected $allowedFields = [
-        'titulo', 'subtitulo', 'imagen', 'link_destino', 'activo', 'orden', 'fecha_creacion'
-    ];
+    protected $allowedFields = ['titulo', 'subtitulo', 'imagen', 'link_destino', 'activo', 'orden', 'fecha_creacion'];
+    protected $useTimestamps = false;
+    protected $returnType = 'array';
 
     /**
-     * Obtiene todos los slides activos ordenados.
-     * @return array
+     * Obtiene todos los slides activos ordenados por orden
      */
-    public function getSlidesActivos(): array
+    public function getSlidesActivos()
     {
         return $this->where('activo', 1)
-                    ->orderBy('orden', 'asc')
-                    ->orderBy('fecha_creacion', 'desc')
-                    ->findAll();
+                   ->orderBy('orden', 'ASC')
+                   ->findAll();
     }
 
     /**
-     * Obtiene slides para el carrusel principal.
-     * @return array
+     * Obtiene slides activos con límite
      */
-    public function getSlidesCarrusel(): array
+    public function getSlidesActivosLimit($limit = 5)
     {
         return $this->where('activo', 1)
-                    ->where('imagen IS NOT NULL')
-                    ->orderBy('orden', 'asc')
-                    ->findAll();
+                   ->orderBy('orden', 'ASC')
+                   ->findAll($limit);
     }
 
     /**
-     * Obtiene el siguiente orden disponible.
-     * @return int
+     * Obtiene un slide por ID
      */
-    public function getSiguienteOrden(): int
+    public function getSlideById($id)
     {
-        $result = $this->selectMax('orden')->first();
-        return $result ? (int)$result['orden'] + 1 : 1;
+        return $this->find($id);
     }
 
     /**
-     * Activa un slide.
-     * @param int $id
-     * @return bool
+     * Crea un nuevo slide
      */
-    public function activar(int $id): bool
+    public function crearSlide($data)
     {
-        return $this->update($id, ['activo' => 1]);
+        return $this->insert($data);
     }
 
     /**
-     * Desactiva un slide.
-     * @param int $id
-     * @return bool
+     * Actualiza un slide
      */
-    public function desactivar(int $id): bool
+    public function actualizarSlide($id, $data)
+    {
+        return $this->update($id, $data);
+    }
+
+    /**
+     * Elimina un slide (cambia estado a inactivo)
+     */
+    public function eliminarSlide($id)
     {
         return $this->update($id, ['activo' => 0]);
     }
 
     /**
-     * Reordena los slides.
-     * @param array $ordenes Array con id => orden
-     * @return bool
+     * Obtiene el siguiente orden disponible
      */
-    public function reordenar(array $ordenes): bool
+    public function getSiguienteOrden()
     {
-        $db = \Config\Database::connect();
-        $db->transStart();
-        
-        foreach ($ordenes as $id => $orden) {
-            $this->update($id, ['orden' => $orden]);
-        }
-        
-        return $db->transComplete();
+        $result = $this->selectMax('orden')->first();
+        return $result ? (int)$result['orden'] + 1 : 1;
     }
 } 

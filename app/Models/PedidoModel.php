@@ -12,7 +12,7 @@ class PedidoModel extends Model
     protected $table = 'pedidos';
     protected $primaryKey = 'id';
     protected $allowedFields = [
-        'nombre', 'correo_electronico', 'celular', 'repartidor_id', 'fecha', 'estado', 'estado_pago', 'total', 'metodo_pago', 'observaciones', 'direccion_entrega', 'entre', 'indicacion', 'codigo_seguimiento', 'latitud', 'longitud'
+        'nombre', 'correo_electronico', 'celular', 'repartidor_id', 'fecha', 'estado', 'estado_pago', 'total', 'costo_envio', 'metodo_pago', 'observaciones', 'direccion_entrega', 'entre', 'indicacion', 'codigo_seguimiento', 'latitud', 'longitud'
     ];
 
     /**
@@ -154,6 +154,39 @@ class PedidoModel extends Model
         
         if ($estado) {
             $builder->where('p.estado', $estado);
+        }
+        
+        $builder->orderBy('p.fecha', 'desc');
+        return $builder->get()->getResultArray();
+    }
+
+    /**
+     * Obtiene pedidos con filtros aplicados.
+     * @param array $filtros
+     * @return array
+     */
+    public function getPedidosConFiltros(array $filtros = []): array
+    {
+        $db = \Config\Database::connect();
+        $builder = $db->table('pedidos p');
+        $builder->select('p.*, r.nombre as nombre_repartidor');
+        $builder->join('repartidores r', 'p.repartidor_id = r.id', 'left');
+        
+        // Aplicar filtros
+        if (!empty($filtros['estado'])) {
+            $builder->where('p.estado', $filtros['estado']);
+        }
+        
+        if (!empty($filtros['fecha_desde'])) {
+            $builder->where('p.fecha >=', $filtros['fecha_desde'] . ' 00:00:00');
+        }
+        
+        if (!empty($filtros['fecha_hasta'])) {
+            $builder->where('p.fecha <=', $filtros['fecha_hasta'] . ' 23:59:59');
+        }
+        
+        if (!empty($filtros['repartidor_id'])) {
+            $builder->where('p.repartidor_id', $filtros['repartidor_id']);
         }
         
         $builder->orderBy('p.fecha', 'desc');

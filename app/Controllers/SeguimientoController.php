@@ -63,10 +63,16 @@ class SeguimientoController extends Controller
                 ->first();
         }
 
+        // Obtener detalles del pedido
+        $detalleModel = new \App\Models\DetallePedidoModel();
+        $detalles = $detalleModel->getDetallesConInfo($pedido['id']);
+        $whatsapp = '543794942627'; // Número fijo igual que en exito.php
         $data = [
             'title' => 'Seguimiento del Pedido',
             'pedido' => $pedido,
-            'ubicacion_repartidor' => $ubicacion_repartidor
+            'ubicacion_repartidor' => $ubicacion_repartidor,
+            'detalles' => $detalles,
+            'whatsapp' => $whatsapp
         ];
 
         return view('header', $data)

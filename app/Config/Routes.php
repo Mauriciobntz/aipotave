@@ -7,10 +7,24 @@ use CodeIgniter\Router\RouteCollection;
  */
 
 
+//######################## Rutas API ########################
+$routes->group('api', function($routes) {
+    // Rutas para pedidos
+    $routes->match(['put', 'post'], 'pedidos/(:segment)/estado', 'Api\PedidoController::actualizarEstado/$1');
+    $routes->get('pedidos/(:segment)/estado', 'Api\PedidoController::obtenerEstado/$1');
+});
+
+//######################## Rutas Debug ########################
+$routes->get('debug/detalles/(:num)', 'DebugController::debugDetalles/$1');
+$routes->get('debug/detalles', 'DebugController::debugDetalles');
+$routes->get('debug/pedidos', 'DebugController::debugTodosPedidos');
+$routes->get('debug/estructura', 'DebugController::debugEstructura');
+
 //######################## Rutas Menu ########################
 $routes->get('/', 'MenuController::index');
 $routes->get('producto/(:num)', 'MenuController::producto/$1');
 $routes->get('combo/(:num)', 'MenuController::combo/$1');
+$routes->get('producto/detalle/(:num)/(:segment)', 'MenuController::producto/$1');
 
 //######################## Rutas Carrito ########################
 $routes->get('carrito', 'CarritoController::verCarrito');
@@ -45,7 +59,10 @@ $routes->group('admin', ['filter' => 'auth:admin'], function($routes) {
     $routes->get('dashboard', 'PanelController::dashboard');
     $routes->get('panel', 'PanelController::dashboard'); // Alias para compatibilidad
     $routes->get('pedidos', 'PanelController::pedidos');
+    $routes->get('pedidos/ver/(:num)', 'PanelController::detallePedido/$1');
     $routes->get('pedidos/(:num)', 'PanelController::detallePedido/$1');
+    // Ruta de prueba temporal sin filtro
+    $routes->get('test/pedido/(:num)', 'PanelController::detallePedido/$1');
     $routes->post('cambiar-estado', 'PanelController::cambiarEstado');
     $routes->post('asignar-repartidor', 'PanelController::asignarRepartidor');
     
@@ -97,6 +114,16 @@ $routes->group('admin', ['filter' => 'auth:admin'], function($routes) {
     $routes->get('repartidores/listar', 'RepartidorAdminController::listar');
     $routes->get('repartidores/crear', 'RepartidorAdminController::agregar');
     $routes->post('repartidores/guardar', 'RepartidorAdminController::guardar');
+
+    // Slides
+    $routes->get('slides', 'Admin\SlidesController::index');
+    $routes->get('slides/crear', 'Admin\SlidesController::crear');
+    $routes->post('slides/guardar', 'Admin\SlidesController::guardar');
+    $routes->get('slides/editar/(:num)', 'Admin\SlidesController::editar/$1');
+    $routes->post('slides/actualizar/(:num)', 'Admin\SlidesController::actualizar/$1');
+    $routes->get('slides/eliminar/(:num)', 'Admin\SlidesController::eliminar/$1');
+    $routes->get('slides/toggle-estado/(:num)', 'Admin\SlidesController::toggleEstado/$1');
+    $routes->post('slides/reordenar', 'Admin\SlidesController::reordenar');
     $routes->get('repartidores/editar/(:num)', 'RepartidorAdminController::editar/$1');
     $routes->post('repartidores/actualizar/(:num)', 'RepartidorAdminController::actualizar/$1');
     $routes->get('repartidores/eliminar/(:num)', 'RepartidorAdminController::eliminar/$1');
@@ -121,6 +148,31 @@ $routes->group('admin', ['filter' => 'auth:admin'], function($routes) {
     // Estadísticas
     $routes->get('estadisticas', 'EstadisticasController::dashboard');
     $routes->get('estadisticas/exportar-excel', 'EstadisticasController::exportarExcel');
+
+    // Configuración del sitio
+    $routes->get('configuracion', 'ConfiguracionController::index');
+    $routes->get('configuracion/crear', 'ConfiguracionController::crear');
+    $routes->post('configuracion/guardar', 'ConfiguracionController::guardar');
+    $routes->get('configuracion/editar/(:num)', 'ConfiguracionController::editar/$1');
+    $routes->post('configuracion/actualizar/(:num)', 'ConfiguracionController::actualizar/$1');
+    $routes->get('configuracion/eliminar/(:num)', 'ConfiguracionController::eliminar/$1');
+    $routes->get('configuracion/toggle-estado/(:num)', 'ConfiguracionController::toggleEstado/$1');
+    $routes->get('configuracion/vista-rapida', 'ConfiguracionController::vistaRapida');
+    $routes->post('configuracion/actualizar-rapida', 'ConfiguracionController::actualizarRapida');
+    $routes->get('configuracion/punto-partida', 'ConfiguracionController::puntoPartida');
+    $routes->post('configuracion/actualizar-punto-partida', 'ConfiguracionController::actualizarPuntoPartida');
+    $routes->get('configuracion/mapa-seguimiento', 'ConfiguracionController::mapaSeguimiento');
+    $routes->post('configuracion/actualizar-mapa-seguimiento', 'ConfiguracionController::actualizarMapaSeguimiento');
+    
+    // Tarifas de Envío
+    $routes->get('tarifas-envio', 'Admin\TarifasEnvioController::index');
+    $routes->get('tarifas-envio/crear', 'Admin\TarifasEnvioController::crear');
+    $routes->post('tarifas-envio/guardar', 'Admin\TarifasEnvioController::guardar');
+    $routes->get('tarifas-envio/editar/(:num)', 'Admin\TarifasEnvioController::editar/$1');
+    $routes->post('tarifas-envio/actualizar/(:num)', 'Admin\TarifasEnvioController::actualizar/$1');
+    $routes->get('tarifas-envio/eliminar/(:num)', 'Admin\TarifasEnvioController::eliminar/$1');
+    $routes->post('tarifas-envio/cambiar-estado/(:num)', 'Admin\TarifasEnvioController::cambiarEstado/$1');
+    $routes->post('tarifas-envio/calcular-costo', 'Admin\TarifasEnvioController::calcularCosto');
 });
 
 //######################## Rutas de cocina (requieren rol cocina) ########################
@@ -161,6 +213,9 @@ $routes->post('google-maps/reverse-geocode', 'GoogleMapsController::reverseGeoco
 $routes->post('google-maps/directions', 'GoogleMapsController::directions');
 $routes->get('google-maps/status', 'GoogleMapsController::status');
 
+// Ruta de ejemplo para Google Maps
+$routes->get('googlemaps', 'GoogleMapsController::index');
+
 // Rutas de Estadísticas con Mapas
 $routes->get('estadisticas-mapa', 'EstadisticasMapaController::index');
 $routes->get('estadisticas-mapa/api', 'EstadisticasMapaController::api');
@@ -175,5 +230,8 @@ $routes->get('login', 'AuthController::login');
 $routes->post('login', 'AuthController::procesarLogin');
 $routes->get('logout', 'AuthController::logout');
 $routes->get('denegado', 'AuthController::denegado');
+
+// Ruta temporal para actualizar categorías de productos
+$routes->get('actualizar-categorias', 'Home::actualizarCategorias');
 
 

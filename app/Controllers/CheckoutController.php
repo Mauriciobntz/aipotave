@@ -60,18 +60,20 @@ class CheckoutController extends Controller
             $subtotal += $item['precio'] * $item['cantidad'];
         }
         
-        // Calcular envío (ejemplo: $1000 si el subtotal es menor a $5000)
-        $envio = $subtotal < 5000 ? 1000 : 0;
+        // En el checkout NO se muestra el costo de envío hasta que el usuario seleccione su ubicación
+        $envio = 0; // No mostrar envío hasta que se seleccione ubicación
+        $total = $subtotal; // Solo subtotal inicialmente
         
-        // Calcular total
-        $total = $subtotal + $envio;
+        // Cargar modelo de configuración
+        $configuracionModel = new \App\Models\ConfiguracionModel();
         
         $data = [
             'title' => 'Datos de Envío | Mi Restaurante',
             'carrito' => $carrito,
             'subtotal' => $subtotal,
             'envio' => $envio,
-            'total' => $total
+            'total' => $total,
+            'configuracionModel' => $configuracionModel
         ];
         
         return view('header', $data)
@@ -86,7 +88,12 @@ class CheckoutController extends Controller
     public function procesar()
     {
         $carrito = carrito_obtener();
+        
+        // Debug: Log del carrito
+        log_message('debug', 'CheckoutController::procesar - Carrito obtenido: ' . json_encode($carrito));
+        
         if (empty($carrito)) {
+            log_message('error', 'CheckoutController::procesar - Carrito vacío');
             return redirect()->to(base_url('carrito'))->with('error', 'El carrito está vacío');
         }
 
@@ -143,6 +150,19 @@ class CheckoutController extends Controller
         // Generar código de seguimiento único
         $codigoSeguimiento = strtoupper(bin2hex(random_bytes(4)));
 
+        // Calcular totales
+        $subtotal = 0;
+        foreach ($carrito as $item) {
+            $subtotal += $item['precio'] * $item['cantidad'];
+        }
+        
+        // Calcular costo de envío usando el helper de distancia
+        helper('distancia');
+        $costoEnvio = calcular_costo_envio($latitud, $longitud);
+        
+        // Calcular total
+        $total = $subtotal + $costoEnvio;
+
         // Preparar datos del pedido
         $pedidoData = [
             'nombre' => $request->getPost('nombre'),
@@ -151,7 +171,8 @@ class CheckoutController extends Controller
             'fecha' => date('Y-m-d H:i:s'),
             'estado' => 'pendiente',
             'estado_pago' => ($request->getPost('metodo_pago') == 'efectivo') ? 'pendiente' : 'pagado',
-            'total' => $this->calcularTotal($carrito),
+            'total' => $total,
+            'costo_envio' => $costoEnvio,
             'metodo_pago' => $request->getPost('metodo_pago'),
             'observaciones' => $request->getPost('observaciones'),
             'direccion_entrega' => $request->getPost('direccion'),
@@ -167,20 +188,50 @@ class CheckoutController extends Controller
         }
 
         // Guardar pedido
-        $pedidoModel = new PedidoModel();
+        $pedidoModel = new \App\Models\PedidoModel();
         $pedidoId = $pedidoModel->insert($pedidoData);
+        
+        // Debug: Log del resultado del pedido
+        log_message('debug', 'CheckoutController::procesar - Pedido insertado con ID: ' . $pedidoId);
+        
+        if (!$pedidoId) {
+            log_message('error', 'CheckoutController::procesar - Error al insertar pedido: ' . json_encode($pedidoData));
+            return redirect()->back()->withInput()->with('error', 'Error al procesar el pedido. Inténtalo de nuevo.');
+        }
 
         // Guardar detalles del pedido
-        $detalleModel = new DetallePedidoModel();
-        foreach ($carrito as $item) {
-            $detalleModel->insert([
+        $detalleModel = new \App\Models\DetallePedidoModel();
+        
+        // Debug: Log del carrito
+        log_message('debug', 'CheckoutController::procesar - Carrito: ' . json_encode($carrito));
+        log_message('debug', 'CheckoutController::procesar - Pedido ID: ' . $pedidoId);
+        
+        // Convertir carrito de objeto asociativo a array si es necesario
+        $carritoArray = is_array($carrito) && !empty($carrito) && !is_numeric(key($carrito)) ? array_values($carrito) : $carrito;
+        log_message('debug', 'CheckoutController::procesar - Carrito convertido: ' . json_encode($carritoArray));
+        
+        foreach ($carritoArray as $item) {
+            $detalleData = [
                 'pedido_id' => $pedidoId,
                 'producto_id' => $item['tipo'] === 'producto' ? $item['id'] : null,
                 'combo_id' => $item['tipo'] === 'combo' ? $item['id'] : null,
                 'cantidad' => $item['cantidad'],
                 'precio_unitario' => $item['precio'],
                 'observaciones' => null
-            ]);
+            ];
+            
+            // Debug: Log de cada detalle
+            log_message('debug', 'CheckoutController::procesar - Insertando detalle: ' . json_encode($detalleData));
+            
+            $result = $detalleModel->insert($detalleData);
+            
+            // Debug: Log del resultado
+            log_message('debug', 'CheckoutController::procesar - Resultado insert detalle: ' . var_export($result, true));
+            
+            if (!$result) {
+                log_message('error', 'CheckoutController::procesar - Error al insertar detalle: ' . json_encode($detalleData));
+                // Continuar con el siguiente item en lugar de fallar todo el pedido
+            }
         }
 
         // Vaciar carrito
@@ -188,7 +239,7 @@ class CheckoutController extends Controller
 
         // Redirigir a página de éxito con código de seguimiento y método de pago
         $metodo_pago = $request->getPost('metodo_pago');
-        $whatsapp = '5491122334455'; // Cambia este número por el de tu empresa
+        $whatsapp = '543794942627'; // Cambia este número por el de tu empresa
         return redirect()->to(base_url('checkout/exito/' . $codigoSeguimiento . '?metodo_pago=' . $metodo_pago . '&whatsapp=' . $whatsapp));
     }
 
@@ -199,11 +250,20 @@ class CheckoutController extends Controller
     {
         $metodo_pago = $this->request->getGet('metodo_pago');
         $whatsapp = $this->request->getGet('whatsapp');
+        $pedidoModel = new \App\Models\PedidoModel();
+        $detalleModel = new \App\Models\DetallePedidoModel();
+        $pedido = $pedidoModel->getByCodigoSeguimiento($codigo);
+        $detalles = [];
+        if ($pedido && isset($pedido['id'])) {
+            $detalles = $detalleModel->getDetallesConInfo($pedido['id']);
+        }
         $data = [
             'title' => 'Pedido realizado',
             'codigo' => $codigo,
             'metodo_pago' => $metodo_pago,
-            'whatsapp' => $whatsapp
+            'whatsapp' => $whatsapp,
+            'pedido' => $pedido,
+            'detalles' => $detalles
         ];
         return view('header', $data)
             . view('navbar')
@@ -214,18 +274,21 @@ class CheckoutController extends Controller
     /**
      * Calcula el total del pedido incluyendo envío.
      * @param array $carrito
+     * @param float|null $latitud
+     * @param float|null $longitud
      * @return float
      */
-    private function calcularTotal($carrito)
+    private function calcularTotal($carrito, $latitud = null, $longitud = null)
     {
         $subtotal = 0;
         foreach ($carrito as $item) {
             $subtotal += $item['precio'] * $item['cantidad'];
         }
         
-        // Calcular envío (ejemplo: $1000 si el subtotal es menor a $5000)
-        $envio = $subtotal < 5000 ? 1000 : 0;
+        // Calcular costo de envío usando el helper de distancia
+        helper('distancia');
+        $costoEnvio = calcular_costo_envio($latitud, $longitud);
         
-        return $subtotal + $envio;
+        return $subtotal + $costoEnvio;
     }
 } 

@@ -52,7 +52,7 @@ class RepartidorController extends Controller
         $pedidos = $this->pedidoModel->getPedidosConRepartidor();
         $pedidos_asignados = array_filter($pedidos, function($pedido) use ($repartidor_id) {
             return $pedido['repartidor_id'] == $repartidor_id && 
-                   in_array($pedido['estado'], ['en_camino', 'entregado']);
+                   in_array($pedido['estado'], ['en_camino', 'entregado', 'cancelado']);
         });
         
         // Aplicar filtros adicionales
@@ -108,6 +108,11 @@ class RepartidorController extends Controller
             }
         });
         
+        // Agregar detalles a cada pedido
+        foreach ($pedidos_asignados as &$pedido) {
+            $pedido['detalles'] = $this->detalleModel->getDetallesConInfo($pedido['id']);
+        }
+        
         $data = [
             'title' => 'Mis Pedidos',
             'pedidos' => $pedidos_asignados,
@@ -147,7 +152,11 @@ class RepartidorController extends Controller
             return redirect()->to(base_url('repartidor/pedidos'))->with('error', 'Pedido no encontrado o no asignado.');
         }
         
-        $detalles = $this->detalleModel->getDetallesConInfo($id);
+        $detalles = $this->detalleModel->getDetallesConInfoMejorada($id);
+        
+        // Debug temporal
+        log_message('debug', 'RepartidorController::detalle - detalles para pedido ' . $id . ': ' . json_encode($detalles));
+        
         $historial = $this->historialModel->getByPedidoId($id);
         $ultima_ubicacion = $this->ubicacionModel->getUltimaUbicacion($repartidor_id, $id);
         
@@ -336,7 +345,7 @@ class RepartidorController extends Controller
             return $fecha_pedido >= $fecha_inicio && $fecha_pedido <= $fecha_fin;
         });
 
-        // Contar por estado
+        // Contar por estado (en_camino, entregado y cancelado)
         $estadisticas = [];
         $estados_colores = [
             'en_camino' => 'primary',
@@ -346,13 +355,16 @@ class RepartidorController extends Controller
 
         foreach ($pedidos_filtrados as $pedido) {
             $estado = $pedido['estado'];
-            if (!isset($estadisticas[$estado])) {
-                $estadisticas[$estado] = [
-                    'cantidad' => 0,
-                    'color' => $estados_colores[$estado] ?? 'secondary'
-                ];
+            // Solo incluir estados en_camino, entregado y cancelado
+            if (in_array($estado, ['en_camino', 'entregado', 'cancelado'])) {
+                if (!isset($estadisticas[$estado])) {
+                    $estadisticas[$estado] = [
+                        'cantidad' => 0,
+                        'color' => $estados_colores[$estado] ?? 'secondary'
+                    ];
+                }
+                $estadisticas[$estado]['cantidad']++;
             }
-            $estadisticas[$estado]['cantidad']++;
         }
 
         // Calcular métricas
@@ -369,8 +381,10 @@ class RepartidorController extends Controller
         // Tiempo promedio de entrega (simulado)
         $tiempo_promedio_entrega = 35; // minutos
         
-        // Calificación promedio (simulado)
-        $calificacion_promedio = 4.5;
+        // Total de entregas
+        $total_entregas = count(array_filter($pedidos_repartidor, function($pedido) {
+            return $pedido['estado'] === 'entregado';
+        }));
 
         $data = [
             'title' => 'Estadísticas de Repartidor',
@@ -380,7 +394,7 @@ class RepartidorController extends Controller
             'entregas_hoy' => $entregas_hoy,
             'entregas_semana' => $entregas_semana,
             'tiempo_promedio_entrega' => $tiempo_promedio_entrega,
-            'calificacion_promedio' => $calificacion_promedio
+            'total_entregas' => $total_entregas
         ];
         return view('header', $data)
             . view('navbar_repartidor')

@@ -113,8 +113,8 @@
                             </div>
                         </div>
                         <div class="col-6">
-                            <h3 class="text-warning"><?= $calificacion_promedio ?? '0.0' ?></h3>
-                            <small class="text-muted">Calificación promedio</small>
+                            <h3 class="text-warning"><?= $total_entregas ?? '0' ?></h3>
+                            <small class="text-muted">Total de entregas</small>
                         </div>
                     </div>
                 </div>

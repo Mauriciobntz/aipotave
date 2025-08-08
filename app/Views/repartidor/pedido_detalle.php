@@ -135,17 +135,20 @@
                     </thead>
                     <tbody>
                         <?php $total = 0; ?>
+                        <!-- Debug: Total de detalles: <?= count($detalles) ?> -->
+                        <?php if (empty($detalles)): ?>
+                            <tr><td colspan="4" class="text-center text-muted">No hay detalles disponibles para este pedido</td></tr>
+                        <?php else: ?>
                         <?php foreach ($detalles as $item): ?>
                             <?php 
-                            $nombre = '';
-                            $imagen = '';
-                            if ($item['producto_id']) {
-                                $nombre = $item['producto_nombre'] ?? 'Producto #' . $item['producto_id'];
-                                $imagen = $item['producto_imagen'] ?? '';
-                            } else {
-                                $nombre = $item['combo_nombre'] ?? 'Combo #' . $item['combo_id'];
-                                $imagen = $item['combo_imagen'] ?? '';
-                            }
+                            // Debug temporal
+                            echo "<!-- Debug item: " . json_encode($item) . " -->";
+                            echo "<!-- Debug: Procesando item con ID: " . $item['id'] . " -->";
+                            
+                            // Simplificar la lógica temporalmente
+                            $nombre = $item['nombre_descriptivo'] ?? 'Producto #' . $item['id'];
+                            $imagen = $item['producto_imagen'] ?? $item['combo_imagen'] ?? '';
+                            
                             $subtotal = $item['precio_unitario'] * $item['cantidad'];
                             $total += $subtotal;
                             ?>
@@ -168,6 +171,7 @@
                                 <td>$<?= number_format($subtotal, 2) ?></td>
                             </tr>
                         <?php endforeach; ?>
+                        <?php endif; ?>
                     </tbody>
                     <tfoot>
                         <tr>
@@ -239,7 +243,7 @@
         </div>
         <div class="card-body">
             <div class="d-flex gap-2">
-                <button type="button" class="btn btn-success" onclick="cambiarEstado('entregado')">
+                <button type="button" class="btn btn-success" onclick="cambiarEstado(<?= $pedido['id'] ?>, 'entregado')">
                     <i class="fas fa-check me-2"></i>Marcar como Entregado
                 </button>
                 <?php if ($pedido['estado_pago'] == 'pendiente' && $pedido['metodo_pago'] == 'efectivo'): ?>
@@ -247,7 +251,7 @@
                         <i class="fas fa-money-bill me-2"></i>Marcar Pago Recibido
                     </button>
                 <?php endif; ?>
-                <button type="button" class="btn btn-info" onclick="verDireccionEnvio()">
+                <button type="button" class="btn btn-info" onclick="verDireccionEnvio(<?= $pedido['id'] ?>, '<?= esc($pedido['direccion_entrega']) ?>')">
                     <i class="fas fa-map-marker-alt me-2"></i>Ver Dirección de Envío
                 </button>
             </div>

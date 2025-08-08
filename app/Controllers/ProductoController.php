@@ -93,8 +93,8 @@ class ProductoController extends Controller
         ];
         return view('header', $data)
             . view('navbar')
-            . view('admin/productos_listar')
-            . view('footer');
+            . view('admin/productos_listar', $data)
+            . view('footer_admin');
     }
 
     /**
@@ -113,8 +113,8 @@ class ProductoController extends Controller
         ];
         return view('header', $data)
             . view('navbar')
-            . view('admin/producto_form')
-            . view('footer');
+            . view('admin/producto_form', $data)
+            . view('footer_admin');
     }
 
     /**
@@ -130,8 +130,9 @@ class ProductoController extends Controller
             'descripcion' => 'max_length[500]',
             'precio' => 'required|decimal|greater_than[0]',
             'tipo' => 'required|in_list[comida,bebida,vianda]',
+            'categoria_id' => 'permit_empty|integer',
             'subcategoria_id' => 'permit_empty|integer',
-            'imagen' => 'uploaded[imagen]|max_size[imagen,2048]|is_image[imagen]|mime_in[imagen,image/jpg,image/jpeg,image/png,image/webp]'
+            'imagen' => 'permit_empty|uploaded[imagen]|max_size[imagen,2048]|is_image[imagen]|mime_in[imagen,image/jpg,image/jpeg,image/png,image/webp]'
         ], [
             'nombre' => [
                 'required' => 'El nombre es obligatorio',
@@ -150,8 +151,13 @@ class ProductoController extends Controller
                 'required' => 'El tipo es obligatorio',
                 'in_list' => 'El tipo debe ser comida, bebida o vianda'
             ],
+            'categoria_id' => [
+                'integer' => 'La categoría debe ser un número válido'
+            ],
+            'subcategoria_id' => [
+                'integer' => 'La subcategoría debe ser un número válido'
+            ],
             'imagen' => [
-                'uploaded' => 'La imagen es obligatoria',
                 'max_size' => 'La imagen no puede exceder los 2MB',
                 'is_image' => 'El archivo debe ser una imagen válida',
                 'mime_in' => 'Formatos permitidos: JPG, JPEG, PNG, WEBP'
@@ -163,20 +169,20 @@ class ProductoController extends Controller
         }
 
         $imagen = $this->request->getFile('imagen');
+        $nombreImagen = '';
         if ($imagen->isValid() && !$imagen->hasMoved()) {
-            // Validación de dimensiones eliminada - acepta cualquier tamaño
+            $nombreImagen = $imagen->getRandomName();
+            $imagen->move(ROOTPATH . 'public/uploads/productos/', $nombreImagen);
         }
-
-        $nombreImagen = $imagen->getRandomName();
-        $imagen->move(ROOTPATH . 'public/uploads/productos/', $nombreImagen);
 
         $data = [
             'nombre' => $this->request->getPost('nombre'),
             'descripcion' => $this->request->getPost('descripcion'),
             'precio' => $this->request->getPost('precio'),
             'tipo' => $this->request->getPost('tipo'),
+            'categoria_id' => $this->request->getPost('categoria_id') ?: null,
             'subcategoria_id' => $this->request->getPost('subcategoria_id') ?: null,
-            'imagen' => 'uploads/productos/' . $nombreImagen,
+            'imagen' => $nombreImagen ? 'uploads/productos/' . $nombreImagen : '',
             'activo' => $this->request->getPost('activo') ? 1 : 0,
             'fecha_creacion' => date('Y-m-d H:i:s')
         ];
@@ -210,8 +216,8 @@ class ProductoController extends Controller
         ];
         return view('header', $data)
             . view('navbar')
-            . view('admin/producto_form')
-            . view('footer');
+            . view('admin/producto_form', $data)
+            . view('footer_admin');
     }
 
     /**
@@ -233,6 +239,7 @@ class ProductoController extends Controller
             'descripcion' => 'max_length[500]',
             'precio' => 'required|decimal|greater_than[0]',
             'tipo' => 'required|in_list[comida,bebida,vianda]',
+            'categoria_id' => 'permit_empty|integer',
             'subcategoria_id' => 'permit_empty|integer'
         ], [
             'nombre' => [
@@ -251,6 +258,12 @@ class ProductoController extends Controller
             'tipo' => [
                 'required' => 'El tipo es obligatorio',
                 'in_list' => 'El tipo debe ser comida, bebida o vianda'
+            ],
+            'categoria_id' => [
+                'integer' => 'La categoría debe ser un número válido'
+            ],
+            'subcategoria_id' => [
+                'integer' => 'La subcategoría debe ser un número válido'
             ]
         ]);
 
@@ -276,6 +289,7 @@ class ProductoController extends Controller
             'descripcion' => $this->request->getPost('descripcion'),
             'precio' => $this->request->getPost('precio'),
             'tipo' => $this->request->getPost('tipo'),
+            'categoria_id' => $this->request->getPost('categoria_id') ?: null,
             'subcategoria_id' => $this->request->getPost('subcategoria_id') ?: null,
             'activo' => $this->request->getPost('activo') ? 1 : 0
         ];
@@ -378,8 +392,8 @@ class ProductoController extends Controller
         ];
         return view('header', $data)
             . view('navbar')
-            . view('admin/productos_listar')
-            . view('footer');
+            . view('admin/productos_listar', $data)
+            . view('footer_admin');
     }
 
 

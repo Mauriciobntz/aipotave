@@ -64,7 +64,7 @@
         }
         
         /* Cards modernas con sombras y transiciones */
-        .card {
+        /* .card {
             border: none;
             border-radius: 12px;
             box-shadow: 0 4px 20px var(--shadow-color);
@@ -77,9 +77,9 @@
             transform: translateY(-5px);
             box-shadow: 0 8px 25px rgba(164, 74, 63, 0.15);
         }
-        
-        /* Botones con la nueva paleta - solo para páginas públicas */
-        .btn-public-primary {
+        */
+        /* Botones específicos para páginas públicas */
+        /* .btn-public-primary {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             border: none;
             color: white;
@@ -122,7 +122,7 @@
         }
         
         /* Badges específicos para páginas públicas */
-        .badge-public-primary {
+        /* .badge-public-primary {
             background: var(--primary-color) !important;
             color: white !important;
         }
@@ -141,9 +141,9 @@
             background: var(--accent-color) !important;
             color: var(--text-dark) !important;
         }
-        
+        */
         /* Alertas específicas para páginas públicas */
-        .alert-public-success {
+        /* .alert-public-success {
             background: linear-gradient(135deg, var(--success-color) 0%, var(--accent-color) 100%);
             border: none;
             color: var(--text-dark);
@@ -166,7 +166,7 @@
             border: none;
             color: var(--text-dark);
         }
-        
+        */
         /* Efecto de hover para botones */
         .btn-hover-effect {
             transition: all 0.3s ease;
@@ -247,7 +247,7 @@
         }
         
         /* Efecto de hover para navbar */
-        .nav-link {
+        /* .nav-link {
             position: relative;
             padding: 8px 12px;
         }
@@ -266,9 +266,9 @@
         .nav-link:hover:after {
             width: 100%;
         }
-        
+        */
         /* Mejoras para inputs */
-        .form-control, .form-select {
+        /* .form-control, .form-select {
             border-radius: 8px;
             padding: 12px 15px;
             border: 1px solid #e0e0e0;
@@ -279,14 +279,9 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 0 0.25rem rgba(255, 107, 107, 0.25);
         }
-        
+        */
         /* Badges modernos */
-        .badge {
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            padding: 5px 10px;
-            border-radius: 12px;
-        }
+        /* .badge { ... } */
         
         /* Efecto de hover para cards de carrito */
         .cart-item-card {
@@ -330,12 +325,12 @@
         }
         
         /* Mejoras para las alertas */
-        .alert {
+        /* .alert {
             border-radius: 12px;
             border: none;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
-        
+        */
         /* Efecto de hover para botones de cantidad */
         .quantity-btn {
             transition: all 0.2s ease;
@@ -517,7 +512,7 @@
         }
 
         /* Navbar con la nueva paleta - solo para páginas públicas */
-        body[data-page="public"] .navbar-dark {
+        /* body[data-page="public"] .navbar-dark {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
             box-shadow: 0 4px 20px var(--shadow-color);
         }
@@ -543,15 +538,15 @@
             color: var(--light-bg) !important;
             transform: translateY(-1px);
         }
-        
+        */
         /* Carrito con la nueva paleta - solo para páginas públicas */
-        body[data-page="public"] .badge.bg-danger {
+        /* body[data-page="public"] .badge.bg-danger {
             background: var(--primary-color) !important;
             color: white !important;
         }
         
         /* Scroll personalizado con la nueva paleta - solo para páginas públicas */
-        body[data-page="public"] ::-webkit-scrollbar-thumb {
+        /* body[data-page="public"] ::-webkit-scrollbar-thumb {
             background: var(--primary-color);
             border-radius: 10px;
         }
@@ -559,6 +554,7 @@
         body[data-page="public"] ::-webkit-scrollbar-thumb:hover {
             background: var(--secondary-color);
         }
+        */
 
         /* Estilos específicos para páginas públicas */
         .hero-section {
@@ -665,7 +661,7 @@
         }
         
         /* Aplicar estilos públicos automáticamente en ciertas rutas */
-        body[data-page="public"] .btn-primary {
+        /* body[data-page="public"] .btn-primary {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             border: none;
             color: white;
@@ -716,7 +712,7 @@
         }
         
         /* Footer específico para páginas públicas */
-        body[data-page="public"] .footer-public {
+        /* body[data-page="public"] .footer-public {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             color: white;
             padding-top: 3rem;

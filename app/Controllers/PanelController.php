@@ -89,16 +89,23 @@ class PanelController extends Controller
             'buscar' => $buscar
         ];
         
-        return view('panel/pedidos', $data);
+        return view('header', $data)
+            . view('navbar')
+            . view('admin/panel/pedidos', $data)
+            . view('footer_admin');
     }
 
     public function detallePedido($id)
     {
+        // Log para debugging
+        log_message('info', "Accediendo a detallePedido con ID: " . $id);
+        
         $pedidoModel = new PedidoModel();
         $detalleModel = new DetallePedidoModel();
         
         $pedido = $pedidoModel->getById($id);
         if (!$pedido) {
+            log_message('error', "Pedido no encontrado con ID: " . $id);
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Pedido no encontrado');
         }
         
@@ -109,7 +116,12 @@ class PanelController extends Controller
             'detalles' => $detalles
         ];
         
-        return view('panel/pedido_detalle', $data);
+        log_message('info', "Pedido encontrado, renderizando vista");
+        
+        return view('header', $data)
+            . view('navbar')
+            . view('panel/pedido_detalle', $data)
+            . view('footer_admin');
     }
 
     public function cambiarEstado()

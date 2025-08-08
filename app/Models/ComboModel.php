@@ -48,10 +48,10 @@ class ComboModel extends Model
     {
         $db = \Config\Database::connect();
         $builder = $db->table('productos_en_combos pec');
-        $builder->select('pec.producto_id, p.nombre, p.descripcion, p.precio, p.imagen, pec.cantidad');
+        $builder->select('pec.producto_id, p.nombre, p.descripcion, p.precio, p.imagen, pec.cantidad, p.activo');
         $builder->join('productos p', 'pec.producto_id = p.id');
         $builder->where('pec.combo_id', $combo_id);
-        $builder->where('p.activo', 1);
+        // No filtrar por activo para mostrar todos los productos del combo
         return $builder->get()->getResultArray();
     }
 
@@ -67,7 +67,7 @@ class ComboModel extends Model
         $builder->join('productos_en_combos pec', 'c.id = pec.combo_id');
         $builder->join('productos p', 'pec.producto_id = p.id');
         $builder->where('c.activo', 1);
-        $builder->where('p.activo', 1);
+        // No filtrar por productos activos para mostrar todos los productos del combo
         $builder->groupBy('c.id');
         $builder->orderBy('c.nombre', 'asc');
         return $builder->get()->getResultArray();
@@ -84,7 +84,10 @@ class ComboModel extends Model
         $total = 0;
         
         foreach ($productos as $producto) {
-            $total += $producto['precio'] * $producto['cantidad'];
+            // Solo incluir productos activos en el cálculo
+            if ($producto['activo'] == 1) {
+                $total += $producto['precio'] * $producto['cantidad'];
+            }
         }
         
         return $total;

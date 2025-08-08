@@ -34,14 +34,20 @@ class CocinaController extends Controller
         $estado_filtro = $this->request->getGet('estado') ?? '';
         $fecha_desde = $this->request->getGet('fecha_desde') ?? '';
         $fecha_hasta = $this->request->getGet('fecha_hasta') ?? '';
+        $repartidor_filtro = $this->request->getGet('repartidor_id') ?? '';
         $orden = $this->request->getGet('orden') ?? 'fecha_desc';
         
         $pedidos = $this->pedidoModel->getPedidosConRepartidor();
         
         // Aplicar filtros
-        $pedidos_filtrados = array_filter($pedidos, function($pedido) use ($estado_filtro, $fecha_desde, $fecha_hasta) {
+        $pedidos_filtrados = array_filter($pedidos, function($pedido) use ($estado_filtro, $fecha_desde, $fecha_hasta, $repartidor_filtro) {
             // Filtro por estado
             if ($estado_filtro && $pedido['estado'] !== $estado_filtro) {
+                return false;
+            }
+            
+            // Filtro por repartidor
+            if ($repartidor_filtro && $pedido['repartidor_id'] != $repartidor_filtro) {
                 return false;
             }
             
@@ -94,6 +100,11 @@ class CocinaController extends Controller
         // Obtener repartidores disponibles
         $repartidores = $this->obtenerRepartidoresDisponibles();
         
+        // Agregar detalles a cada pedido
+        foreach ($pedidos_filtrados as &$pedido) {
+            $pedido['detalles'] = $this->detalleModel->getDetallesConInfo($pedido['id']);
+        }
+        
         $data = [
             'title' => 'Pedidos en Cocina',
             'pedidos' => array_values($pedidos_filtrados), // Reindexar array
@@ -101,6 +112,7 @@ class CocinaController extends Controller
             'estado_filtro' => $estado_filtro,
             'fecha_desde' => $fecha_desde,
             'fecha_hasta' => $fecha_hasta,
+            'repartidor_filtro' => $repartidor_filtro,
             'orden' => $orden
         ];
         return view('header', $data)
@@ -153,6 +165,14 @@ class CocinaController extends Controller
             $repartidor_id = $jsonData['repartidor_id'] ?? null;
         }
         
+        // Validar que el estado no esté vacío
+        if (empty($nuevo_estado)) {
+            if ($this->request->getHeaderLine('Content-Type') === 'application/json') {
+                return $this->response->setJSON(['success' => false, 'message' => 'El estado no puede estar vacío']);
+            }
+            return redirect()->back()->with('error', 'El estado no puede estar vacío');
+        }
+        
         if (!in_array($nuevo_estado, ['confirmado', 'en_preparacion', 'listo', 'en_camino', 'entregado', 'cancelado'])) {
             if ($this->request->getHeaderLine('Content-Type') === 'application/json') {
                 return $this->response->setJSON(['success' => false, 'message' => 'Estado no válido']);
@@ -168,7 +188,7 @@ class CocinaController extends Controller
             return redirect()->back()->with('error', 'Pedido no encontrado');
         }
 
-        $estado_anterior = $pedido['estado'];
+        $estado_anterior = $pedido['estado'] ?? '';
         
         // Si el estado cambió de 'listo' a 'en_camino', verificar que se seleccionó un repartidor
         if ($estado_anterior == 'listo' && $nuevo_estado == 'en_camino') {
@@ -197,23 +217,27 @@ class CocinaController extends Controller
         
         try {
             if ($this->pedidoModel->update($id, $datos_actualizacion)) {
-                // Registrar el cambio en el historial (solo con los campos que existen)
-                $historial_data = [
-                    'pedido_id' => $id,
-                    'estado_anterior' => $estado_anterior,
-                    'estado_nuevo' => $nuevo_estado,
-                    'fecha_cambio' => date('Y-m-d H:i:s')
-                ];
-                
-                // Si se asignó un repartidor, agregar observación
-                if ($repartidor_id && $nuevo_estado == 'en_camino') {
-                    $repartidor = $this->obtenerRepartidorPorId($repartidor_id);
-                    if ($repartidor) {
-                        $historial_data['observaciones'] = "Repartidor asignado manualmente: {$repartidor['nombre']}";
+                // Registrar el cambio en el historial (siempre que el nuevo estado sea válido)
+                if (!empty($nuevo_estado)) {
+                    $historial_data = [
+                        'pedido_id' => $id,
+                        'estado_anterior' => $estado_anterior ?: 'sin_estado',
+                        'estado_nuevo' => $nuevo_estado,
+                        'fecha_cambio' => date('Y-m-d H:i:s')
+                    ];
+                    
+                    // Si se asignó un repartidor, agregar observación
+                    if ($repartidor_id && $nuevo_estado == 'en_camino') {
+                        $repartidor = $this->obtenerRepartidorPorId($repartidor_id);
+                        if ($repartidor) {
+                            $historial_data['observaciones'] = "Repartidor asignado manualmente: {$repartidor['nombre']}";
+                        }
                     }
+                    
+                    $this->historialModel->insert($historial_data);
+                } else {
+                    log_message('warning', 'No se registró cambio en historial - estado nuevo vacío: anterior=' . $estado_anterior . ', nuevo=' . $nuevo_estado);
                 }
-                
-                $this->historialModel->insert($historial_data);
                 
                 // Enviar notificación al repartidor si se asignó uno
                 if ($repartidor_id && $nuevo_estado == 'en_camino') {

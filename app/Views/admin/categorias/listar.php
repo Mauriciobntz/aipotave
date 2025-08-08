@@ -1,7 +1,3 @@
-<?= $this->extend('layout/default') ?>
-
-<?= $this->section('content') ?>
-
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><i class="fas fa-tags me-2"></i>Gestión de Categorías</h1>
@@ -45,6 +41,7 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Nombre</th>
+                                <th>Orden</th>
                                 <th>Productos Activos</th>
                                 <th>Subcategorías</th>
                                 <th>Estado</th>
@@ -67,6 +64,9 @@
                                                 <?php endif; ?>
                                             </div>
                                         </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary"><?= $categoria['orden'] ?? 0 ?></span>
                                     </td>
                                     <td>
                                         <span class="badge bg-success"><?= $categoria['productos_count'] ?? 0 ?></span>

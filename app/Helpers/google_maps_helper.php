@@ -20,7 +20,7 @@ if (!function_exists('google_maps_script')) {
         }
         
         $apiKey = $config->apiKey;
-        return "<script src=\"https://maps.googleapis.com/maps/api/js?key={$apiKey}&libraries={$libraries}&loading=async\" async defer></script>";
+        return "<script src=\"https://maps.googleapis.com/maps/api/js?key={$apiKey}&libraries={$libraries}&callback=initMap&loading=async\" async defer></script>";
     }
 }
 

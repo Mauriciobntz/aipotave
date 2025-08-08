@@ -127,6 +127,7 @@
                                 <th><i class="fas fa-dollar-sign me-2"></i>Total</th>
                                 <th><i class="fas fa-credit-card me-2"></i>Pago</th>
                                 <th><i class="fas fa-info-circle me-2"></i>Estado</th>
+                                <th><i class="fas fa-motorcycle me-2"></i>Repartidor</th>
                                 <th><i class="fas fa-comment me-2"></i>Observaciones</th>
                                 <th><i class="fas fa-cogs me-2"></i>Acciones</th>
                             </tr>
@@ -179,17 +180,39 @@
                                     <td>
                                         <?php
                                         $estado_colores = [
-                                            'pendiente' => 'badge-pending',
-                                            'confirmado' => 'badge-info',
-                                            'en_preparacion' => 'badge-preparing',
-                                            'listo' => 'badge-warning',
-                                            'en_camino' => 'badge-delivery',
-                                            'entregado' => 'badge-delivered',
-                                            'cancelado' => 'badge-cancelled'
+                                            'pendiente' => 'estado-pendiente',
+                                            'confirmado' => 'estado-info',
+                                            'en_preparacion' => 'estado-preparing',
+                                            'listo' => 'estado-warning',
+                                            'en_camino' => 'estado-delivery',
+                                            'entregado' => 'estado-delivered',
+                                            'cancelado' => 'estado-cancelled'
                                         ];
-                                        $estado_clase = $estado_colores[$pedido['estado']] ?? 'badge-secondary';
+                                        $estado_clase = $estado_colores[$pedido['estado']] ?? 'estado-pendiente';
                                         ?>
-                                        <span class="badge <?= $estado_clase ?>"><?= ucfirst(str_replace('_', ' ', $pedido['estado'])) ?></span>
+                                        <span class="badge badge-estado <?= $estado_clase ?>"><?= ucfirst(str_replace('_', ' ', $pedido['estado'])) ?></span>
+                                    </td>
+                                    <td>
+                                        <?php if (!empty($pedido['nombre_repartidor'])): ?>
+                                            <i class="fas fa-user me-1"></i><?= esc($pedido['nombre_repartidor']) ?>
+                                            <?php
+                                            // Buscar repartidor en $repartidores para mostrar estado
+                                            $rep = null;
+                                            foreach ($repartidores as $r) {
+                                                if ($r['nombre'] === $pedido['nombre_repartidor']) {
+                                                    $rep = $r;
+                                                    break;
+                                                }
+                                            }
+                                            ?>
+                                            <?php if ($rep && isset($rep['disponible'])): ?>
+                                                <span class="badge <?= $rep['disponible'] ? 'bg-success' : 'bg-secondary' ?> ms-1">
+                                                    <?= $rep['disponible'] ? 'Disponible' : 'Ocupado' ?>
+                                                </span>
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                            <span class="text-muted">Sin asignar</span>
+                                        <?php endif; ?>
                                     </td>
                                     <td>
                                         <?php if (!empty($pedido['observaciones'])): ?>

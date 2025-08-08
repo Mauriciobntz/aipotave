@@ -1,0 +1,770 @@
+{
+	"_type": "UMLModel",
+	"_id": "AAAAAAGX2FuPU1M2CFM=",
+	"name": "E-commerce ERD",
+	"ownedElements": [
+		{
+			"_type": "UMLPackage",
+			"_id": "AAAAAAGX2FuPU1M3EeM=",
+			"name": "Model",
+			"ownedElements": [
+				{
+					"_type": "UMLClass",
+					"_id": "AAAAAAGX2FuPU1M4Ukk=",
+					"name": "usuarios",
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPU1M50Os=",
+							"name": "id_usuario",
+							"type": "INT",
+							"isID": true
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPU1M6ta0=",
+							"name": "email",
+							"type": "VARCHAR(255)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPU1M7K4U=",
+							"name": "password_hash",
+							"type": "VARCHAR(255)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPU1M8u9k=",
+							"name": "rol",
+							"type": "ENUM('admin','cliente')"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVFM9tOo=",
+							"name": "username",
+							"type": "VARCHAR(100)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVFM+ykQ=",
+							"name": "fecha_registro",
+							"type": "DATETIME"
+						}
+					]
+				},
+				{
+					"_type": "UMLClass",
+					"_id": "AAAAAAGX2FuPVFM/Kto=",
+					"name": "personas",
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVFNA8gc=",
+							"name": "id_persona",
+							"type": "INT",
+							"isID": true
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVFNB5rA=",
+							"name": "usuario_id",
+							"type": "INT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVFNCql8=",
+							"name": "tipo_documento",
+							"type": "VARCHAR(20)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVFNDYrc=",
+							"name": "documento",
+							"type": "VARCHAR(20)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVFNEluk=",
+							"name": "nombre",
+							"type": "VARCHAR(100)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVFNFtPY=",
+							"name": "apellido",
+							"type": "VARCHAR(100)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVFNG4fo=",
+							"name": "fecha_nacimiento",
+							"type": "DATE"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVFNHbQs=",
+							"name": "genero",
+							"type": "ENUM('M','F','O')"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVFNI0LU=",
+							"name": "telefono",
+							"type": "VARCHAR(20)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVFNJrnc=",
+							"name": "fecha_creacion",
+							"type": "DATETIME"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVFNKSaM=",
+							"name": "fecha_actualizacion",
+							"type": "DATETIME"
+						}
+					]
+				},
+				{
+					"_type": "UMLClass",
+					"_id": "AAAAAAGX2FuPVFNL6SI=",
+					"name": "categorias",
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVFNM/sU=",
+							"name": "id_categoria",
+							"type": "INT",
+							"isID": true
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVFNNBqQ=",
+							"name": "nombre",
+							"type": "VARCHAR(100)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVFNOGpU=",
+							"name": "descripcion",
+							"type": "TEXT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVFNPjTE=",
+							"name": "imagen_url",
+							"type": "VARCHAR(255)"
+						}
+					]
+				},
+				{
+					"_type": "UMLClass",
+					"_id": "AAAAAAGX2FuPVFNQ7Zs=",
+					"name": "productos",
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVFNRDeM=",
+							"name": "id_producto",
+							"type": "INT",
+							"isID": true
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVFNSGBc=",
+							"name": "nombre",
+							"type": "VARCHAR(255)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVFNTgd8=",
+							"name": "descripcion",
+							"type": "TEXT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVVNUcLc=",
+							"name": "marca",
+							"type": "VARCHAR(100)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVVNVjE8=",
+							"name": "modelo",
+							"type": "VARCHAR(100)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVVNWQLo=",
+							"name": "precio",
+							"type": "DECIMAL(10,2)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVVNX/og=",
+							"name": "stock",
+							"type": "INT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVVNYuLw=",
+							"name": "categoria_id",
+							"type": "INT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVVNZzXU=",
+							"name": "especificaciones",
+							"type": "TEXT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVVNalfg=",
+							"name": "garantia_meses",
+							"type": "INT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVVNb8nE=",
+							"name": "peso_kg",
+							"type": "DECIMAL(5,2)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVVNcDGI=",
+							"name": "dimensiones",
+							"type": "VARCHAR(100)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVVNdx4k=",
+							"name": "activo",
+							"type": "BOOLEAN"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVVNeyXc=",
+							"name": "imagen_url",
+							"type": "VARCHAR(255)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVVNfcRA=",
+							"name": "fecha_alta",
+							"type": "DATETIME"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVlNgAC4=",
+							"name": "ventas_totales",
+							"type": "INT"
+						}
+					]
+				},
+				{
+					"_type": "UMLClass",
+					"_id": "AAAAAAGX2FuPVlNhfCU=",
+					"name": "carritos",
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVlNi9M4=",
+							"name": "id_carrito",
+							"type": "INT",
+							"isID": true
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVlNjQu4=",
+							"name": "usuario_id",
+							"type": "INT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVlNkmtA=",
+							"name": "fecha_creacion",
+							"type": "DATETIME"
+						}
+					]
+				},
+				{
+					"_type": "UMLClass",
+					"_id": "AAAAAAGX2FuPVlNlgME=",
+					"name": "carrito_items",
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVlNma5c=",
+							"name": "id_item",
+							"type": "INT",
+							"isID": true
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVlNnyRY=",
+							"name": "carrito_id",
+							"type": "INT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVlNo5Iw=",
+							"name": "producto_id",
+							"type": "INT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVlNptwM=",
+							"name": "cantidad",
+							"type": "INT"
+						}
+					]
+				},
+				{
+					"_type": "UMLClass",
+					"_id": "AAAAAAGX2FuPVlNqTZI=",
+					"name": "ventas",
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVlNrPWE=",
+							"name": "id_venta",
+							"type": "INT",
+							"isID": true
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVlNsffw=",
+							"name": "usuario_id",
+							"type": "INT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVlNt6kA=",
+							"name": "fecha_venta",
+							"type": "DATETIME"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVlNun1A=",
+							"name": "fecha_actualizacion",
+							"type": "DATETIME"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVlNvLE0=",
+							"name": "estado",
+							"type": "ENUM('pendiente','confirmada','enviada','entregada','cancelada')"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVlNwjVQ=",
+							"name": "total",
+							"type": "DECIMAL(10,2)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVlNxAQs=",
+							"name": "id_direccion_envio",
+							"type": "INT"
+						}
+					]
+				},
+				{
+					"_type": "UMLClass",
+					"_id": "AAAAAAGX2FuPVlNyxOM=",
+					"name": "venta_items",
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVlNzPLc=",
+							"name": "id_venta_item",
+							"type": "INT",
+							"isID": true
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVlN0aTE=",
+							"name": "venta_id",
+							"type": "INT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVlN1Qck=",
+							"name": "producto_id",
+							"type": "INT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVlN2+tg=",
+							"name": "cantidad",
+							"type": "INT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPVlN3WFE=",
+							"name": "precio_unitario",
+							"type": "DECIMAL(10,2)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1N4v4M=",
+							"name": "subtotal",
+							"type": "DECIMAL(10,2)"
+						}
+					]
+				},
+				{
+					"_type": "UMLClass",
+					"_id": "AAAAAAGX2FuPV1N5BD0=",
+					"name": "direccion_envio",
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1N6/ik=",
+							"name": "id_direccion_envio",
+							"type": "INT",
+							"isID": true
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1N7Lwo=",
+							"name": "venta_id",
+							"type": "INT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1N8J+4=",
+							"name": "direccion",
+							"type": "VARCHAR(255)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1N96WI=",
+							"name": "ciudad",
+							"type": "VARCHAR(100)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1N+3Ck=",
+							"name": "provincia",
+							"type": "VARCHAR(100)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1N/n84=",
+							"name": "codigo_postal",
+							"type": "VARCHAR(20)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1OAh58=",
+							"name": "pais",
+							"type": "VARCHAR(100)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1OB90I=",
+							"name": "nombre_destinatario",
+							"type": "VARCHAR(100)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1OCxxw=",
+							"name": "telefono_contacto",
+							"type": "VARCHAR(20)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1ODDAY=",
+							"name": "instrucciones_entrega",
+							"type": "TEXT"
+						}
+					]
+				},
+				{
+					"_type": "UMLClass",
+					"_id": "AAAAAAGX2FuPV1OEHwE=",
+					"name": "pagos",
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1OFyiA=",
+							"name": "id_pago",
+							"type": "INT",
+							"isID": true
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1OGKqQ=",
+							"name": "venta_id",
+							"type": "INT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1OHisE=",
+							"name": "monto",
+							"type": "DECIMAL(10,2)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1OIKNI=",
+							"name": "metodo_pago",
+							"type": "VARCHAR(50)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1OJnAw=",
+							"name": "estado",
+							"type": "ENUM('pendiente','completado','fallido')"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1OKFHw=",
+							"name": "fecha_pago",
+							"type": "DATETIME"
+						}
+					]
+				},
+				{
+					"_type": "UMLClass",
+					"_id": "AAAAAAGX2FuPV1OLDnM=",
+					"name": "resenas",
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1OMG3A=",
+							"name": "id_resena",
+							"type": "INT",
+							"isID": true
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1ONC8Y=",
+							"name": "producto_id",
+							"type": "INT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1OOKj4=",
+							"name": "usuario_id",
+							"type": "INT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1OPrKI=",
+							"name": "calificacion",
+							"type": "INT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1OQFYw=",
+							"name": "comentario",
+							"type": "TEXT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1ORgOo=",
+							"name": "fecha_resena",
+							"type": "DATETIME"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1OSOIU=",
+							"name": "aprobada",
+							"type": "BOOLEAN"
+						}
+					]
+				},
+				{
+					"_type": "UMLClass",
+					"_id": "AAAAAAGX2FuPV1OTM30=",
+					"name": "carrusel",
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1OUDZo=",
+							"name": "id_carrusel",
+							"type": "INT",
+							"isID": true
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1OVe8Y=",
+							"name": "titulo",
+							"type": "VARCHAR(255)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1OWxbw=",
+							"name": "descripcion",
+							"type": "TEXT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1OX/VY=",
+							"name": "imagen_url",
+							"type": "VARCHAR(255)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1OYSIQ=",
+							"name": "enlace",
+							"type": "VARCHAR(255)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPV1OZVUI=",
+							"name": "orden",
+							"type": "INT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPWFOa2eI=",
+							"name": "activo",
+							"type": "BOOLEAN"
+						}
+					]
+				},
+				{
+					"_type": "UMLClass",
+					"_id": "AAAAAAGX2FuPWFObq/w=",
+					"name": "destacados",
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPWFOcUlM=",
+							"name": "id_destacado",
+							"type": "INT",
+							"isID": true
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPWFOd86s=",
+							"name": "producto_id",
+							"type": "INT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPWFOeWHU=",
+							"name": "titulo",
+							"type": "VARCHAR(255)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPWFOfA9o=",
+							"name": "descripcion",
+							"type": "TEXT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPWFOghyc=",
+							"name": "imagen_url",
+							"type": "VARCHAR(255)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPWFOhg14=",
+							"name": "video_url",
+							"type": "VARCHAR(255)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPWFOiKnY=",
+							"name": "orden",
+							"type": "INT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPWFOjdEQ=",
+							"name": "activo",
+							"type": "BOOLEAN"
+						}
+					]
+				},
+				{
+					"_type": "UMLClass",
+					"_id": "AAAAAAGX2FuPWFOkinE=",
+					"name": "consultas",
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPWFOlqrs=",
+							"name": "id_consulta",
+							"type": "INT",
+							"isID": true
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPWFOmzio=",
+							"name": "nombre",
+							"type": "VARCHAR(100)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPWFOnrNo=",
+							"name": "email",
+							"type": "VARCHAR(255)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPWFOo1V8=",
+							"name": "asunto",
+							"type": "VARCHAR(255)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPWFOpvDY=",
+							"name": "mensaje",
+							"type": "TEXT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPWFOqyvk=",
+							"name": "fecha_consulta",
+							"type": "DATETIME"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPWFOrdmk=",
+							"name": "estado",
+							"type": "ENUM('nueva','en_proceso','respondida')"
+						}
+					]
+				},
+				{
+					"_type": "UMLClass",
+					"_id": "AAAAAAGX2FuPWFOsVuQ=",
+					"name": "configuracion",
+					"attributes": [
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPWFOtp8M=",
+							"name": "id_configuracion",
+							"type": "INT",
+							"isID": true
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPWFOunwM=",
+							"name": "clave",
+							"type": "VARCHAR(100)"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPWFOvD8o=",
+							"name": "valor",
+							"type": "TEXT"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGX2FuPWFOw3jI=",
+							"name": "descripcion",
+							"type": "TEXT"
+						}
+					]
+				}
+			]
+		}
+	]
+}

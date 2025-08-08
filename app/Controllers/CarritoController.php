@@ -25,11 +25,9 @@ class CarritoController extends Controller
             $subtotal += $item['precio'] * $item['cantidad'];
         }
         
-        // Calcular envío (ejemplo: $1000 si el subtotal es menor a $5000)
-        $envio = $subtotal < 5000 ? 1000 : 0;
-        
-        // Calcular total
-        $total = $subtotal + $envio;
+        // En el carrito NO se muestra el costo de envío hasta que el usuario vaya al checkout
+        $envio = 0; // No mostrar envío en el carrito
+        $total = $subtotal; // Solo subtotal en el carrito
         
         $data = [
             'title' => 'Mi Carrito | Mi Restaurante',
@@ -173,9 +171,9 @@ class CarritoController extends Controller
                 $subtotal += $item['precio'] * $item['cantidad'];
             }
             
-            // Calcular envío
-            $envio = $subtotal < 5000 ? 1000 : 0;
-            $total = $subtotal + $envio;
+            // En el carrito NO se muestra el costo de envío hasta que el usuario vaya al checkout
+            $envio = 0; // No mostrar envío en el carrito
+            $total = $subtotal; // Solo subtotal en el carrito
             
             // Obtener el precio del producto actualizado
             $key = $tipo . '_' . $id;

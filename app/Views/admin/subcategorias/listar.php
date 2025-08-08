@@ -1,7 +1,3 @@
-<?= $this->extend('layout/default') ?>
-
-<?= $this->section('content') ?>
-
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><i class="fas fa-tags me-2"></i>Gestión de Subcategorías</h1>

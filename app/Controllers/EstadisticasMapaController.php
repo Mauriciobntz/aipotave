@@ -129,12 +129,13 @@ class EstadisticasMapaController extends Controller
             }
         }
         
-        // Ordenar por total de pedidos
-        usort($zonas, function($a, $b) {
+        // Convertir a array indexado y ordenar por total de pedidos
+        $zonas_array = array_values($zonas);
+        usort($zonas_array, function($a, $b) {
             return $b['total'] - $a['total'];
         });
         
-        return $zonas;
+        return $zonas_array;
     }
     
     /**

@@ -24,7 +24,7 @@ class ComboController extends Controller
         return view('header', $data)
             . view('navbar')
             . view('admin/combos_listar')
-            . view('footer');
+            . view('footer_admin');
     }
 
     /**
@@ -43,7 +43,7 @@ class ComboController extends Controller
         return view('header', $data)
             . view('navbar')
             . view('admin/combo_form')
-            . view('footer');
+            . view('footer_admin');
     }
 
     /**
@@ -52,19 +52,52 @@ class ComboController extends Controller
     public function guardarCombo()
     {
         $comboModel = new ComboModel();
-        $rules = [
-            'nombre' => 'required|min_length[3]',
-            'precio' => 'required|decimal'
-        ];
-        if (! $this->validate($rules)) {
-            return redirect()->back()->withInput()->with('error', 'Completa los campos obligatorios.');
+        $validation = \Config\Services::validation();
+        
+        $validation->setRules([
+            'nombre' => 'required|min_length[3]|max_length[100]',
+            'descripcion' => 'max_length[500]',
+            'precio' => 'required|decimal|greater_than[0]',
+            'imagen' => 'permit_empty|uploaded[imagen]|max_size[imagen,2048]|is_image[imagen]|mime_in[imagen,image/jpg,image/jpeg,image/png,image/webp]'
+        ], [
+            'nombre' => [
+                'required' => 'El nombre es obligatorio',
+                'min_length' => 'El nombre debe tener al menos 3 caracteres',
+                'max_length' => 'El nombre no puede exceder los 100 caracteres'
+            ],
+            'descripcion' => [
+                'max_length' => 'La descripción no puede exceder los 500 caracteres'
+            ],
+            'precio' => [
+                'required' => 'El precio es obligatorio',
+                'decimal' => 'El precio debe ser un número válido',
+                'greater_than' => 'El precio debe ser mayor a 0'
+            ],
+            'imagen' => [
+                'max_size' => 'La imagen no puede exceder los 2MB',
+                'is_image' => 'El archivo debe ser una imagen válida',
+                'mime_in' => 'Formatos permitidos: JPG, JPEG, PNG, WEBP'
+            ]
+        ]);
+
+        if (!$validation->withRequest($this->request)->run()) {
+            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
+
+        $imagen = $this->request->getFile('imagen');
+        $nombreImagen = '';
+        if ($imagen->isValid() && !$imagen->hasMoved()) {
+            $nombreImagen = $imagen->getRandomName();
+            $imagen->move(ROOTPATH . 'public/uploads/combos/', $nombreImagen);
+        }
+
         $data = [
             'nombre' => $this->request->getPost('nombre'),
             'descripcion' => $this->request->getPost('descripcion'),
             'precio' => $this->request->getPost('precio'),
+            'imagen' => $nombreImagen ? 'uploads/combos/' . $nombreImagen : '',
             'activo' => 1,
-            'imagen' => $this->request->getPost('imagen')
+            'fecha_creacion' => date('Y-m-d H:i:s')
         ];
         $comboId = $comboModel->insert($data, true);
         // Guardar productos en combo
@@ -113,7 +146,7 @@ class ComboController extends Controller
         return view('header', $data)
             . view('navbar')
             . view('admin/combo_form')
-            . view('footer');
+            . view('footer_admin');
     }
 
     /**
@@ -123,19 +156,68 @@ class ComboController extends Controller
     public function actualizarCombo($id)
     {
         $comboModel = new ComboModel();
-        $rules = [
-            'nombre' => 'required|min_length[3]',
-            'precio' => 'required|decimal'
-        ];
-        if (! $this->validate($rules)) {
-            return redirect()->back()->withInput()->with('error', 'Completa los campos obligatorios.');
+        $validation = \Config\Services::validation();
+        
+        $validation->setRules([
+            'nombre' => 'required|min_length[3]|max_length[100]',
+            'descripcion' => 'max_length[500]',
+            'precio' => 'required|decimal|greater_than[0]'
+        ], [
+            'nombre' => [
+                'required' => 'El nombre es obligatorio',
+                'min_length' => 'El nombre debe tener al menos 3 caracteres',
+                'max_length' => 'El nombre no puede exceder los 100 caracteres'
+            ],
+            'descripcion' => [
+                'max_length' => 'La descripción no puede exceder los 500 caracteres'
+            ],
+            'precio' => [
+                'required' => 'El precio es obligatorio',
+                'decimal' => 'El precio debe ser un número válido',
+                'greater_than' => 'El precio debe ser mayor a 0'
+            ]
+        ]);
+
+        if (!$validation->withRequest($this->request)->run()) {
+            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
+
+        $combo = $comboModel->find($id);
+        if (!$combo) {
+            return redirect()->back()->withInput()->with('error', 'Combo no encontrado.');
+        }
+
         $data = [
             'nombre' => $this->request->getPost('nombre'),
             'descripcion' => $this->request->getPost('descripcion'),
-            'precio' => $this->request->getPost('precio'),
-            'imagen' => $this->request->getPost('imagen')
+            'precio' => $this->request->getPost('precio')
         ];
+
+        $imagen = $this->request->getFile('imagen');
+        if ($imagen && $imagen->isValid()) {
+            $validation->setRules([
+                'imagen' => 'max_size[imagen,2048]|is_image[imagen]|mime_in[imagen,image/jpg,image/jpeg,image/png,image/webp]'
+            ], [
+                'imagen' => [
+                    'max_size' => 'La imagen no puede exceder los 2MB',
+                    'is_image' => 'El archivo debe ser una imagen válida',
+                    'mime_in' => 'Formatos permitidos: JPG, JPEG, PNG, WEBP'
+                ]
+            ]);
+
+            if (!$validation->withRequest($this->request)->run()) {
+                return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+            }
+
+            // Eliminar imagen anterior si existe
+            if ($combo['imagen'] && file_exists(ROOTPATH . 'public/' . $combo['imagen'])) {
+                unlink(ROOTPATH . 'public/' . $combo['imagen']);
+            }
+
+            $nombreImagen = $imagen->getRandomName();
+            $imagen->move(ROOTPATH . 'public/uploads/combos/', $nombreImagen);
+            $data['imagen'] = 'uploads/combos/' . $nombreImagen;
+        }
         $comboModel->update($id, $data);
         // Actualizar productos en combo
         $db = \Config\Database::connect();

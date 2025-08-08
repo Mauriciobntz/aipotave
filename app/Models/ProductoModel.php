@@ -12,7 +12,7 @@ class ProductoModel extends Model
     protected $table = 'productos';
     protected $primaryKey = 'id';
     protected $allowedFields = [
-        'nombre', 'descripcion', 'precio', 'imagen', 'tipo', 'subcategoria_id', 'subcategoria', 'activo', 'fecha_creacion'
+        'nombre', 'descripcion', 'precio', 'imagen', 'tipo', 'categoria_id', 'subcategoria_id', 'subcategoria', 'activo', 'fecha_creacion'
     ];
 
     /**
@@ -65,7 +65,7 @@ class ProductoModel extends Model
     }
 
     /**
-     * Obtiene productos con información de subcategoría.
+     * Obtiene productos con información de subcategoría y categoría.
      * @param string $tipo
      * @return array
      */
@@ -75,7 +75,7 @@ class ProductoModel extends Model
         $builder = $db->table('productos p');
         $builder->select('p.*, s.nombre as subcategoria_nombre, c.nombre as categoria_nombre, c.id as categoria_id');
         $builder->join('subcategorias s', 'p.subcategoria_id = s.id', 'left');
-        $builder->join('categorias c', 's.categoria_id = c.id', 'left');
+        $builder->join('categorias c', 'p.categoria_id = c.id', 'left');
         
         // No filtrar por activo para permitir ver todos los productos
         // $builder->where('p.activo', 1);
@@ -85,6 +85,14 @@ class ProductoModel extends Model
         }
         
         $builder->orderBy('p.nombre', 'asc');
-        return $builder->get()->getResultArray();
+        $result = $builder->get()->getResultArray();
+        
+        // Asegurar que los campos nulos se manejen correctamente
+        foreach ($result as &$row) {
+            $row['categoria_nombre'] = $row['categoria_nombre'] ?? 'Sin categoría';
+            $row['subcategoria_nombre'] = $row['subcategoria_nombre'] ?? 'Sin subcategoría';
+        }
+        
+        return $result;
     }
 } 

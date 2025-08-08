@@ -12,7 +12,7 @@ class HistorialEstadosModel extends Model
     protected $table = 'historial_estados';
     protected $primaryKey = 'id';
     protected $allowedFields = [
-        'pedido_id', 'estado_anterior', 'estado_nuevo', 'fecha_cambio'
+        'pedido_id', 'estado_anterior', 'estado_nuevo', 'fecha_cambio', 'origen'
     ];
 
     /**
@@ -22,13 +22,14 @@ class HistorialEstadosModel extends Model
      * @param string $estadoNuevo
      * @return int|false
      */
-    public function registrarCambio(int $pedidoId, string $estadoAnterior, string $estadoNuevo)
+    public function registrarCambio(int $pedidoId, string $estadoAnterior, string $estadoNuevo, string $origen = 'Sistema')
     {
         return $this->insert([
             'pedido_id' => $pedidoId,
             'estado_anterior' => $estadoAnterior,
             'estado_nuevo' => $estadoNuevo,
-            'fecha_cambio' => date('Y-m-d H:i:s')
+            'fecha_cambio' => date('Y-m-d H:i:s'),
+            'origen' => $origen
         ]);
     }
 
