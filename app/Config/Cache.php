@@ -42,7 +42,7 @@ class Cache extends BaseConfig
      * This string is added to all cache item names to help avoid collisions
      * if you run multiple applications with the same cache engine.
      */
-    public string $prefix = 'aipotave_';
+    public string $prefix = '';
 
     /**
      * --------------------------------------------------------------------------
@@ -55,7 +55,7 @@ class Cache extends BaseConfig
      * hard-coded, but may be useful to projects and modules. This will replace
      * the hard-coded value in a future release.
      */
-    public int $ttl = 3600;
+    public int $ttl = 60;
 
     /**
      * --------------------------------------------------------------------------
@@ -82,7 +82,7 @@ class Cache extends BaseConfig
      */
     public array $file = [
         'storePath' => WRITEPATH . 'cache/',
-        'mode'      => 0644,
+        'mode'      => 0640,
     ];
 
     /**
