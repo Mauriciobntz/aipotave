@@ -1,4 +1,15 @@
 <div class="container-fluid mt-5 pt-5 mb-5">
+<style>
+/* Fondo claro para vista pública */
+body {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #f8f9fa 100%);
+    min-height: 100vh;
+}
+
+.container-fluid {
+    background: transparent;
+}
+</style>
     <div class="row">
         <div class="col-12">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">

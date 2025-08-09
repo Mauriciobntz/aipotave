@@ -1,4 +1,15 @@
 <div class="container mt-5 pt-5 mb-5">
+<style>
+/* Fondo claro para vista pública */
+body {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #f8f9fa 100%);
+    min-height: 100vh;
+}
+
+.container-fluid {
+    background: transparent;
+}
+</style>
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <!-- Progreso del checkout -->
@@ -22,6 +33,91 @@
             </div>
             
             <div class="row">
+                <!-- Formulario de envío -->
+                <div class="col-lg-7">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0 fw-bold">
+                                <i class="fas fa-truck me-2"></i>Datos de Entrega
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form action="<?= base_url('checkout/procesar') ?>" method="post" id="checkoutForm">
+                                <!-- Campos ocultos para coordenadas -->
+                                <input type="hidden" id="latitud" name="latitud" value="">
+                                <input type="hidden" id="longitud" name="longitud" value="">
+                                
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-6">
+                                        <label for="nombre" class="form-label">Nombre completo *</label>
+                                        <input type="text" class="form-control" id="nombre" name="nombre" required minlength="3" value="<?= old('nombre') ?>" inputmode="text" autocomplete="name">
+                                    </div>
+                                    
+                                    <div class="col-12 col-md-6">
+                                        <label for="celular" class="form-label">Celular *</label>
+                                        <input type="tel" class="form-control" id="celular" name="celular" required value="<?= old('celular') ?>" inputmode="tel" autocomplete="tel">
+                                    </div>
+                                    
+                                    <div class="col-12">
+                                        <label for="email" class="form-label">Correo electrónico</label>
+                                        <input type="email" class="form-control" id="email" name="email" value="<?= old('email') ?>" inputmode="email" autocomplete="email">
+                                    </div>
+                                    
+                                    <div class="col-12">
+                                        <label for="direccion" class="form-label">Dirección de entrega *</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="direccion" name="direccion" required value="<?= old('direccion') ?>" placeholder="Ingresa tu dirección o selecciónala en el mapa" inputmode="text" autocomplete="street-address">
+                                            <button type="button" class="btn btn-outline-secondary" onclick="obtenerUbicacionActual()">
+                                                <i class="fas fa-location-arrow me-1"></i>Mi Ubicación
+                                            </button>
+                                        </div>
+                                        <small class="text-muted">Selecciona tu ubicación exacta en el mapa para una entrega más precisa</small>
+                                    </div>
+                                    
+                                    <div class="col-12 col-md-6">
+                                        <label for="entre" class="form-label">Entre calles</label>
+                                        <input type="text" class="form-control" id="entre" name="entre" value="<?= old('entre') ?>" placeholder="Ej: Av. Corrientes y Av. Pueyrredón" inputmode="text">
+                                    </div>
+                                    
+                                    <div class="col-12 col-md-6">
+                                        <label for="referencia" class="form-label">Referencia</label>
+                                        <input type="text" class="form-control" id="referencia" name="referencia" value="<?= old('referencia') ?>" placeholder="Ej: Portón negro, timbre azul" inputmode="text">
+                                    </div>
+                                    
+                                    <div class="col-12">
+                                        <label class="form-label">Selecciona tu ubicación en el mapa</label>
+                                        <div id="map" style="height: 300px; width: 100%; border-radius: 8px; border: 1px solid #dee2e6;"></div>
+                                        <small class="text-muted">Haz clic en el mapa para marcar tu ubicación exacta</small>
+                                        
+                                    </div>
+                                    
+                                    <div class="col-12">
+                                        <label for="observaciones" class="form-label">Observaciones</label>
+                                        <textarea class="form-control" id="observaciones" name="observaciones" rows="3" placeholder="Ej: sin mayonesa, llamar al llegar, instrucciones especiales..."><?= old('observaciones') ?></textarea>
+                                    </div>
+                                    
+                                    <div class="col-12 col-md-6">
+                                        <label for="metodo_pago" class="form-label">Método de pago *</label>
+                                        <select class="form-select" id="metodo_pago" name="metodo_pago" required>
+                                            <option value="">Selecciona una opción</option>
+                                            <option value="efectivo" <?= old('metodo_pago') === 'efectivo' ? 'selected' : '' ?>>Efectivo</option>
+                                            <option value="transferencia" <?= old('metodo_pago') === 'transferencia' ? 'selected' : '' ?>>Transferencia</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-12 mt-4">
+                                        <div class="d-grid gap-2">
+                                            <button type="submit" class="btn btn-primary btn-lg btn-hover-effect checkout-confirm-btn">
+                                                <i class="fas fa-check-circle me-2"></i>Confirmar Datos
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Resumen del pedido -->
                 <div class="col-lg-5 mb-4">
                     <div class="card shadow-sm h-100 checkout-summary-card">
@@ -108,91 +204,7 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- Formulario de envío -->
-                <div class="col-lg-7">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-white">
-                            <h5 class="mb-0 fw-bold">
-                                <i class="fas fa-truck me-2"></i>Datos de Entrega
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <form action="<?= base_url('checkout/procesar') ?>" method="post" id="checkoutForm">
-                                <!-- Campos ocultos para coordenadas -->
-                                <input type="hidden" id="latitud" name="latitud" value="">
-                                <input type="hidden" id="longitud" name="longitud" value="">
-                                
-                                <div class="row g-3">
-                                    <div class="col-12 col-md-6">
-                                        <label for="nombre" class="form-label">Nombre completo *</label>
-                                        <input type="text" class="form-control" id="nombre" name="nombre" required minlength="3" value="<?= old('nombre') ?>" inputmode="text" autocomplete="name">
-                                    </div>
-                                    
-                                    <div class="col-12 col-md-6">
-                                        <label for="celular" class="form-label">Celular *</label>
-                                        <input type="tel" class="form-control" id="celular" name="celular" required value="<?= old('celular') ?>" inputmode="tel" autocomplete="tel">
-                                    </div>
-                                    
-                                    <div class="col-12">
-                                        <label for="email" class="form-label">Correo electrónico</label>
-                                        <input type="email" class="form-control" id="email" name="email" value="<?= old('email') ?>" inputmode="email" autocomplete="email">
-                                    </div>
-                                    
-                                    <div class="col-12">
-                                        <label for="direccion" class="form-label">Dirección de entrega *</label>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" id="direccion" name="direccion" required value="<?= old('direccion') ?>" placeholder="Ingresa tu dirección o selecciónala en el mapa" inputmode="text" autocomplete="street-address">
-                                            <button type="button" class="btn btn-outline-secondary" onclick="obtenerUbicacionActual()">
-                                                <i class="fas fa-location-arrow me-1"></i>Mi Ubicación
-                                            </button>
-                                        </div>
-                                        <small class="text-muted">Selecciona tu ubicación exacta en el mapa para una entrega más precisa</small>
-                                    </div>
-                                    
-                                    <div class="col-12 col-md-6">
-                                        <label for="entre" class="form-label">Entre calles</label>
-                                        <input type="text" class="form-control" id="entre" name="entre" value="<?= old('entre') ?>" placeholder="Ej: Av. Corrientes y Av. Pueyrredón" inputmode="text">
-                                    </div>
-                                    
-                                    <div class="col-12 col-md-6">
-                                        <label for="referencia" class="form-label">Referencia</label>
-                                        <input type="text" class="form-control" id="referencia" name="referencia" value="<?= old('referencia') ?>" placeholder="Ej: Portón negro, timbre azul" inputmode="text">
-                                    </div>
-                                    
-                                    <div class="col-12">
-                                        <label class="form-label">Selecciona tu ubicación en el mapa</label>
-                                        <div id="map" style="height: 300px; width: 100%; border-radius: 8px; border: 1px solid #dee2e6;"></div>
-                                        <small class="text-muted">Haz clic en el mapa para marcar tu ubicación exacta</small>
-                                        
-                                    </div>
-                                    
-                                    <div class="col-12">
-                                        <label for="observaciones" class="form-label">Observaciones</label>
-                                        <textarea class="form-control" id="observaciones" name="observaciones" rows="3" placeholder="Ej: sin mayonesa, llamar al llegar, instrucciones especiales..."><?= old('observaciones') ?></textarea>
-                                    </div>
-                                    
-                                    <div class="col-12 col-md-6">
-                                        <label for="metodo_pago" class="form-label">Método de pago *</label>
-                                        <select class="form-select" id="metodo_pago" name="metodo_pago" required>
-                                            <option value="">Selecciona una opción</option>
-                                            <option value="efectivo" <?= old('metodo_pago') === 'efectivo' ? 'selected' : '' ?>>Efectivo</option>
-                                            <option value="tarjeta" <?= old('metodo_pago') === 'tarjeta' ? 'selected' : '' ?>>Tarjeta</option>
-                                            <option value="transferencia" <?= old('metodo_pago') === 'transferencia' ? 'selected' : '' ?>>Transferencia</option>
-                                        </select>
-                                    </div>
-                                    
-                                    <div class="col-12 mt-4">
-                                        <div class="d-grid gap-2">
-                                            <button type="submit" class="btn btn-primary btn-lg btn-hover-effect checkout-confirm-btn">
-                                                <i class="fas fa-check-circle me-2"></i>Confirmar Datos
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+            </div>
                 </div>
             </div>
         </div>

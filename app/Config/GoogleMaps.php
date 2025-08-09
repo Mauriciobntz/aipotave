@@ -21,7 +21,7 @@ class GoogleMaps extends BaseConfig
         parent::__construct();
         
         // Intentar obtener la API key desde variables de entorno
-        $this->apiKey = env('GOOGLE_MAPS_API_KEY', 'AIzaSyBCnIKlDT5Ejj-Uoj1cL0nw2aHEaQOFrAs');
+        $this->apiKey = env('GOOGLE_MAPS_API_KEY');
     }
 
     /**

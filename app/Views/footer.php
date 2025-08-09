@@ -78,6 +78,21 @@
                         </li>
                     <?php endif; ?>
                 </ul>
+                
+                <!-- Enlaces Legales -->
+                <h6 class="footer-title mb-3 mt-4" style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.7);">Información Legal</h6>
+                <ul class="footer-links">
+                    <li class="footer-link-item">
+                        <a href="<?= base_url('legal/terminos') ?>" class="footer-link">
+                            <i class="fas fa-file-contract me-2"></i>Términos de Uso
+                        </a>
+                    </li>
+                    <li class="footer-link-item">
+                        <a href="<?= base_url('legal/privacidad') ?>" class="footer-link">
+                            <i class="fas fa-shield-alt me-2"></i>Política de Privacidad
+                        </a>
+                    </li>
+                </ul>
             </div>
             
             <div class="col-lg-4 col-md-4">
@@ -539,6 +554,13 @@ document.addEventListener('DOMContentLoaded', function() {
 @keyframes heartbeat {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.2); }
+}
+
+/* Responsive para enlaces legales */
+@media (max-width: 767.98px) {
+    .footer-links {
+        text-align: center;
+    }
 }
 
 /* Botón Back to Top */

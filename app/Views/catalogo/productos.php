@@ -1,4 +1,15 @@
 <div class="container-fluid mt-4 mb-5">
+<style>
+/* Fondo claro para vista pública */
+body {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #f8f9fa 100%);
+    min-height: 100vh;
+}
+
+.container-fluid {
+    background: transparent;
+}
+</style>
     <!-- Hero Section -->
     <div class="row mb-5" data-aos="fade-up">
         <div class="col-12 text-center">

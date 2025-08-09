@@ -1,4 +1,15 @@
 <div class="container mt-5">
+<style>
+/* Fondo claro para vista pública */
+body {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #f8f9fa 100%);
+    min-height: 100vh;
+}
+
+.container-fluid {
+    background: transparent;
+}
+</style>
     <h1 class="mb-4">
         <i class="fas fa-truck me-2 text-primary"></i>Seguimiento de Pedido
     </h1>

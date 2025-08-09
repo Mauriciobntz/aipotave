@@ -14,12 +14,6 @@ $routes->group('api', function($routes) {
     $routes->get('pedidos/(:segment)/estado', 'Api\PedidoController::obtenerEstado/$1');
 });
 
-//######################## Rutas Debug ########################
-$routes->get('debug/detalles/(:num)', 'DebugController::debugDetalles/$1');
-$routes->get('debug/detalles', 'DebugController::debugDetalles');
-$routes->get('debug/pedidos', 'DebugController::debugTodosPedidos');
-$routes->get('debug/estructura', 'DebugController::debugEstructura');
-
 //######################## Rutas Menu ########################
 $routes->get('/', 'MenuController::index');
 $routes->get('producto/(:num)', 'MenuController::producto/$1');
@@ -47,11 +41,6 @@ $routes->get('pedido/seguimiento', 'PedidoController::index');
 $routes->get('seguimiento', 'SeguimientoController::seguimiento');
 $routes->get('seguimiento/(:segment)', 'SeguimientoController::seguimiento/$1');
 $routes->get('api/seguimiento/ubicacion/(:num)', 'SeguimientoController::ubicacionRepartidor/$1');
-$routes->get('api/seguimiento/pedido/(:segment)', 'SeguimientoController::infoPedido/$1');
-
-//######################## Rutas Calificaciones ########################
-$routes->get('calificar/(:segment)', 'CalificacionController::calificar/$1');
-$routes->post('calificar/procesar', 'CalificacionController::procesarCalificacion');
 
 //######################## Rutas de administrador (requieren rol admin) ########################
 
@@ -233,5 +222,9 @@ $routes->get('denegado', 'AuthController::denegado');
 
 // Ruta temporal para actualizar categorías de productos
 $routes->get('actualizar-categorias', 'Home::actualizarCategorias');
+
+//######################## Rutas Legales ########################
+$routes->get('legal/terminos', 'LegalController::terminos');
+$routes->get('legal/privacidad', 'LegalController::privacidad');
 
 

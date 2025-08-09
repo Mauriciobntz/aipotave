@@ -1,4 +1,15 @@
 <div class="container mt-5 pt-5 mb-5">
+<style>
+/* Fondo claro para vista pública */
+body {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #f8f9fa 100%);
+    min-height: 100vh;
+}
+
+.container-fluid {
+    background: transparent;
+}
+</style>
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card shadow-lg border-0 border-success border-3 checkout-exito-card animate__animated animate__fadeIn">
