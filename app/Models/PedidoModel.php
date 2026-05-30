@@ -95,13 +95,13 @@ class PedidoModel extends Model
     }
 
     /**
-     * Genera un código de seguimiento único.
+     * Genera un código de seguimiento único que inicia con "PED".
      * @return string
      */
     public function generarCodigoSeguimiento(): string
     {
         do {
-            $codigo = strtoupper(substr(md5(uniqid()), 0, 8));
+            $codigo = 'PED' . strtoupper(substr(md5(uniqid()), 0, 5));
         } while ($this->where('codigo_seguimiento', $codigo)->first());
         
         return $codigo;

@@ -1,0 +1,244 @@
+CRITICAL - 2025-08-10 02:14:00 --> CodeIgniter\HTTP\Exceptions\BadRequestException: The URI you submitted has disallowed characters: "$"
+[Method: GET, Route: producto/detalle/$]
+in SYSTEMPATH/Router/Router.php on line 741.
+ 1 SYSTEMPATH/Router/Router.php(207): CodeIgniter\Router\Router->checkDisallowedChars()
+ 2 SYSTEMPATH/CodeIgniter.php(832): CodeIgniter\Router\Router->handle()
+ 3 SYSTEMPATH/CodeIgniter.php(455): CodeIgniter\CodeIgniter->tryToRouteIt()
+ 4 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 5 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 7 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:39:31 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:39:37 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:39:42 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:40:22 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:40:27 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:40:33 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:42:27 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:42:32 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:42:37 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:44:02 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:44:07 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:44:12 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:45:48 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:45:53 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:45:59 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:55:37 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:55:42 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:55:47 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:56:47 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:56:52 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+CRITICAL - 2025-08-10 14:56:57 --> CodeIgniter\HTTP\Exceptions\HTTPException: Failed to parse JSON string. Error: Control character error, possibly incorrectly encoded
+[Method: POST, Route: api/pedidos/estado/actualizar]
+in SYSTEMPATH/HTTP/IncomingRequest.php on line 534.
+ 1 SYSTEMPATH/HTTP/IncomingRequest.php(534): CodeIgniter\HTTP\Exceptions\HTTPException::forInvalidJSON()
+ 2 APPPATH/Controllers/Api/PedidoController.php(38): CodeIgniter\HTTP\IncomingRequest->getJSON()
+ 3 SYSTEMPATH/CodeIgniter.php(933): App\Controllers\Api\PedidoController->actualizarEstado()
+ 4 SYSTEMPATH/CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController()
+ 5 SYSTEMPATH/CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest()
+ 6 SYSTEMPATH/Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 7 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 8 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ERROR - 2025-08-10 16:22:44 --> CheckoutController::procesar - Error al insertar detalle: {"pedido_id":24,"producto_id":"10","combo_id":null,"cantidad":1,"precio_unitario":"7500.00","observaciones":null}
+ERROR - 2025-08-10 16:22:44 --> CheckoutController::procesar - Error al insertar detalle: {"pedido_id":24,"producto_id":"1","combo_id":null,"cantidad":1,"precio_unitario":"7000.00","observaciones":null}
+ERROR - 2025-08-10 16:22:44 --> CheckoutController::procesar - Error al insertar detalle: {"pedido_id":24,"producto_id":"8","combo_id":null,"cantidad":1,"precio_unitario":"6500.00","observaciones":null}

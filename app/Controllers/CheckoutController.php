@@ -147,8 +147,8 @@ class CheckoutController extends Controller
             }
         }
 
-        // Generar código de seguimiento único
-        $codigoSeguimiento = strtoupper(bin2hex(random_bytes(4)));
+        // Generar código de seguimiento único que inicie con "PED"
+        $codigoSeguimiento = 'PED' . strtoupper(bin2hex(random_bytes(3)));
 
         // Calcular totales
         $subtotal = 0;
@@ -239,7 +239,7 @@ class CheckoutController extends Controller
 
         // Redirigir a página de éxito con código de seguimiento y método de pago
         $metodo_pago = $request->getPost('metodo_pago');
-        $whatsapp = '543794942627'; // Cambia este número por el de tu empresa
+        $whatsapp = get_whatsapp(); // Cambia este número por el de tu empresa
         return redirect()->to(base_url('checkout/exito/' . $codigoSeguimiento . '?metodo_pago=' . $metodo_pago . '&whatsapp=' . $whatsapp));
     }
 

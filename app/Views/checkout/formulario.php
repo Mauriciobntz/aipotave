@@ -49,18 +49,13 @@ body {
                                 
                                 <div class="row g-3">
                                     <div class="col-12 col-md-6">
-                                        <label for="nombre" class="form-label">Nombre completo *</label>
+                                        <label for="nombre" class="form-label">Nombre *</label>
                                         <input type="text" class="form-control" id="nombre" name="nombre" required minlength="3" value="<?= old('nombre') ?>" inputmode="text" autocomplete="name">
                                     </div>
                                     
                                     <div class="col-12 col-md-6">
                                         <label for="celular" class="form-label">Celular *</label>
                                         <input type="tel" class="form-control" id="celular" name="celular" required value="<?= old('celular') ?>" inputmode="tel" autocomplete="tel">
-                                    </div>
-                                    
-                                    <div class="col-12">
-                                        <label for="email" class="form-label">Correo electrónico</label>
-                                        <input type="email" class="form-control" id="email" name="email" value="<?= old('email') ?>" inputmode="email" autocomplete="email">
                                     </div>
                                     
                                     <div class="col-12">
@@ -72,11 +67,6 @@ body {
                                             </button>
                                         </div>
                                         <small class="text-muted">Selecciona tu ubicación exacta en el mapa para una entrega más precisa</small>
-                                    </div>
-                                    
-                                    <div class="col-12 col-md-6">
-                                        <label for="entre" class="form-label">Entre calles</label>
-                                        <input type="text" class="form-control" id="entre" name="entre" value="<?= old('entre') ?>" placeholder="Ej: Av. Corrientes y Av. Pueyrredón" inputmode="text">
                                     </div>
                                     
                                     <div class="col-12 col-md-6">
@@ -104,14 +94,16 @@ body {
                                             <option value="transferencia" <?= old('metodo_pago') === 'transferencia' ? 'selected' : '' ?>>Transferencia</option>
                                         </select>
                                     </div>
-                                    
-                                    <div class="col-12 mt-4">
+                                
+                                                                <div class="col-12 mt-4">
                                         <div class="d-grid gap-2">
                                             <button type="submit" class="btn btn-primary btn-lg btn-hover-effect checkout-confirm-btn">
                                                 <i class="fas fa-check-circle me-2"></i>Confirmar Datos
                                             </button>
                                         </div>
-                                    </div>
+                                </div>
+  
+                                    
                                 </div>
                             </form>
                         </div>
@@ -159,8 +151,7 @@ body {
                                         </tr>
                                         <?php endforeach; ?>
                                     </tbody>
-                                </table>
-                            </div>
+                                </table>                            </div>
                             
                             <div class="border-top pt-3 checkout-totals">
                                 <div class="row mb-2 checkout-total-row">
@@ -199,6 +190,11 @@ body {
                                     <div class="col-6 text-end">
                                         <span class="fw-bold fs-5 text-primary checkout-total-final">$<?= number_format($subtotal, 2) ?></span>
                                     </div>
+                                    
+                                                                    
+
+
+
                                 </div>
                             </div>
                         </div>

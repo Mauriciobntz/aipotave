@@ -1,4 +1,4 @@
-<div class="container-fluid mt-4 mb-5">
+<div class="container-fluid mt-5 pt-5 mb-5">
 <style>
 /* Fondo claro para vista pública */
 body {

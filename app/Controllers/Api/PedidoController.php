@@ -24,10 +24,9 @@ class PedidoController extends ResourceController
     /**
      * Actualiza el estado de un pedido a través de la API
      * 
-     * @param string $codigo_seguimiento
      * @return Response
      */
-    public function actualizarEstado($codigo_seguimiento)
+    public function actualizarEstado()
     {
         // Verificar API key
         $apiKey = $this->request->getHeaderLine('X-API-Key');
@@ -35,16 +34,22 @@ class PedidoController extends ResourceController
             return $this->failUnauthorized('API key inválida');
         }
 
-        // Validar que el pedido existe
-        $pedido = $this->pedidoModel->getByCodigoSeguimiento($codigo_seguimiento);
-        if (!$pedido) {
-            return $this->failNotFound('Pedido no encontrado');
-        }
-
-        // Obtener el nuevo estado del body
+        // Obtener datos del body
         $json = $this->request->getJSON();
+        
+        // Validar que el código del pedido esté en el body
+        if (!isset($json->codigo_pedido)) {
+            return $this->fail('El campo codigo_pedido es requerido', 400);
+        }
+        
         if (!isset($json->estado)) {
             return $this->fail('El campo estado es requerido', 400);
+        }
+
+        // Validar que el pedido existe
+        $pedido = $this->pedidoModel->getByCodigoSeguimiento($json->codigo_pedido);
+        if (!$pedido) {
+            return $this->failNotFound('Pedido no encontrado');
         }
 
         $nuevoEstado = $json->estado;
@@ -73,7 +78,7 @@ class PedidoController extends ResourceController
                     'message' => 'Estado actualizado correctamente',
                     'data' => [
                         'pedido_id' => $pedido['id'],
-                        'codigo_seguimiento' => $codigo_seguimiento,
+                        'codigo_seguimiento' => $json->codigo_pedido,
                         'estado_anterior' => $pedido['estado'],
                         'estado_nuevo' => $nuevoEstado,
                         'fecha_actualizacion' => date('Y-m-d H:i:s')
@@ -94,10 +99,9 @@ class PedidoController extends ResourceController
     /**
      * Obtiene el estado actual de un pedido
      * 
-     * @param string $codigo_seguimiento
      * @return Response
      */
-    public function obtenerEstado($codigo_seguimiento)
+    public function obtenerEstado()
     {
         // Verificar API key
         $apiKey = $this->request->getHeaderLine('X-API-Key');
@@ -105,8 +109,16 @@ class PedidoController extends ResourceController
             return $this->failUnauthorized('API key inválida');
         }
 
+        // Obtener datos del body
+        $json = $this->request->getJSON();
+        
+        // Validar que el código del pedido esté en el body
+        if (!isset($json->codigo_pedido)) {
+            return $this->fail('El campo codigo_pedido es requerido', 400);
+        }
+
         // Buscar el pedido
-        $pedido = $this->pedidoModel->getByCodigoSeguimiento($codigo_seguimiento);
+        $pedido = $this->pedidoModel->getByCodigoSeguimiento($json->codigo_pedido);
         if (!$pedido) {
             return $this->failNotFound('Pedido no encontrado');
         }
@@ -116,7 +128,7 @@ class PedidoController extends ResourceController
             'status' => 'success',
             'data' => [
                 'pedido_id' => $pedido['id'],
-                'codigo_seguimiento' => $codigo_seguimiento,
+                'codigo_seguimiento' => $json->codigo_pedido,
                 'estado' => $pedido['estado'],
                 'fecha_actualizacion' => $pedido['fecha']
             ]
@@ -133,8 +145,8 @@ class PedidoController extends ResourceController
      */
     private function validarApiKey($apiKey)
     {
-        // Obtener la API key válida del archivo de configuración
-        $validApiKey = getenv('api.key') ?: config('App')->apiKey;
+        // Obtener la API key válida del archivo .env
+        $validApiKey = env('api.key');
         
         return hash_equals($validApiKey, $apiKey);
     }

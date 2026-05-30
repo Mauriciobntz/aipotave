@@ -66,7 +66,7 @@ class SeguimientoController extends Controller
         // Obtener detalles del pedido
         $detalleModel = new \App\Models\DetallePedidoModel();
         $detalles = $detalleModel->getDetallesConInfo($pedido['id']);
-        $whatsapp = '543794942627'; // Número fijo igual que en exito.php
+        $whatsapp = get_whatsapp(); // Obtiene el número desde la configuración
         $data = [
             'title' => 'Seguimiento del Pedido',
             'pedido' => $pedido,

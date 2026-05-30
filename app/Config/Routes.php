@@ -10,9 +10,10 @@ use CodeIgniter\Router\RouteCollection;
 //######################## Rutas API ########################
 $routes->group('api', function($routes) {
     // Rutas para pedidos
-    $routes->match(['put', 'post'], 'pedidos/(:segment)/estado', 'Api\PedidoController::actualizarEstado/$1');
-    $routes->get('pedidos/(:segment)/estado', 'Api\PedidoController::obtenerEstado/$1');
+    $routes->post('pedidos/estado/actualizar', 'Api\PedidoController::actualizarEstado');
+    $routes->post('pedidos/estado/obtener', 'Api\PedidoController::obtenerEstado');
 });
+
 
 //######################## Rutas Menu ########################
 $routes->get('/', 'MenuController::index');

@@ -296,12 +296,14 @@ if (!empty($detalles)) {
     }
 }
 $totalMsg = isset($pedido['total']) ? '$' . number_format($pedido['total'], 2) : '';
+$envioMsg = isset($pedido['costo_envio']) ? '$' . number_format($pedido['costo_envio'], 2) : '';
 $direccionMsg = $pedido['direccion_entrega'] ?? '';
 $metodoPagoMsg = ucfirst($pedido['metodo_pago'] ?? '');
 $obsMsg = $pedido['observaciones'] ?? '';
 $mensajeWA =
     "Confirmación de Pedido #{$pedido['codigo_seguimiento']}\n\n" .
     "Detalle del pedido:\n" . $productosMsg . "\n" .
+    ($envioMsg !== '' ? "Envío: {$envioMsg}\n" : '') .
     "Total: {$totalMsg}\n" .
     "Entrega en: {$direccionMsg}\n" .
     "Pago: {$metodoPagoMsg}";
@@ -320,6 +322,8 @@ $mensajeWA .= "\n\nSeguimiento: " . base_url("seguimiento/{$pedido['codigo_segui
     <div class="text-muted mt-2 small">Presiona el botón para confirmar tu pedido y recibir asistencia personalizada.</div>
 </div>
 <?php endif; ?>
+
+</div>
 
 <script>
 let map;

@@ -32,14 +32,17 @@ body {
                         }
                     }
 
+                    $envioMsg = isset($pedido['costo_envio']) ? '$' . number_format($pedido['costo_envio'], 2) : '';
                     $totalMsg = isset($pedido['total']) ? '$' . number_format($pedido['total'], 2) : '';
                     $direccionMsg = $pedido['direccion_entrega'] ?? ($direccion ?? '');
                     $metodoPagoMsg = ucfirst($pedido['metodo_pago'] ?? ($metodo_pago ?? ''));
                     $obsMsg = $pedido['observaciones'] ?? '';
 
                     $mensajeWA =
-                        "Confirmación de Pedido #{$codigo}\n\n" .
-                        "Detalle del pedido:\n" . $productosMsg . "\n" .
+                        "Confirmación de Pedido #{$codigo}" .
+                        "\n\nDetalle del pedido:\n" . $productosMsg . "\n" .
+                        ($envioMsg !== '' ? "Envío: {$envioMsg}\n" : '') .
+
                         "Total: {$totalMsg}\n" .
                         "Entrega en: {$direccionMsg}\n" .
                         "Pago: {$metodoPagoMsg}";

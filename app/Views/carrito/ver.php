@@ -605,6 +605,12 @@ document.addEventListener('DOMContentLoaded', function() {
     line-height: 1.3;
 }
 
+@media (max-width: 767.98px) {
+    .carrito-acciones {
+        display: none !important;
+    }
+}
+
 .carrito-item-badge-combo {
     background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
     color: white;
